@@ -1,5 +1,5 @@
 const express = require('express');
-const { db, nowIso } = require('../db');
+const { db, nowIso, TASHKENT_SQL_OFFSET } = require('../db');
 const { asyncRoute } = require('../routeUtils');
 
 const router = express.Router();
@@ -18,7 +18,12 @@ router.post('/', asyncRoute((req, res) => {
   const { amount, expense_date, note, category } = req.body || {};
   const amountNum = Number(amount);
   if (!Number.isFinite(amountNum) || amountNum <= 0) return res.status(400).json({ error: "Summani to'g'ri kiriting" });
-  const date = expense_date && String(expense_date).trim() ? String(expense_date).trim() : nowIso().slice(0, 10);
+  // Standart sana — ko'rsatilmasa, Toshkent (UTC+5) bo'yicha "bugun" (2026-10-10
+  // auditida topilgan: ilgari nowIso().slice(0,10) UTC kunini olardi — mahalliy
+  // soat 00:00-04:59 oralig'ida xarajat qo'shilsa, "kechagi kun"ga yozilib qolardi).
+  const date = expense_date && String(expense_date).trim()
+    ? String(expense_date).trim()
+    : db.prepare(`SELECT date('now', '${TASHKENT_SQL_OFFSET}') AS d`).get().d;
   const info = db
     .prepare(
       `INSERT INTO expenses (amount, expense_date, note, category, created_by, created_at)

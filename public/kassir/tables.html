@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>Stollar — Kassa — Ziyo Famliy</title>
-<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="../style.css?v=202610281339">
 <link rel="manifest" href="../manifest.json">
 <link rel="icon" href="../icon.svg">
 </head>
@@ -12,6 +12,7 @@
   <div class="app-shell">
     <nav class="bottom-nav" id="bottomNav">
       <a href="tables.html" data-page="tables"><span class="ic">🪑</span>Stollar</a>
+      <a href="customer-orders.html" data-page="customer-orders"><span class="ic">🧾</span>Buyurtmalar</a>
       <a href="stats.html" data-page="stats"><span class="ic">📈</span>Statistika</a>
       <a href="manual.html" data-page="manual"><span class="ic">🧮</span>Hisoblash</a>
     </nav>
@@ -21,11 +22,19 @@
         <button class="logout-btn" id="logoutBtn">Chiqish</button>
       </div>
       <main>
-        <div id="tableGrid" class="table-grid"><p class="dim">Yuklanmoqda...</p></div>
+        <div id="pendingBillsSection" style="display:none;">
+          <div class="card-title">🧾 Kassada kutayotgan hisoblar</div>
+          <div id="pendingBillsList" class="mt-8"></div>
+        </div>
+        <div class="card-title mt-8">Stollar</div>
+        <div id="tableGrid"><p class="dim">Yuklanmoqda...</p></div>
       </main>
     </div>
   </div>
-  <script src="../app.js" data-api-base="../"></script>
-  <script src="tables.js"></script>
+  <script src="../app.js?v=202610281339" data-api-base="../"></script>
+  <script src="../app-print.js?v=202610281339"></script>
+  <script src="../app-notify.js?v=202610281339"></script>
+  <script src="shift-ui.js?v=202610281339"></script>
+  <script src="tables.js?v=202610281339"></script>
 </body>
 </html>

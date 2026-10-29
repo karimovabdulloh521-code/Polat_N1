@@ -13,9 +13,14 @@
 // TAYYOR bo'lib, afitsiant "Qabul qildim" bossa (order_items.picked_up_at,
 // server/routes/waiterNotifications.js) — taom shu ro'yxatdan ham YO'QOLADI
 // (afitsiant qabul qilgach oshpazga endi kerak emas).
+//
+// Shu faylda yana ikki xil tarmoq-printer navbati ham bor (pastga qarang):
+// `kitchen-tickets/*` (oshxona, narxsiz) va `cashier-receipts/*` (kassa, narx
+// bilan) — ikkalasi ham `print-agent.js` (alohida Node skript, oshpaz hisobi
+// bilan kiradi) tomonidan bir xil printer manziliga chop etiladi.
 const express = require('express');
 const { db, nowIso } = require('../db');
-const { listTablesOverview, buildOrderView } = require('../services/orders');
+const { listTablesOverview, buildOrderView, getReceipt } = require('../services/orders');
 const { asyncRoute } = require('../routeUtils');
 
 const router = express.Router();
@@ -66,6 +71,63 @@ router.put('/items/:id/ready', asyncRoute((req, res) => {
   }
 
   res.json({ ok: true, ready });
+}));
+
+// Oshxona printeriga avtomatik chop etilishi kerak bo'lgan cheklar (2026-09-20,
+// server/services/orders.js'dagi sendPendingItems()). Oshpaz kompyuteridagi
+// kitchen.html sahifasi buni poll qilib, QZ Tray orqali darhol chop etadi —
+// hech qanday tugma yo'q (public/app.js, initChefKitchenTicketPrinting()).
+router.get('/kitchen-tickets/pending', asyncRoute((req, res) => {
+  const tickets = db.prepare('SELECT * FROM kitchen_tickets WHERE printed_at IS NULL ORDER BY id ASC').all();
+  const itemsStmt = db.prepare(
+    'SELECT name_snapshot, quantity, note FROM kitchen_ticket_items WHERE kitchen_ticket_id = ? ORDER BY id ASC'
+  );
+  res.json(tickets.map((t) => ({ ...t, items: itemsStmt.all(t.id) })));
+}));
+
+router.post('/kitchen-tickets/:id/printed', asyncRoute((req, res) => {
+  const ticket = db.prepare('SELECT * FROM kitchen_tickets WHERE id = ?').get(req.params.id);
+  if (!ticket) return res.status(404).json({ error: 'Chek topilmadi' });
+  db.prepare('UPDATE kitchen_tickets SET printed_at = ? WHERE id = ?').run(nowIso(), req.params.id);
+  res.json({ ok: true });
+}));
+
+// Kassa (afitsiant stolni yopganda yoziladigan print_requests, server/services/
+// orders.js'dagi closeTable()) navbati — 2026-10-03'da qo'shildi: ilgari faqat
+// admin brauzeri (QZ Tray, public/app.js initAdminPrintRequests) ko'rar edi,
+// endi bitta tarmoq printeriga (oshxona bilan BIR XIL manzilga) avtomatik chop
+// etish uchun ham ochiq (print-agent.js). Narx bilan to'liq chek kerak bo'lgani
+// uchun getReceipt() orqali qurilgan to'liq view qaytariladi (kitchen-tickets'dan
+// farqli — u yerda narx umuman yo'q).
+router.get('/cashier-receipts/pending', asyncRoute((req, res) => {
+  const rows = db.prepare('SELECT * FROM print_requests WHERE printed_at IS NULL ORDER BY id ASC').all();
+  res.json(rows.map((pr) => {
+    const view = getReceipt(pr.order_id);
+    const activeItems = view.items.filter((it) => it.status === 'active');
+    return {
+      id: pr.id,
+      order_id: pr.order_id,
+      created_at: pr.created_at,
+      table_name: view.order.table_name,
+      closed_at: view.order.closed_at || view.order.opened_at,
+      total: view.total,
+      items: activeItems.map((it) => ({
+        name_snapshot: it.name_snapshot,
+        quantity: it.quantity,
+        subtotal: it.subtotal,
+      })),
+    };
+  }));
+}));
+
+router.post('/cashier-receipts/:id/printed', asyncRoute((req, res) => {
+  const row = db.prepare('SELECT * FROM print_requests WHERE id = ?').get(req.params.id);
+  if (!row) return res.status(404).json({ error: "So'rov topilmadi" });
+  if (!row.printed_at) {
+    const name = req.user.full_name || req.user.username;
+    db.prepare('UPDATE print_requests SET printed_at = ?, printed_by = ? WHERE id = ?').run(nowIso(), name, req.params.id);
+  }
+  res.json({ ok: true });
 }));
 
 router.put('/orders/:id/status', asyncRoute((req, res) => {

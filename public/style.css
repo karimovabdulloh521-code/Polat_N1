@@ -74,7 +74,12 @@ input, select, textarea, button { font-size: 16px; } /* iOS zoom oldini olish */
 /* ---------------- Login ---------------- */
 
 .login-body {
-  height: 100vh; display: flex; align-items: center; justify-content: center;
+  /* `100vh` mobil brauzerda manzil paneli ko'rinib/yashiringanda (yoki
+     klaviatura ochilganda) qayta hisoblanib, markazlashtirilgan kartani
+     "sakratib" turardi. `svh` (small viewport height) doim ENG KICHIK
+     mumkin bo'lgan balandlikka tenglashadi — panel holatidan qat'iy nazar
+     o'zgarmaydi, shuning uchun karta bir joyda barqaror turadi. */
+  min-height: 100svh; display: flex; align-items: center; justify-content: center;
   background-image: radial-gradient(640px 400px at 50% 4%, rgba(201, 162, 39, 0.22), transparent 70%);
 }
 .login-wrap { width: 100%; max-width: 360px; padding: 24px; }
@@ -107,25 +112,40 @@ input, select, textarea, button { font-size: 16px; } /* iOS zoom oldini olish */
 }
 .login-boot .dim { color: var(--text-dim); font-size: 14px; margin-top: 6px; }
 .login-label { font-size: 12px; color: var(--text-faint); margin-top: 10px; text-transform: uppercase; letter-spacing: 0.06em; }
-.login-card input {
-  padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border);
-  background: rgba(0, 0, 0, 0.2); color: var(--text); outline: none;
+.input-field {
+  position: relative; display: flex; align-items: center;
+  border-radius: 999px; border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.2);
   transition: border-color .15s var(--ease), box-shadow .15s var(--ease);
 }
-.login-card input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-light); }
-.login-card button {
-  margin-top: 12px; padding: 13px; border-radius: var(--radius-sm); border: none;
+.input-field:focus-within { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-light); }
+.login-card input {
+  flex: 1; width: 100%; min-width: 0; padding: 13px 44px 13px 18px;
+  border: none; background: transparent; color: var(--text); outline: none; font-size: 15px;
+}
+.input-icon {
+  position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+  display: flex; color: var(--text-faint); pointer-events: none;
+}
+.password-toggle-btn {
+  position: absolute; right: 2px; top: 50%; transform: translateY(-50%);
+  width: 44px; height: 44px; border: none; background: transparent; cursor: pointer; padding: 0;
+  display: flex; align-items: center; justify-content: center; color: var(--text-faint);
+}
+.password-toggle-btn:active { transform: translateY(-50%) scale(0.92); }
+.login-card button[type="submit"] {
+  margin-top: 12px; padding: 14px; border-radius: 999px; border: none;
   background: linear-gradient(155deg, var(--gold-2), var(--gold-dark)); color: #1b1812; font-weight: 700;
   letter-spacing: 0.03em; text-transform: uppercase; font-size: 13px;
   box-shadow: var(--shadow-md);
   transition: transform .15s var(--ease), box-shadow .15s var(--ease), filter .15s var(--ease);
 }
-.login-card button:active { transform: scale(0.98); filter: brightness(0.95); }
+.login-card button[type="submit"]:active { transform: scale(0.98); filter: brightness(0.95); }
 .error-msg { color: var(--danger); font-size: 14px; min-height: 18px; }
 
 /* ---------------- App shell ---------------- */
 
-.app-body { padding-bottom: calc(var(--nav-h) + 16px); min-height: 100vh; }
+.app-body { padding-bottom: calc(var(--nav-h) + 16px + env(safe-area-inset-bottom)); min-height: 100vh; }
 
 .topbar {
   position: sticky; top: 0; z-index: 10;
@@ -144,6 +164,14 @@ input, select, textarea, button { font-size: 16px; } /* iOS zoom oldini olish */
   transition: border-color .15s var(--ease), color .15s var(--ease);
 }
 .topbar .logout-btn:active { border-color: var(--gold); color: var(--gold-2); }
+
+/* Kassir smenasi banneri (kassir/shift-ui.js) — topbar'dan keyin, har
+   kassir sahifasida (tables/order/manual) ko'rinadi. */
+.shift-banner {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 10px 16px; background: var(--bg-elev); border-bottom: 1px solid var(--border);
+  font-size: 13px; color: var(--text-dim);
+}
 
 /* Sidebar (>=720px) uchun "☰ Menyu" ochish tugmasi — app.js/initNavToggle()
    tomonidan har admin sahifada topbar'ga dinamik qo'shiladi. Mobil pastki
@@ -164,10 +192,12 @@ input, select, textarea, button { font-size: 16px; } /* iOS zoom oldini olish */
 }
 .nav-backdrop.open { opacity: 1; pointer-events: auto; }
 
-main { max-width: 900px; margin: 0 auto; padding: 16px; }
+main { max-width: 1600px; margin: 0 auto; padding: 16px; }
 
 .bottom-nav {
-  position: fixed; left: 0; right: 0; bottom: 0; height: var(--nav-h);
+  position: fixed; left: 0; right: 0; bottom: 0;
+  height: calc(var(--nav-h) + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
   background: rgba(20, 18, 14, 0.92); backdrop-filter: blur(10px);
   border-top: 1px solid var(--border);
   box-shadow: 0 -8px 20px -8px rgba(0, 0, 0, 0.5);
@@ -197,7 +227,7 @@ main { max-width: 900px; margin: 0 auto; padding: 16px; }
   .bottom-nav a { flex-direction: row; justify-content: flex-start; gap: 10px; padding: 10px 20px; font-size: 14px; }
   .nav-toggle-btn { display: inline-flex; align-items: center; }
   .app-shell { display: flex; }
-  main { flex: 1; padding: 24px; margin: 0; max-width: 900px; }
+  main { flex: 1; padding: 24px; margin: 0; max-width: 1600px; }
   .app-body { padding-bottom: 0; }
 }
 
@@ -208,14 +238,48 @@ main { max-width: 900px; margin: 0 auto; padding: 16px; }
   border: 1px solid var(--border); border-radius: var(--radius);
   padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow-sm);
 }
-.card-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.card-row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; }
 .card-title { font-family: var(--serif); font-weight: 600; letter-spacing: 0.01em; }
 .card-sub { color: var(--text-dim); font-size: 13px; margin-top: 2px; }
+.card-title.menu-cat-toggle { cursor: pointer; user-select: none; display: flex; align-items: center; gap: 6px; }
+.card-title.menu-cat-toggle .cat-chevron { display: inline-block; width: 12px; flex-shrink: 0; color: var(--text-dim); font-size: 12px; }
+
+.category-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; align-items: start; }
+.category-grid .card { margin-bottom: 0; }
+/* Ochilgan kategoriya butun qator kengligini egallaydi — ichidagi taom
+   ustunlari (ko'p bo'lganda) kartochka chegarasidan tashqariga "toshib"
+   chiqib, osilib qolgan ko'rinishda bo'lmasligi uchun (2026-09-27). */
+.category-grid .card.card-open { grid-column: 1 / -1; }
+
+/* Kategoriya ochilganda taomlar — mobilda/tor joyda oddiy ro'yxat (bitta
+   ustun, JS hech narsa qilmaydi). Keng joyda `menu.js`dagi
+   layoutMasonryColumns() har bir taom blokini eng qisqa ustunga qo'yib
+   chiqadi (haqiqiy masonry) — CSS'ning tayyor multi-column'i taomlar
+   balandligi har xil bo'lgani (ba'zisida ko'p "turi" bor) uchun katta
+   bo'sh joy qoldirib qo'yayotgan edi, shu sabab JS'ga o'tkazildi
+   (2026-09-27). `.menu-items-columns-js`/`.menu-items-col` — shu JS
+   natijasida qo'shiladigan klasslar. */
+.menu-item-block { min-width: 0; }
+.menu-items-columns.menu-items-columns-js { display: flex; align-items: flex-start; gap: 24px; }
+.menu-items-col { flex: 1 1 0; min-width: 0; }
 
 .badge { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 11px; font-weight: 600; letter-spacing: 0.02em; }
 .badge.low { background: var(--danger-light); color: var(--danger); }
 .badge.ok { background: var(--ok-light); color: var(--ok); }
 .badge.debt { background: var(--warn-light); color: var(--warn); }
+
+/* Ombor sahifasi — mahsulotlarni turkumiga qarab ustunlarga ajratish (2026-09-26) */
+.inv-columns { display: flex; gap: 16px; align-items: flex-start; overflow-x: auto; padding-bottom: 8px; }
+.inv-column { flex: 1 1 260px; min-width: 240px; }
+.inv-column .card { margin-bottom: 10px; }
+.inv-column-title {
+  font-family: var(--serif); font-weight: 600; font-size: 15px;
+  margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border);
+}
+/* Mahsulot kartochkasidagi tugmalar — matn ostida, alohida 2 qatorli qatorda
+   (avval matn yoniga tor ustunda siqilib, uch qatorga bo'linib ketardi). */
+.inv-card-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.inv-card-actions .btn { flex: 1 1 calc(33.333% - 4px); min-width: 70px; }
 
 /* ---------------- Afitsiant "Tayyor" bildirishnomalari ---------------- */
 /* public/app.js'dagi initWaiterNotifications() shu konteynerni topbar'dan keyin
@@ -248,6 +312,12 @@ th { color: var(--text-faint); font-weight: 600; font-size: 11px; text-transform
   transition: border-color .15s var(--ease), box-shadow .15s var(--ease);
 }
 .field input[readonly] { opacity: 0.65; cursor: not-allowed; }
+/* Brauzer <select> ochilganda tanlovlar ro'yxati (popup) odatda tizim rangida
+   (och fon) chizadi, lekin <option> yozuv rangi yuqoridagi qorong'i tema
+   --text (och rang)dan meros olib, o'qib bo'lmas darajada xira ko'rinardi
+   (masalan Ombor sahifasidagi "Turkumi" tanlovi) — shu sabab option matni
+   ataylab qora rangga qattiq belgilandi. */
+.field select option { color: #000; background: #fff; }
 .field input:focus, .field select:focus, .field textarea:focus {
   outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-light);
 }
@@ -271,7 +341,7 @@ th { color: var(--text-faint); font-weight: 600; font-size: 11px; text-transform
 .btn.small { min-height: 36px; padding: 6px 12px; font-size: 13px; }
 
 .fab {
-  position: fixed; right: 16px; bottom: calc(var(--nav-h) + 16px);
+  position: fixed; right: 16px; bottom: calc(var(--nav-h) + 16px + env(safe-area-inset-bottom));
   width: 56px; height: 56px; border-radius: 50%;
   background: linear-gradient(155deg, var(--gold-2), var(--gold-dark)); color: #1b1812; border: none; font-size: 26px;
   box-shadow: 0 12px 28px -6px rgba(201, 162, 39, 0.55);
@@ -296,6 +366,61 @@ th { color: var(--text-faint); font-weight: 600; font-size: 11px; text-transform
 .modal h2 { margin-top: 0; font-family: var(--serif); font-size: 19px; font-weight: 700; }
 .modal-actions { display: flex; gap: 8px; margin-top: 16px; }
 .modal-actions .btn { flex: 1; }
+
+/* "📋 Menyu" tanlash modali (kassir/manual.js) — 2026-09-15'dan to'liq ekran:
+   avvalgi ichki max-height:50vh skroll qutisi (atrofida bo'sh joy qoldirib,
+   kompyuter/planshetda faqat 1 qator ko'rsatardi) olib tashlandi — endi
+   sarlavha+taglar tepada, "Yopish" pastda qotib turadi, taomlar orasi esa
+   BUTUN ekran balandligini egallab, o'zi skroll bo'ladi. */
+/* position:fixed + inset:0 — ota (.modal-backdrop) flex-markazlash/max-width
+   qanday bo'lishidan qat'iy nazar, butun ekranni (barcha 4 tomondan chekkasiga
+   qadar, bo'sh joysiz) qoplaydi (2026-09-26, foydalanuvchi skrinshotida orada
+   qorong'i chekka bo'shliq — topbar/pastki panel ko'rinib qolgani — ko'rsatib
+   tuzatishni so'radi). */
+.menu-pick-modal {
+  position: fixed; inset: 0; width: auto; height: auto; max-width: none; max-height: none;
+  border-radius: 0; margin: 0; overflow: hidden;
+  display: flex; flex-direction: column;
+}
+.menu-pick-modal .menu-pick-header, .menu-pick-modal .tabs, .menu-pick-modal .menu-pick-search { flex: 0 0 auto; }
+.menu-pick-modal .menu-pick-items { flex: 1 1 auto; overflow-y: auto; margin: 0 -4px; padding: 0 4px; align-content: start; }
+.menu-pick-modal .modal-actions { flex: 0 0 auto; }
+
+/* Modal ochiq paytida sarlavha yonida (o'ng burchakda) hozircha tanlangan
+   taomlarni ko'rsatadigan chiplar (kassir/manual.js, 2026-09-26). */
+.menu-pick-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.menu-pick-header h2 { margin: 0; flex: 0 0 auto; }
+.menu-pick-title-row { display: flex; align-items: center; gap: 10px; flex: 0 0 auto; }
+.menu-pick-selected { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; max-width: 65%; }
+.menu-pick-chip {
+  background: var(--surface); border: 1px solid var(--border-strong); border-radius: 999px;
+  padding: 4px 10px; font-size: 12.5px; white-space: nowrap; color: var(--text-dim);
+}
+.menu-pick-chip b { color: var(--gold-2); font-weight: 700; }
+
+/* Sarlavha qatoridagi dumaloq qidiruv tugmasi (kassir "📋 Menyu" modali,
+   2026-10-03, foydalanuvchi so'rovi) — bosilganda pastida pill-shaklidagi
+   qidiruv paneli ochiladi (foydalanuvchi bergan skrinshotga mos: to'liq
+   dumaloq burchak, ichida chap tarafda lupa ikonkasi, kulrang placeholder). */
+.mp-search-toggle {
+  flex: 0 0 auto; width: 36px; height: 36px; border-radius: 50%; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border-strong); background: var(--surface); color: var(--text);
+}
+.mp-search-toggle.active {
+  background: linear-gradient(155deg, var(--gold-2), var(--gold-dark)); color: #1b1812; border-color: var(--gold-dark);
+}
+.menu-pick-search { margin: 10px 0 0; }
+.mp-search-box { position: relative; display: flex; align-items: center; }
+.mp-search-box .mp-search-icon {
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  color: var(--text-faint); pointer-events: none;
+}
+.menu-pick-search input {
+  width: 100%; padding: 12px 16px 12px 42px; border-radius: 999px;
+  border: 1px solid var(--border-strong); background: var(--bg); color: var(--text);
+}
+.menu-pick-search input::placeholder { color: var(--text-faint); }
 
 .hidden { display: none !important; }
 .dim { color: var(--text-dim); }
@@ -359,13 +484,39 @@ th { color: var(--text-faint); font-weight: 600; font-size: 11px; text-transform
 /* ---------------- Afitsiant: buyurtma ekrani ---------------- */
 
 .order-total-bar {
-  position: sticky; bottom: calc(var(--nav-h) + 12px); z-index: 8;
+  position: sticky; bottom: calc(var(--nav-h) + 12px + env(safe-area-inset-bottom)); z-index: 8;
   background: linear-gradient(155deg, var(--gold-2), var(--gold-dark)); color: #1b1812; border-radius: var(--radius);
   padding: 14px 16px; display: flex; justify-content: space-between; align-items: center;
   box-shadow: 0 12px 28px -8px rgba(201, 162, 39, 0.55); margin-top: 12px;
 }
 @media (min-width: 720px) { .order-total-bar { bottom: 16px; } }
 .order-total-bar .amount { font-size: 20px; font-weight: 700; }
+
+/* Kassir "Hisoblash" (manual.html) — mijoz raqami + izoh maydonlari shu gold
+   panelning o'zida, yonma-yon bitta qatorda (2026-09-26/27, foydalanuvchi
+   so'rovi bilan) — .order-total-bar boshqa sahifalarda (waiter/order.html,
+   kassir/order.html) ham ishlatilgani uchun bazaviy klass o'zgartirilmadi,
+   faqat shu modifikator (.with-phone) orqali flex-wrap yoqilib, inputlar
+   o'z qatoriga chiqariladi (joy yetmasa avtomatik keyingi qatorga tushadi). */
+.order-total-bar.with-phone { flex-wrap: wrap; row-gap: 10px; }
+.order-total-bar.with-phone .phone-input {
+  order: -1; flex: 1 1 220px;
+  padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid rgba(27, 24, 18, 0.25);
+  background: rgba(255, 255, 255, 0.35); color: #1b1812; outline: none;
+}
+.order-total-bar.with-phone .phone-input::placeholder { color: rgba(27, 24, 18, 0.6); }
+.order-total-bar.with-phone .phone-input:focus { background: rgba(255, 255, 255, 0.6); border-color: #1b1812; }
+
+/* Yetkazib berish narxi — checkbox bilan yoqilmaguncha "Jami"ga qo'shilmaydi
+   (2026-09-27, foydalanuvchi so'rovi). Label o'zi .phone-input qutisi ko'rinishida,
+   ichida checkbox + narx inputi yonma-yon. */
+.delivery-price-field { display: flex; align-items: center; gap: 8px; cursor: pointer; min-width: 0; }
+.delivery-price-field input[type="checkbox"] { flex-shrink: 0; width: 18px; height: 18px; accent-color: #1b1812; cursor: pointer; }
+.delivery-price-field span { white-space: nowrap; flex-shrink: 0; }
+.delivery-price-field input[type="number"] {
+  flex: 0 1 70px; width: 70px; min-width: 0; border: none; background: transparent; color: inherit; outline: none; font: inherit;
+}
+.delivery-price-field input[type="number"]:disabled { opacity: 0.5; }
 
 .menu-item-row {
   display: flex; justify-content: space-between; align-items: center;
@@ -387,36 +538,101 @@ th { color: var(--text-faint); font-weight: 600; font-size: 11px; text-transform
 }
 .menu-item-variants .menu-item-row { padding: 8px 4px; }
 
-/* Afitsiant menyusida (#menuItems, 2-ustunli grid) "Turlari (N)" tugmasi va
-   ochilgan variant ro'yxati butun eni bo'ylab (grid-column: 1/-1) chiqadi,
-   variantlarning o'zi ham 2 ustunda (asosiy taomlar bilan bir xil ko'rinish). */
-#menuItems .menu-variants-toggle {
-  grid-column: 1 / -1; margin: -2px 0 4px; width: auto; align-self: flex-start;
-  font-size: 15px; font-weight: 700; border-color: var(--gold-dark); color: var(--gold-2);
+/* ---------------- Menyu tanlash kartochkalari (2026-09-15) ----------------
+   Afitsiant (waiter/order.html, to'liq sahifa) VA kassir ("📋 Menyu" modali,
+   kassir/manual.html) endi bitta umumiy komponentdan foydalanadi —
+   public/menu-picker.js shu klasslar bilan HTML generatsiya qiladi. Admin
+   panelning o'z menyu ro'yxati (.menu-item-row/.mi-*, yuqorida) bunga
+   tegmaydi, mustaqil qolaveradi. */
+
+.mp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; align-items: start; }
+/* Keng ekranda (planshet/kassa monitori/kompyuter) aniq 6 ustun — tor telefon
+   ekranida yuqoridagi auto-fill(190px) qoidasi kuchida qoladi (2026-09-27,
+   foydalanuvchi so'rovi). */
+@media (min-width: 960px) { .mp-grid { grid-template-columns: repeat(6, 1fr); } }
+
+.mp-card {
+  position: relative; display: flex; flex-direction: column;
+  background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  overflow: hidden; box-shadow: var(--shadow-sm);
+  transition: transform .15s var(--ease), border-color .15s var(--ease);
 }
-#menuItems .menu-item-variants-wrap {
-  grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 4px;
+.mp-card.unavailable { opacity: 0.55; }
+
+/* Rasm nisbati klassik "padding-top %" usuli bilan (CSS aspect-ratio
+   xossasi EMAS) — 2026-09-15'da haqiqiy rasmlar bilan sinalganda aniqlandi:
+   auto-fill grid ichida aspect-ratio + flex-ustun + "height:100%"li <img>
+   birikmasi grid qatorining balandligini judа kichik (haqiqiy karta
+   balandligining ~40%i) qilib noto'g'ri hisoblardi, natijada kartochkalar
+   bir-birining ustiga chiqib qolardi. padding-top foizi grid/flex intrinsic
+   size algoritmiga bunday ta'sir qilmaydi — bir necha o'n yildan beri
+   barcha brauzerlarda barqaror ishlaydi. */
+.mp-card-img-wrap { position: relative; width: 100%; height: 0; padding-top: 75%; background: var(--surface); overflow: hidden; }
+.mp-card-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.mp-card-img-wrap.noimg { background: linear-gradient(160deg, var(--surface-2), var(--surface)); }
+.mp-card-img-letter {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  color: var(--text-faint); font-family: var(--serif); font-size: 26px; font-weight: 700;
 }
 
-/* Afitsiant menyusi (waiter/order.html #menuItems) — taomlar 2 ustunda, kichik
-   kartochka ko'rinishida chiqadi (admin panelning menyu ro'yxatiga tegmaydi,
-   u alohida .card ichida bir ustunda qolaveradi). */
-#menuItems {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+.mp-card-body { padding: 10px; flex: 1; display: flex; flex-direction: column; gap: 6px; cursor: pointer; }
+.mp-card-name { font-family: var(--serif); font-size: 14.5px; font-weight: 700; line-height: 1.28; }
+.mp-card-name .mp-volume { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 400; color: var(--text-dim); font-size: 0.8em; }
+.mp-card-row { margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-wrap: wrap; }
+.mp-card-price { color: var(--gold-2); font-weight: 700; font-size: 13.5px; white-space: nowrap; }
+
+/* Kartochka/variant qatoriga sig'ishi uchun umumiy .qty-stepper'dan ixchamroq
+   (2026-09-26) — miqdor 0'dan katta bo'lganda "+" tugma o'rniga chiqadi. */
+.mp-qty-stepper { flex: 0 0 auto; gap: 4px; }
+.mp-qty-stepper button {
+  width: 26px; height: 26px; border-radius: 50%; font-size: 15px;
+  border-color: var(--border-strong); background: var(--surface); color: var(--gold-2);
 }
-#menuItems .menu-item-row {
-  flex-direction: column; align-items: stretch; gap: 8px;
-  padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm);
-  background: var(--surface-2);
+.mp-qty-stepper .qty-val { min-width: 16px; font-size: 13.5px; }
+
+.mp-add-btn {
+  flex: 0 0 auto; width: 32px; height: 32px; border-radius: 50%; border: none;
+  background: linear-gradient(155deg, var(--gold-2), var(--gold-dark)); color: #1b1812;
+  font-size: 18px; font-weight: 700; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 6px 14px -5px rgba(201, 162, 39, 0.65);
+  transition: transform .15s var(--ease);
 }
-#menuItems .menu-item-row .mi-price { margin-top: 2px; }
-#menuItems .menu-item-row .btn.add { width: 100%; min-width: 0; }
-#menuItems .menu-item-row .mi-info { cursor: pointer; }
-#menuItems .menu-item-row .mi-image {
-  width: 100%; height: 84px; object-fit: cover; border-radius: var(--radius-sm); margin-bottom: 6px;
+.mp-add-btn:active { transform: scale(0.9); }
+.mp-add-btn[disabled] { background: var(--surface); color: var(--text-faint); box-shadow: none; }
+
+/* "Turlari (N)" — endi kartochkaning O'ZI ICHIDA, pastki to'liq eninli
+   qator-tugma sifatida (2026-09-15, foydalanuvchi so'rovi: kattaroq va
+   kartochkadan ajralib qolmasin). */
+.mp-variants-toggle {
+  width: 100%; margin: 0; min-height: 42px;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+  background: var(--gold-light); border: none; border-top: 1px solid var(--border);
+  color: var(--gold-2); font-size: 14px; font-weight: 700;
+  padding: 10px 8px;
 }
+.mp-variants-toggle::after { content: '›'; font-size: 18px; transition: transform .15s var(--ease); }
+.mp-variants-toggle.open::after { transform: rotate(90deg); }
+.mp-variants-toggle:active { background: var(--border-strong); }
+
+.mp-variants-panel {
+  margin: 0; padding: 4px 10px 8px; border-top: 1px dashed var(--border);
+  display: flex; flex-direction: column;
+}
+/* Endi TEPADA nomi (o'z to'liq eniga ega, hech narsa siqmaydi), PASTDA narx+
+   tugma alohida qatorda (2026-09-26) — nomi qanchalik uzun bo'lmasin, stepper
+   uni chegaradan chiqarib yubormaydi/kesib qo'ymaydi. */
+.mp-variant-row { display: flex; flex-direction: column; gap: 4px; padding: 8px 4px; border-bottom: 1px dashed var(--border); }
+.mp-variant-row:last-child { border-bottom: none; }
+.mp-vr-info { cursor: pointer; }
+.mp-vr-name { font-weight: 600; font-size: 13.5px; }
+.mp-vr-bottom { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.mp-vr-price { color: var(--text-dim); font-size: 12.5px; white-space: nowrap; }
+.mp-vr-add {
+  flex: 0 0 auto; width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border-strong);
+  background: var(--surface); color: var(--gold-2); font-weight: 700; font-size: 15px;
+}
+.mp-vr-add[disabled] { color: var(--text-faint); }
 
 .qty-stepper { display: flex; align-items: center; gap: 8px; }
 .qty-stepper button {
@@ -444,6 +660,10 @@ th { color: var(--text-faint); font-weight: 600; font-size: 11px; text-transform
 .receipt table td { padding: 4px 2px; font-size: 13px; border-color: rgba(0,0,0,0.1); }
 .receipt .r-total-row td { border-top: 2px solid var(--paper-text); font-weight: 700; font-size: 16px; }
 .receipt hr { border: none; border-top: 1px dashed rgba(0,0,0,0.2); margin: 10px 0; }
+/* Kassir "Hisoblash" chekidagi mijoz raqami — ajratib ko'rinsin deb katta/qalin/
+   qora (2026-09-26, foydalanuvchi so'rovi; `--paper-text` qoramtir jigarrang
+   bo'lgani uchun ataylab #000 to'g'ridan-to'g'ri qo'yildi). */
+.receipt .r-customer-phone { font-size: 22px; font-weight: 700; color: #000; text-align: center; margin: 10px 0; }
 
 @media print {
   @page { size: 80mm auto; margin: 0; }
@@ -455,3 +675,21 @@ th { color: var(--text-faint); font-weight: 600; font-size: 11px; text-transform
 }
 
 canvas { max-width: 100%; }
+
+/* 2026-10-24 — to'lanmagan hisoblar ogohlantirishi (admin bosh sahifa/hisobot, kassir smena yopish) */
+.unpaid-alert,
+.shift-unpaid-warn {
+  border: 1px solid rgba(224, 122, 107, 0.55);
+  background: rgba(224, 122, 107, 0.10);
+  color: var(--text);
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  line-height: 1.45;
+}
+.unpaid-alert-title { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+.unpaid-alert-sub { margin: 4px 0; font-size: 13px; color: var(--text-dim); }
+.unpaid-alert-list { margin: 6px 0 0; padding-left: 18px; font-size: 13px; }
+.unpaid-alert-list li { margin: 2px 0; }
+.unpaid-alert-meta { color: var(--text-dim); margin-left: 6px; font-size: 12px; }
+.shift-unpaid-warn { font-size: 13px; font-weight: 600; }

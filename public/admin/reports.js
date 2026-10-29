@@ -14,6 +14,28 @@ async function loadReport() {
     document.getElementById('statExpenses').textContent = fmtMoney(summary.expenses_total);
     document.getElementById('statNet').textContent = fmtMoney(summary.net);
     document.getElementById('statOrders').textContent = summary.orders_count;
+    const unpaidBox = document.getElementById('reportUnpaid');
+    if (unpaidBox) {
+      if (summary.unpaid_count > 0) {
+        unpaidBox.innerHTML = `
+          <div class="unpaid-alert-title">⚠️ To'lov kutilmoqda: ${summary.unpaid_count} ta — ${fmtMoney(summary.unpaid_amount)}</div>
+          <p class="unpaid-alert-sub">Tushumdan haqiqatan to'langani: <b>${fmtMoney(summary.paid_revenue)}</b>. Qolgani kassaga yuborilgan, lekin kassir hali to'lov turini kiritmagan.</p>`;
+        unpaidBox.classList.remove('hidden');
+      } else {
+        unpaidBox.classList.add('hidden');
+        unpaidBox.innerHTML = '';
+      }
+    }
+    const manualBox = document.getElementById('reportManualCogsNote');
+    if (manualBox) {
+      if (summary.manual_bills_revenue > 0) {
+        manualBox.innerHTML = `<p class="dim">ℹ️ Shu davrdagi qo'lda chek ("Hisoblash") summasi — <b>${fmtMoney(summary.manual_bills_revenue)}</b> — "Sof foyda"ga tan narxsiz (100% foyda sifatida) qo'shilgan, chunki qo'lda chek taomlari menyuga bog'lanmagan va haqiqiy tan narxi tizimga noma'lum. Agar bu cheklarda real ingredient xarajati bo'lgan taomlar bo'lsa, haqiqiy sof foyda ko'rsatilgandan biroz kamroq bo'ladi.</p>`;
+        manualBox.classList.remove('hidden');
+      } else {
+        manualBox.classList.add('hidden');
+        manualBox.innerHTML = '';
+      }
+    }
   } catch (err) {
     toast(err.message, 'error');
   }
@@ -47,7 +69,7 @@ async function loadReport() {
 document.getElementById('filterBtn').addEventListener('click', loadReport);
 
 document.addEventListener('DOMContentLoaded', () => {
-  initNav('reports');
+  initLayout('reports');
   const today = todayStr();
   document.getElementById('filterFrom').value = today;
   document.getElementById('filterTo').value = today;

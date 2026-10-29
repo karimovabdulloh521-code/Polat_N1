@@ -40,22 +40,47 @@ function readRows() {
   }));
 }
 
+// Yetkazib berish narxi — MAJBURIY EMAS: checkbox (#deliveryPriceEnabled)
+// belgilanmaguncha narx inputi o'chirilgan (disabled) turadi va "Jami"ga
+// qo'shilmaydi; belgilangandan keyingina hisobga kiradi. Standart qiymat
+// 5000 so'm (kassir o'zgartira oladi) (2026-09-27, foydalanuvchi so'rovi).
+const DEFAULT_DELIVERY_PRICE = 5000;
+
+function readDeliveryPrice() {
+  if (!document.getElementById('deliveryPriceEnabled').checked) return 0;
+  const raw = document.getElementById('deliveryPriceInput').value;
+  const price = Number(raw);
+  return Number.isFinite(price) && price >= 0 ? price : 0;
+}
+
+document.getElementById('deliveryPriceEnabled').addEventListener('change', (e) => {
+  document.getElementById('deliveryPriceInput').disabled = !e.target.checked;
+  recalcTotal();
+});
+
 function recalcTotal() {
-  const total = readRows().reduce((sum, it) => {
+  const itemsTotal = readRows().reduce((sum, it) => {
     if (!it.name || !Number.isFinite(it.unit_price) || !Number.isFinite(it.quantity)) return sum;
     if (it.unit_price <= 0 || it.quantity <= 0) return sum;
     return sum + it.unit_price * it.quantity;
   }, 0);
-  document.getElementById('totalAmount').textContent = fmtMoney(total);
+  document.getElementById('totalAmount').textContent = fmtMoney(itemsTotal + readDeliveryPrice());
 }
 
 function resetForm() {
   itemRowsEl.innerHTML = '';
   addRow();
+  document.getElementById('customerPhoneInput').value = '';
+  document.getElementById('billNoteInput').value = '';
+  document.getElementById('billReasonInput').value = '';
+  document.getElementById('deliveryPriceEnabled').checked = false;
+  document.getElementById('deliveryPriceInput').value = String(DEFAULT_DELIVERY_PRICE);
+  document.getElementById('deliveryPriceInput').disabled = true;
   recalcTotal();
 }
 
 itemRowsEl.addEventListener('input', recalcTotal);
+document.getElementById('deliveryPriceInput').addEventListener('input', recalcTotal);
 itemRowsEl.addEventListener('click', (e) => {
   const btn = e.target.closest('.remove-item');
   if (btn) removeRow(btn.closest('.item-row'));
@@ -70,6 +95,14 @@ document.getElementById('addRowBtn').addEventListener('click', addRow);
 // qilib) yozadi — nomi/narxini qo'lda terish shart bo'lmasin.
 let menuCategories = [];
 let menuActiveCat = null;
+// Sarlavha qatoridagi dumaloq tugma bilan ochiladigan/yopiladigan qidiruv
+// (2026-10-03, foydalanuvchi so'rovi) — bo'sh bo'lmasa taom nomi (yoki uning
+// "turi"/variant nomi) bo'yicha FAQAT hozir ochiq turgan bo'lim (tab) ichidan
+// qidiradi (qarang: searchMenuItems()) — tablar qidiruv paytida ham ko'rinib,
+// bosiladigan bo'lib qoladi.
+let menuSearchQuery = '';
+
+const MP_SEARCH_ICON_SVG = '<svg class="mp-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>';
 
 function ensureMenuModal() {
   let el = document.getElementById('menuPickModal');
@@ -78,21 +111,68 @@ function ensureMenuModal() {
     el.id = 'menuPickModal';
     el.className = 'modal-backdrop hidden';
     el.innerHTML = `
-      <div class="modal">
-        <h2>Menyudan tanlash</h2>
+      <div class="modal menu-pick-modal">
+        <div class="menu-pick-header">
+          <div class="menu-pick-title-row">
+            <h2>Menyudan tanlash</h2>
+            <button type="button" class="mp-search-toggle" id="menuPickSearchToggle" aria-label="Qidirish">${MP_SEARCH_ICON_SVG}</button>
+          </div>
+          <div class="menu-pick-selected" id="menuPickSelected"></div>
+        </div>
+        <div class="menu-pick-search hidden" id="menuPickSearchRow">
+          <div class="mp-search-box">
+            ${MP_SEARCH_ICON_SVG}
+            <input type="text" id="menuPickSearchInput" placeholder="Taom nomini qidirish...">
+          </div>
+        </div>
         <div class="tabs" id="menuPickTabs"></div>
-        <div id="menuPickItems" style="max-height:50vh; overflow-y:auto;"><p class="dim">Yuklanmoqda...</p></div>
+        <div id="menuPickItems" class="menu-pick-items"><p class="dim">Yuklanmoqda...</p></div>
         <div class="modal-actions">
           <button class="btn primary" id="menuPickClose">Yopish</button>
         </div>
       </div>
     `;
     document.body.appendChild(el);
-    const finish = () => el.classList.add('hidden');
+    // Modal yopilganda ochiq turgan "Turlari" panellari ham yopib qo'yiladi —
+    // keyingi safar "📋 Menyu" bosilganda hammasi yopiq holatda boshlanadi
+    // (2026-09-15, foydalanuvchi so'rovi). Qidiruv ham shu bilan birga
+    // tozalanadi (2026-10-03).
+    const finish = () => {
+      el.classList.add('hidden');
+      expandedKassirItems.clear();
+      closeMenuSearch();
+    };
     el.querySelector('#menuPickClose').addEventListener('click', finish);
     el.addEventListener('click', (e) => { if (e.target === el) finish(); });
+
+    const searchToggle = el.querySelector('#menuPickSearchToggle');
+    const searchRow = el.querySelector('#menuPickSearchRow');
+    const searchInput = el.querySelector('#menuPickSearchInput');
+    searchToggle.addEventListener('click', () => {
+      if (searchRow.classList.contains('hidden')) {
+        searchRow.classList.remove('hidden');
+        searchToggle.classList.add('active');
+        searchInput.focus();
+      } else {
+        closeMenuSearch();
+      }
+    });
+    searchInput.addEventListener('input', () => {
+      menuSearchQuery = searchInput.value;
+      renderMenuPickItems();
+    });
   }
   return el;
+}
+
+function closeMenuSearch() {
+  menuSearchQuery = '';
+  const row = document.getElementById('menuPickSearchRow');
+  const toggle = document.getElementById('menuPickSearchToggle');
+  const input = document.getElementById('menuPickSearchInput');
+  if (row) row.classList.add('hidden');
+  if (toggle) toggle.classList.remove('active');
+  if (input) input.value = '';
 }
 
 function renderMenuPickTabs() {
@@ -111,73 +191,109 @@ function renderMenuPickTabs() {
 
 // Taom "turi" (variant, 2026-09-09) — asosiy taom har doim ko'rinadi, agar
 // unga bog'liq turlari bo'lsa pastida "Turlari (N)" tugmasi chiqadi, bosilsa
-// o'sha turlar ham (o'z narxi bilan, alohida tanlanadigan) ochiladi.
+// o'sha turlar ham (o'z narxi bilan, alohida tanlanadigan) ochiladi. Kartochka
+// render mantiqi ../menu-picker.js'da (afitsiantning buyurtma sahifasi bilan
+// umumiy, 2026-09-15). Bir vaqtda faqat BITTA taomning turlari ochiq turadi
+// (akkordeon) — yangisi ochilganda avvalgisi avtomatik yopiladi, va modal
+// yopilganda (ensureMenuModal'dagi finish()) hammasi tozalanadi.
 let expandedKassirItems = new Set();
 
-function renderMenuPickItemRow(it) {
-  return `
-    <div class="menu-item-row${it.is_available ? '' : ' unavailable'}">
-      <div class="mi-info">
-        ${it.image_url ? `<img src="${escapeHtml(it.image_url)}" style="width:32px; height:32px; object-fit:cover; border-radius:var(--radius-sm); margin-right:8px;">` : ''}
-        <div class="mi-name">${escapeHtml(it.name)}${it.volume ? ` <span class="mi-volume">(${escapeHtml(it.volume)})</span>` : ''}${it.is_available ? '' : ' <span class="badge low">Tugadi</span>'}</div>
-        <div class="mi-price">${fmtMoney(it.price)}</div>
-      </div>
-      ${it.is_available ? `<button type="button" class="btn add" data-pick="${it.id}">+</button>` : `<button type="button" class="btn add" disabled>—</button>`}
-    </div>
-  `;
+const menuPickHandlers = {
+  onAdd: pickMenuItem,
+  onRemove: decrementMenuItem,
+  onInfo: showKassirItemInfo,
+  onToggleVariants: (id) => {
+    const wasOpen = expandedKassirItems.has(id);
+    expandedKassirItems.clear();
+    if (!wasOpen) expandedKassirItems.add(id);
+    renderMenuPickItems();
+  },
+};
+
+// Taom nomi (yoki uning "turi"/variant nomi) bo'yicha FAQAT hozir ochiq
+// turgan bo'lim (tab, menuActiveCat) ichidan moslarini topadi (2026-10-03,
+// foydalanuvchi so'rovi — "qaysi bo'limda tursa o'sha bo'limdan qidirsin").
+// Bo'lim almashtirilsa, qidiruv matni saqlanib qoladi, lekin natija yangi
+// bo'limga qarab qayta hisoblanadi (tablar qidiruv paytida ham ko'rinadi).
+// Moslik FAQAT so'z BOSHIDAN (prefiks) qidiriladi, ichidan emas — masalan "la"
+// "Lavash"ni topadi, lekin "avash" topmaydi (2026-10-03, foydalanuvchi so'rovi).
+function searchMenuItems(query) {
+  const q = query.trim().toLowerCase();
+  if (!q) return [];
+  const cat = menuCategories.find((c) => c.id === menuActiveCat);
+  if (!cat) return [];
+  return cat.items.filter((it) => {
+    const nameMatch = it.name.toLowerCase().startsWith(q);
+    const variantMatch = it.variants && it.variants.some((v) => v.name.toLowerCase().startsWith(q));
+    return nameMatch || variantMatch;
+  });
 }
 
 function renderMenuPickItems() {
-  const box = document.getElementById('menuPickItems');
-  const cat = menuCategories.find((c) => c.id === menuActiveCat);
-  if (!cat || cat.items.length === 0) {
-    box.innerHTML = '<p class="dim">Bu bo\'limda taom yo\'q.</p>';
+  const itemsEl = document.getElementById('menuPickItems');
+  if (menuSearchQuery.trim()) {
+    const matched = searchMenuItems(menuSearchQuery);
+    if (matched.length === 0) {
+      itemsEl.innerHTML = '<p class="dim">Hech narsa topilmadi.</p>';
+      return;
+    }
+    mpRenderGrid(itemsEl, matched, expandedKassirItems, menuPickHandlers, getMenuPickQty);
     return;
   }
-  box.innerHTML = cat.items.map((it) => {
-    const hasVariants = it.variants && it.variants.length > 0;
-    const expanded = expandedKassirItems.has(it.id);
-    return renderMenuPickItemRow(it) + (hasVariants ? `
-      <button type="button" class="btn small" data-toggle-variants="${it.id}" style="margin:2px 0 8px 12px;">${expanded ? 'Turlarini yashirish' : `Turlari (${it.variants.length})`}</button>
-      ${expanded ? `<div style="margin-left:12px;">${it.variants.map((v) => renderMenuPickItemRow(v)).join('')}</div>` : ''}
-    ` : '');
-  }).join('');
-  box.querySelectorAll('[data-pick]').forEach((btn) => {
-    btn.addEventListener('click', () => pickMenuItem(Number(btn.dataset.pick)));
-  });
-  box.querySelectorAll('[data-toggle-variants]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const id = Number(btn.dataset.toggleVariants);
-      if (expandedKassirItems.has(id)) expandedKassirItems.delete(id); else expandedKassirItems.add(id);
-      renderMenuPickItems();
-    });
-  });
+  const cat = menuCategories.find((c) => c.id === menuActiveCat);
+  mpRenderGrid(itemsEl, cat ? cat.items : [], expandedKassirItems, menuPickHandlers, getMenuPickQty);
 }
 
-function findMenuPickItem(menuItemId) {
-  const cat = menuCategories.find((c) => c.id === menuActiveCat);
-  if (!cat) return null;
-  for (const it of cat.items) {
-    if (it.id === menuItemId) return it;
-    const v = it.variants && it.variants.find((x) => x.id === menuItemId);
-    if (v) return v;
-  }
-  return null;
+// Bitta menyu taomi (yoki uning turi) "Qatorlar"da hozir nechta kiritilganini
+// topadi — nomi+narxi bo'yicha moslashtiradi (pickMenuItem bilan bir xil
+// mantiq, chunki qatorlarda menyu taomining id'si saqlanmaydi, faqat
+// nomi/narxi/miqdori).
+function findRowForMenuItem(item) {
+  if (!item) return null;
+  return Array.from(itemRowsEl.querySelectorAll('.item-row')).find((row) =>
+    row.querySelector('.rowName').value.trim() === item.name
+    && Number(row.querySelector('.rowPrice').value) === item.price
+  ) || null;
+}
+
+// Kartochkadagi "− <son> +" stepper uchun — menyu taomining id'si bo'yicha
+// hozirgi miqdorni qaytaradi (2026-09-26, foydalanuvchi so'rovi).
+function getMenuPickQty(menuItemId) {
+  const item = mpFindItem(menuCategories, menuActiveCat, menuItemId);
+  const row = findRowForMenuItem(item);
+  return row ? Number(row.querySelector('.rowQty').value) || 0 : 0;
+}
+
+// Modal ochiq turgan paytda tepada (sarlavha yonida, o'ng burchakda) hozircha
+// tanlangan taomlarni ko'rsatib turadi — kassir modalni yopmasdan "nimalarni
+// qo'shdim" deb tekshira oladi (2026-09-26, foydalanuvchi so'rovi).
+function renderMenuPickSelected() {
+  const el = document.getElementById('menuPickSelected');
+  if (!el) return;
+  const items = readRows().filter((it) => it.name && Number(it.quantity) > 0);
+  el.innerHTML = items.map((it) => `<span class="menu-pick-chip">${escapeHtml(it.name)} <b>×${it.quantity}</b></span>`).join('');
+}
+
+function showKassirItemInfo(menuItemId) {
+  const item = mpFindItem(menuCategories, menuActiveCat, menuItemId);
+  if (!item) return;
+  const body = (item.description && item.description.trim())
+    ? item.description.trim()
+    : "Bu taom haqida hali ma'lumot kiritilmagan.";
+  const title = item.volume ? `${item.name} (${item.volume})` : item.name;
+  showInfoModal(title, body);
 }
 
 function pickMenuItem(menuItemId) {
-  const item = findMenuPickItem(menuItemId);
+  const item = mpFindItem(menuCategories, menuActiveCat, menuItemId);
   if (!item) return;
 
-  const rows = Array.from(itemRowsEl.querySelectorAll('.item-row'));
-  const existing = rows.find((row) =>
-    row.querySelector('.rowName').value.trim() === item.name
-    && Number(row.querySelector('.rowPrice').value) === item.price
-  );
+  const existing = findRowForMenuItem(item);
   if (existing) {
     const qtyInput = existing.querySelector('.rowQty');
     qtyInput.value = String((Number(qtyInput.value) || 0) + 1);
   } else {
+    const rows = Array.from(itemRowsEl.querySelectorAll('.item-row'));
     const emptyRow = rows.find((row) => !row.querySelector('.rowName').value.trim());
     const target = emptyRow || rowTemplate();
     if (!emptyRow) itemRowsEl.appendChild(target);
@@ -186,24 +302,52 @@ function pickMenuItem(menuItemId) {
     target.querySelector('.rowQty').value = '1';
   }
   recalcTotal();
-  toast(`"${item.name}" qo'shildi`);
+  renderMenuPickSelected();
+  renderMenuPickItems();
+}
+
+// Kartochkadagi "−" tugmasi — miqdorni 1ga kamaytiradi, 0'ga tushsa qatorning
+// o'zi olib tashlanadi (removeRow — kamida bitta bo'sh qator qoladi qoidasi
+// bilan) (2026-09-26, foydalanuvchi so'rovi).
+function decrementMenuItem(menuItemId) {
+  const item = mpFindItem(menuCategories, menuActiveCat, menuItemId);
+  const existing = findRowForMenuItem(item);
+  if (!existing) return;
+
+  const qtyInput = existing.querySelector('.rowQty');
+  const nextQty = (Number(qtyInput.value) || 0) - 1;
+  if (nextQty <= 0) {
+    removeRow(existing);
+  } else {
+    qtyInput.value = String(nextQty);
+    recalcTotal();
+  }
+  renderMenuPickSelected();
+  renderMenuPickItems();
 }
 
 async function openMenuPicker() {
   const el = ensureMenuModal();
   el.classList.remove('hidden');
-  if (menuCategories.length === 0) {
-    try {
-      menuCategories = await api('/kassir/menu');
-      if (menuCategories.length === 0) {
-        document.getElementById('menuPickItems').innerHTML = '<p class="dim">Menyu hali bo\'sh.</p>';
-        return;
-      }
-      menuActiveCat = menuCategories[0].id;
-    } catch (err) {
-      document.getElementById('menuPickItems').innerHTML = `<p class="dim">${escapeHtml(err.message)}</p>`;
+  renderMenuPickSelected();
+  document.getElementById('menuPickItems').innerHTML = '<p class="dim">Yuklanmoqda...</p>';
+  // Har safar ochilganda QAYTA so'raladi (kesh yo'q) — kassir sahifasi smena
+  // davomida uzoq ochiq turadi, shu orada admin ombordan yangi taom qo'shishi/
+  // bog'lashi mumkin; eski keshlangan ro'yxat bo'lsa yangi taom sahifa F5
+  // qilinmaguncha ko'rinmay qolardi (2026-09-27, haqiqiy holat aniqlanib
+  // tuzatildi). Tanlangan bo'lim (menuActiveCat) mavjud bo'lsa saqlanadi.
+  try {
+    menuCategories = await api('/kassir/menu');
+    if (menuCategories.length === 0) {
+      document.getElementById('menuPickItems').innerHTML = '<p class="dim">Menyu hali bo\'sh.</p>';
       return;
     }
+    if (!menuCategories.some((c) => c.id === menuActiveCat)) {
+      menuActiveCat = menuCategories[0].id;
+    }
+  } catch (err) {
+    document.getElementById('menuPickItems').innerHTML = `<p class="dim">${escapeHtml(err.message)}</p>`;
+    return;
   }
   renderMenuPickTabs();
   renderMenuPickItems();
@@ -233,12 +377,29 @@ document.getElementById('createBtn').addEventListener('click', async () => {
     return;
   }
 
+  const customerPhone = document.getElementById('customerPhoneInput').value.trim() || undefined;
+  const note = document.getElementById('billNoteInput').value.trim() || undefined;
+  const reason = document.getElementById('billReasonInput').value.trim() || undefined;
+  const deliveryPrice = readDeliveryPrice();
+
+  // To'lov turi (naqd/karta/aralash) — "Moliya va kassa" auditi (2026-10-10),
+  // kassir uchun majburiy (serverda ham tekshiriladi).
+  const itemsTotal = items.reduce((sum, it) => sum + it.unit_price * it.quantity, 0);
+  const paymentInfo = await askPaymentInfo(itemsTotal + deliveryPrice);
+  if (!paymentInfo) return;
+
   const btn = document.getElementById('createBtn');
   btn.disabled = true;
   try {
-    const receipt = await api('/kassir/manual-bills', { method: 'POST', body: { items } });
+    // Takroriy-yuborish himoyasi (2026-10-10) — tugma ikki marta bosilsa
+    // yoki tarmoq qayta so'rov yuborsa, server ikkinchi marta yangi chek
+    // yaratmaydi (bitta bosishga bitta kalit).
+    const idempotency_key = crypto.randomUUID();
+    const receipt = await api('/kassir/manual-bills', { method: 'POST', body: { items, customer_phone: customerPhone, note, reason, delivery_price: deliveryPrice, idempotency_key, ...paymentInfo } });
     toast('Chek yaratildi.');
-    resetForm();
+    // Chek chiqarilgandan keyin qatorlar ENDI avtomatik tozalanmaydi (2026-
+    // 09-27, foydalanuvchi so'rovi) — kassir "Tozalash" tugmasini bosmaguncha
+    // tanlangan mahsulotlar ekranda qoladi.
     showReceiptModal(receipt);
   } catch (err) {
     toast(err.message, 'error');

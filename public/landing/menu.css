@@ -1,0 +1,424 @@
+/* ===========================================================================
+   Ziyo Famliy — menyu + savat qayta dizayni (2026-10-15).
+
+   Hammasi `.zfm-root` ichida SKOPLANGAN (rang o'zgaruvchilari ham) — landing
+   sahifaning qolgan qismi (hero/galereya/about/aloqa/bron oynasi, style.css)
+   o'zining eski --black/--gold/--terracotta tokenlaridan foydalanishda davom
+   etadi, bu fayl ularga umuman tegmaydi. QR-menyu (table-menu.html) ham shu
+   faylni ulaydi, lekin savat/checkout qismisiz (faqat .zfm-page/.zfm-card va
+   h.k. "ko'rish" komponentlari ishlatiladi).
+   =========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&family=Onest:wght@400;500;600;700&display=swap');
+
+.zfm-root {
+  --bg: #13110d; --surface: #1c1914; --surface-2: #25211a; --line: #352f25;
+  --fg: #f2ead9; --muted: #9c907c;
+  --accent: #e3a94a; --accent-bg: #2e2416; --on-accent: #13110d;
+  --ok: #5fbf8a; --ok-bg: #16241c; --danger: #ec7a62;
+  --zfm-serif: 'Playfair Display', Georgia, serif;
+  --zfm-sans: 'Onest', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --zfm-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --zfm-radius: 16px;
+  --zfm-toolbar-h: 64px;
+
+  background: var(--bg); color: var(--fg); font-family: var(--zfm-sans);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-color-scheme: light) {
+  .zfm-root {
+    --bg: #f6f2ea; --surface: #fffdf8; --surface-2: #efe8db; --line: #ddd3c2; --fg: #231c14; --muted: #7a6d5c;
+    --accent: #b9770e; --accent-bg: #fbefd9; --on-accent: #fffdf8;
+    --ok: #2f7d55; --ok-bg: #e6f2ea; --danger: #b4432f;
+  }
+}
+
+.zfm-root * { box-sizing: border-box; }
+.zfm-root img { max-width: 100%; display: block; }
+.zfm-root button { font-family: inherit; }
+
+@media (prefers-reduced-motion: reduce) {
+  .zfm-root, .zfm-root * { scroll-behavior: auto !important; animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Ichki "hero" — ixcham, to'liq ekran emas                               */
+/* ---------------------------------------------------------------------- */
+
+.zfm-hero {
+  padding: clamp(36px, 7vw, 64px) max(16px, env(safe-area-inset-left)) clamp(28px, 5vw, 40px);
+  text-align: center;
+}
+.zfm-hero-kicker {
+  font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 700;
+  color: var(--accent); margin: 0 0 14px;
+}
+.zfm-hero-title {
+  font-family: var(--zfm-serif); font-weight: 700; margin: 0 0 12px;
+  font-size: clamp(28px, 5.5vw, 46px); line-height: 1.15;
+}
+.zfm-hero-title em { font-style: italic; color: var(--accent); font-weight: 600; }
+.zfm-hero-sub { color: var(--muted); font-size: 15px; max-width: 480px; margin: 0 auto 18px; line-height: 1.6; }
+.zfm-hero-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.zfm-badge {
+  display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600;
+  color: var(--muted); padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line);
+}
+.zfm-badge svg { width: 15px; height: 15px; flex: 0 0 auto; color: var(--accent); }
+
+/* ---------------------------------------------------------------------- */
+/* Sticky asboblar paneli                                                  */
+/* ---------------------------------------------------------------------- */
+
+.zfm-toolbar {
+  position: sticky; top: env(safe-area-inset-top); z-index: 40;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+  padding: 12px max(16px, env(safe-area-inset-left));
+}
+.zfm-toolbar-inner { max-width: 1180px; margin: 0 auto; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+
+.zfm-search { position: relative; flex: 1 1 100%; }
+.zfm-search svg {
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  width: 17px; height: 17px; color: var(--muted); pointer-events: none;
+}
+.zfm-search input {
+  width: 100%; height: 44px; padding: 0 14px 0 40px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--surface); color: var(--fg);
+  font-size: 16px; font-family: var(--zfm-sans);
+  transition: border-color .15s var(--zfm-ease);
+}
+.zfm-search input::placeholder { color: var(--muted); }
+.zfm-search input:focus { outline: none; border-color: var(--accent); }
+
+.zfm-cats {
+  display: flex; gap: 8px; overflow-x: auto; flex: 1 1 100%;
+  padding-bottom: 2px; scrollbar-width: none;
+}
+.zfm-cats::-webkit-scrollbar { display: none; }
+.zfm-cat-btn {
+  flex: 0 0 auto; border: 1px solid var(--line); background: transparent; color: var(--muted);
+  font-weight: 600; font-size: 13.5px; padding: 9px 18px; border-radius: 999px; cursor: pointer;
+  transition: background .15s var(--zfm-ease), color .15s var(--zfm-ease), border-color .15s var(--zfm-ease);
+  white-space: nowrap;
+}
+.zfm-cat-btn:hover { border-color: var(--accent); color: var(--fg); }
+.zfm-cat-btn.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.zfm-cat-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+@media (min-width: 600px) {
+  .zfm-toolbar-inner { flex-wrap: nowrap; }
+  .zfm-search { flex: 0 0 240px; }
+  .zfm-cats { flex: 1 1 auto; }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Bo'lim sarlavhalari                                                     */
+/* ---------------------------------------------------------------------- */
+
+.zfm-main { padding-top: 28px; scroll-padding-top: calc(var(--zfm-toolbar-h) + 14px); min-width: 0; }
+
+.zfm-section { scroll-margin-top: calc(var(--zfm-toolbar-h) + 10px); margin-bottom: 42px; }
+.zfm-section-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 16px; }
+.zfm-section-head h2 { font-family: var(--zfm-serif); font-size: clamp(21px, 3vw, 27px); font-weight: 700; margin: 0; }
+.zfm-section-count { color: var(--muted); font-size: 13px; font-weight: 600; white-space: nowrap; }
+.zfm-section-head::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+
+.zfm-empty { color: var(--muted); text-align: center; padding: 40px 10px; font-size: 15px; }
+
+/* ---------------------------------------------------------------------- */
+/* Taomlar grid + kartochka                                                */
+/* ---------------------------------------------------------------------- */
+
+.zfm-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media (min-width: 600px) { .zfm-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; } }
+@media (min-width: 1024px) { .zfm-grid { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); } }
+
+.zfm-card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--zfm-radius);
+  overflow: hidden; display: flex; flex-direction: column;
+  transition: transform .2s var(--zfm-ease), box-shadow .2s var(--zfm-ease);
+}
+@media (hover: hover) {
+  .zfm-card:hover { transform: translateY(-3px); box-shadow: 0 16px 32px -18px rgba(0,0,0,0.45); }
+  .zfm-card:hover .zfm-card-img img { transform: scale(1.04); }
+}
+.zfm-card.is-unavailable { opacity: 0.5; }
+
+.zfm-card-img { position: relative; aspect-ratio: 4/3; overflow: hidden; background: var(--surface-2); }
+.zfm-card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .35s var(--zfm-ease); }
+.zfm-card-img.no-image {
+  display: flex; align-items: center; justify-content: center;
+  background:
+    radial-gradient(circle at 70% 20%, color-mix(in srgb, var(--accent) 20%, transparent), transparent 60%),
+    repeating-linear-gradient(135deg, var(--surface-2) 0 10px, var(--surface) 10px 20px);
+}
+.zfm-card-img.no-image span { font-family: var(--zfm-serif); font-size: 40px; font-weight: 700; color: var(--accent); }
+.zfm-card-tag {
+  position: absolute; top: 8px; right: 8px; background: color-mix(in srgb, var(--bg) 70%, transparent);
+  color: var(--fg); font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 999px;
+  backdrop-filter: blur(4px);
+}
+.zfm-card-unavailable-tag {
+  position: absolute; top: 8px; left: 8px; background: var(--danger); color: #fff;
+  font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 999px;
+}
+
+.zfm-card-body { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.zfm-card-name { font-family: var(--zfm-serif); font-weight: 700; font-size: 15px; margin: 0; line-height: 1.3;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.zfm-card-volume { color: var(--muted); font-weight: 400; font-size: 0.82em; }
+.zfm-card-desc { color: var(--muted); font-size: 13px; line-height: 1.4; margin: 0; display: none;
+  -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+@media (min-width: 600px) { .zfm-card-desc { display: -webkit-box; } }
+.zfm-card-price { font-weight: 700; font-size: 14.5px; margin-top: auto; padding-top: 6px; }
+.zfm-card-price .from { color: var(--muted); font-weight: 500; font-size: 0.85em; }
+
+.zfm-card-actions { padding: 0 12px 12px; }
+.zfm-qty-btn, .zfm-add-btn {
+  width: 100%; height: 44px; border-radius: 999px; border: 1px solid var(--accent);
+  background: var(--accent); color: var(--on-accent); font-weight: 700; font-size: 14px; cursor: pointer;
+  transition: background .15s var(--zfm-ease), transform .1s var(--zfm-ease);
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+}
+.zfm-add-btn:active, .zfm-qty-btn:active { transform: scale(0.97); }
+.zfm-add-btn:disabled { opacity: 0.4; cursor: not-allowed; background: var(--surface-2); border-color: var(--line); color: var(--muted); }
+.zfm-qty-stepper { display: flex; align-items: center; justify-content: space-between; height: 44px; border-radius: 999px; background: var(--accent-bg); border: 1px solid var(--accent); overflow: hidden; }
+.zfm-qty-stepper button { width: 44px; height: 44px; border: none; background: transparent; color: var(--accent); font-size: 18px; font-weight: 700; cursor: pointer; line-height: 1; }
+.zfm-qty-stepper button:focus-visible, .zfm-add-btn:focus-visible, .zfm-qty-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.zfm-qty-stepper .val { font-weight: 700; font-size: 15px; min-width: 20px; text-align: center; }
+
+/* ---------------------------------------------------------------------- */
+/* Taom oynasi (modal)                                                     */
+/* ---------------------------------------------------------------------- */
+
+.zfm-backdrop {
+  position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,0.6);
+  display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .25s var(--zfm-ease);
+}
+.zfm-backdrop.open { opacity: 1; pointer-events: auto; }
+@media (min-width: 600px) { .zfm-backdrop { align-items: center; padding: 20px; } }
+
+.zfm-sheet {
+  width: 100%; max-width: 560px; max-height: 90dvh; overflow-y: auto;
+  background: var(--surface); color: var(--fg);
+  border-radius: 22px 22px 0 0; border: 1px solid var(--line); border-bottom: none;
+  transform: translateY(100%); transition: transform .3s var(--zfm-ease);
+  display: flex; flex-direction: column;
+}
+.zfm-backdrop.open .zfm-sheet { transform: translateY(0); }
+@media (min-width: 600px) {
+  .zfm-sheet { border-radius: var(--zfm-radius); border-bottom: 1px solid var(--line); transform: translateY(16px) scale(0.98); }
+  .zfm-backdrop.open .zfm-sheet { transform: translateY(0) scale(1); }
+}
+
+.zfm-sheet-drag { width: 36px; height: 4px; background: var(--line); border-radius: 999px; margin: 10px auto 0; flex: 0 0 auto; }
+@media (min-width: 600px) { .zfm-sheet-drag { display: none; } }
+
+.zfm-item-img { position: relative; aspect-ratio: 16/10; background: var(--surface-2); flex: 0 0 auto; }
+.zfm-item-img img { width: 100%; height: 100%; object-fit: cover; }
+.zfm-item-img.no-image { display: flex; align-items: center; justify-content: center; }
+.zfm-item-img.no-image span { font-family: var(--zfm-serif); font-size: 52px; font-weight: 700; color: var(--accent); }
+.zfm-item-close {
+  position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%;
+  border: none; background: rgba(0,0,0,0.5); color: #fff; font-size: 20px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.zfm-item-body { padding: 18px 20px calc(18px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 14px; flex: 1; }
+.zfm-item-name { font-family: var(--zfm-serif); font-weight: 700; font-size: 23px; margin: 0; }
+.zfm-item-volume { color: var(--muted); font-size: 14px; font-weight: 500; }
+.zfm-item-desc { color: var(--muted); font-size: 14px; line-height: 1.6; margin: 0; }
+
+.zfm-variant-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin: 0 0 8px; }
+.zfm-variant-list { display: flex; flex-direction: column; gap: 8px; }
+.zfm-variant-opt {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; cursor: pointer;
+  background: transparent; width: 100%; text-align: left; color: var(--fg); font-family: inherit;
+  transition: background .15s var(--zfm-ease), border-color .15s var(--zfm-ease);
+}
+.zfm-variant-opt:hover { border-color: var(--accent); }
+.zfm-variant-opt.selected { background: var(--accent-bg); border-color: var(--accent); }
+.zfm-variant-opt:disabled { opacity: 0.45; cursor: not-allowed; }
+.zfm-variant-opt .name { font-weight: 600; font-size: 14.5px; }
+.zfm-variant-opt .price { font-weight: 700; font-size: 14px; color: var(--accent); white-space: nowrap; }
+.zfm-variant-opt:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.zfm-item-footer { margin-top: auto; display: flex; align-items: center; gap: 14px; padding-top: 6px; }
+.zfm-item-stepper { display: flex; align-items: center; gap: 14px; border: 1px solid var(--line); border-radius: 999px; padding: 4px; }
+.zfm-item-stepper button { width: 34px; height: 34px; border-radius: 50%; border: none; background: var(--surface-2); color: var(--fg); font-size: 18px; font-weight: 700; cursor: pointer; }
+.zfm-item-stepper .val { min-width: 20px; text-align: center; font-weight: 700; }
+.zfm-item-add { flex: 1; height: 50px; border-radius: 999px; border: none; background: var(--accent); color: var(--on-accent); font-weight: 700; font-size: 15px; cursor: pointer; }
+.zfm-item-add:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ---------------------------------------------------------------------- */
+/* Savat — mobil suzuvchi tugma + pastdan ochiladigan oyna / desktop panel */
+/* ---------------------------------------------------------------------- */
+
+.zfm-cart-fab {
+  position: fixed; left: 16px; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); z-index: 60;
+  max-width: 480px; margin: 0 auto;
+  height: 56px; border-radius: 999px; border: none; background: var(--accent); color: var(--on-accent);
+  display: flex; align-items: center; justify-content: space-between; padding: 0 22px;
+  font-weight: 700; font-size: 14px; cursor: pointer;
+  box-shadow: 0 16px 36px -12px rgba(0,0,0,0.5);
+  transform: translateY(140%); transition: transform .3s var(--zfm-ease);
+}
+.zfm-cart-fab.show { transform: translateY(0); }
+@media (min-width: 1024px) { .zfm-cart-fab { display: none; } }
+
+.zfm-cart-sheet { max-width: 480px; }
+.zfm-cart-list { display: flex; flex-direction: column; gap: 12px; padding: 4px 0; }
+.zfm-cart-row { display: flex; gap: 12px; align-items: center; }
+.zfm-cart-row-img { width: 56px; height: 56px; border-radius: 10px; object-fit: cover; flex: 0 0 auto; background: var(--surface-2); }
+.zfm-cart-row-img.no-image { display: flex; align-items: center; justify-content: center; font-family: var(--zfm-serif); font-weight: 700; color: var(--accent); }
+.zfm-cart-row-main { flex: 1; min-width: 0; }
+.zfm-cart-row-name { font-weight: 600; font-size: 14px; margin: 0 0 2px; }
+.zfm-cart-row-sub { color: var(--muted); font-size: 12.5px; margin: 0; }
+.zfm-cart-row-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.zfm-cart-row-sum { font-weight: 700; font-size: 14px; }
+.zfm-cart-row-stepper { display: flex; align-items: center; gap: 10px; }
+.zfm-cart-row-stepper button { width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface-2); color: var(--fg); font-size: 15px; cursor: pointer; }
+
+.zfm-cart-empty { text-align: center; color: var(--muted); padding: 50px 20px; font-size: 14.5px; }
+
+.zfm-cart-footer { border-top: 1px solid var(--line); padding: 16px 20px calc(16px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 10px; }
+.zfm-cart-total-row { display: flex; justify-content: space-between; font-weight: 700; font-size: 17px; }
+.zfm-cart-note { color: var(--muted); font-size: 12.5px; }
+.zfm-cart-checkout-btn { height: 50px; border-radius: 999px; border: none; background: var(--accent); color: var(--on-accent); font-weight: 700; font-size: 15px; cursor: pointer; }
+.zfm-cart-checkout-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Desktop — doimiy ko'rinadigan o'ng panel */
+.zfm-desktop-layout { display: block; max-width: 1180px; margin: 0 auto; padding: 0 max(16px, env(safe-area-inset-left)) 120px; }
+.zfm-cart-panel { display: none; }
+@media (min-width: 1024px) {
+  .zfm-desktop-layout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 28px; align-items: start; }
+  .zfm-cart-panel {
+    display: flex; flex-direction: column;
+    position: sticky; top: calc(var(--zfm-toolbar-h) + 28px); max-height: calc(100dvh - var(--zfm-toolbar-h) - 56px);
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--zfm-radius);
+    overflow: hidden;
+  }
+  .zfm-cart-panel-head { padding: 16px 20px; border-bottom: 1px solid var(--line); font-family: var(--zfm-serif); font-weight: 700; font-size: 18px; }
+  .zfm-cart-panel-body { flex: 1; overflow-y: auto; padding: 14px 20px; }
+  .zfm-cart-panel .zfm-cart-footer { border-radius: 0 0 var(--zfm-radius) var(--zfm-radius); }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Rasmiylashtirish (checkout) oynasi                                      */
+/* ---------------------------------------------------------------------- */
+
+.zfm-checkout-sheet { max-width: 480px; }
+.zfm-checkout-title { font-family: var(--zfm-serif); font-weight: 700; font-size: 20px; margin: 0 0 16px; padding: 0 20px; }
+
+.zfm-form { display: flex; flex-direction: column; gap: 14px; padding: 0 20px; }
+.zfm-field label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 6px; }
+.zfm-field input, .zfm-field textarea {
+  width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px;
+  background: var(--surface-2); color: var(--fg); font-family: var(--zfm-sans); font-size: 16px;
+  transition: border-color .15s var(--zfm-ease);
+}
+.zfm-field textarea { resize: vertical; min-height: 64px; font-family: var(--zfm-sans); }
+.zfm-field input:focus, .zfm-field textarea:focus { outline: none; border-color: var(--accent); }
+.zfm-field-error { color: var(--danger); font-size: 12.5px; margin-top: 5px; min-height: 15px; }
+.zfm-field.has-error input, .zfm-field.has-error textarea { border-color: var(--danger); }
+
+.zfm-phone-wrap { display: flex; align-items: center; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); overflow: hidden; }
+.zfm-phone-wrap.has-error { border-color: var(--danger); }
+.zfm-phone-prefix { padding: 12px 10px 12px 14px; color: var(--muted); font-weight: 600; font-size: 16px; flex: 0 0 auto; }
+.zfm-phone-wrap input { border: none; background: transparent; padding: 12px 14px 12px 0; }
+.zfm-phone-wrap input:focus { outline: none; }
+
+.zfm-segment { display: flex; gap: 8px; }
+.zfm-segment button {
+  flex: 1; border: 1px solid var(--line); background: transparent; color: var(--muted);
+  font-weight: 600; font-size: 13.5px; padding: 11px 10px; border-radius: 12px; cursor: pointer;
+  transition: background .15s var(--zfm-ease), color .15s var(--zfm-ease), border-color .15s var(--zfm-ease);
+}
+.zfm-segment button.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+
+.zfm-location-btn {
+  display: inline-flex; align-items: center; gap: 6px; margin-top: 8px;
+  border: 1px dashed var(--accent); background: var(--accent-bg); color: var(--accent);
+  font-weight: 600; font-size: 13px; padding: 9px 14px; border-radius: 999px; cursor: pointer;
+}
+.zfm-location-btn:disabled { opacity: 0.6; cursor: default; }
+.zfm-location-status { margin-top: 6px; font-size: 12.5px; color: var(--muted); min-height: 15px; }
+.zfm-location-status.ok { color: var(--ok); font-weight: 600; }
+
+.zfm-honeypot { position: absolute; left: -9999px; top: -9999px; opacity: 0; height: 0; width: 0; overflow: hidden; }
+
+.zfm-checkout-summary { padding: 0 20px; margin-top: 4px; }
+.zfm-checkout-summary-row { display: flex; justify-content: space-between; font-size: 13.5px; color: var(--muted); padding: 3px 0; }
+.zfm-checkout-summary-total { display: flex; justify-content: space-between; font-weight: 700; font-size: 16px; border-top: 1px dashed var(--line); margin-top: 8px; padding-top: 8px; }
+.zfm-checkout-note { color: var(--muted); font-size: 12px; padding: 0 20px; margin: 4px 0 0; }
+.zfm-checkout-pay-note { color: var(--muted); font-size: 12.5px; padding: 10px 20px 0; }
+
+.zfm-form-error { color: var(--danger); font-size: 13.5px; padding: 0 20px; min-height: 16px; }
+.zfm-submit-btn {
+  margin: 14px 20px calc(20px + env(safe-area-inset-bottom)); height: 52px; border-radius: 999px; border: none;
+  background: var(--accent); color: var(--on-accent); font-weight: 700; font-size: 15.5px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.zfm-submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.zfm-spinner { width: 16px; height: 16px; border-radius: 50%; border: 2px solid rgba(0,0,0,0.25); border-top-color: var(--on-accent); animation: zfm-spin .7s linear infinite; }
+@keyframes zfm-spin { to { transform: rotate(360deg); } }
+
+/* ---------------------------------------------------------------------- */
+/* Muvaffaqiyat oynasi                                                     */
+/* ---------------------------------------------------------------------- */
+
+.zfm-success { text-align: center; padding: 30px 24px calc(30px + env(safe-area-inset-bottom)); }
+.zfm-success-icon {
+  width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 18px; background: var(--ok-bg);
+  display: flex; align-items: center; justify-content: center; color: var(--ok);
+}
+.zfm-success-icon svg { width: 30px; height: 30px; }
+.zfm-success h3 { font-family: var(--zfm-serif); font-size: 21px; margin: 0 0 6px; }
+.zfm-success p { color: var(--muted); font-size: 14.5px; line-height: 1.6; margin: 0 0 22px; }
+.zfm-success-close { width: 100%; height: 48px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--fg); font-weight: 600; font-size: 14.5px; cursor: pointer; }
+
+/* ---------------------------------------------------------------------- */
+/* Skeleton / xato holati                                                  */
+/* ---------------------------------------------------------------------- */
+
+.zfm-skeleton-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--zfm-radius); overflow: hidden; }
+.zfm-skeleton-card .zfm-sk-img { aspect-ratio: 4/3; background: var(--surface-2); }
+.zfm-skeleton-card .zfm-sk-line { height: 11px; margin: 10px 12px; border-radius: 6px; background: var(--surface-2); }
+.zfm-skeleton-card .zfm-sk-line.w60 { width: 60%; }
+.zfm-skeleton-card .zfm-sk-line.w40 { width: 40%; }
+@keyframes zfm-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+.zfm-skeleton-card .zfm-sk-img, .zfm-skeleton-card .zfm-sk-line { animation: zfm-pulse 1.4s ease-in-out infinite; }
+
+.zfm-load-error { text-align: center; padding: 50px 16px; color: var(--muted); }
+.zfm-load-error button {
+  margin-top: 14px; border: 1px solid var(--accent); background: transparent; color: var(--accent);
+  font-weight: 600; font-size: 13.5px; padding: 10px 20px; border-radius: 999px; cursor: pointer;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Toast                                                                    */
+/* ---------------------------------------------------------------------- */
+
+.zfm-toast-wrap { position: fixed; left: 0; right: 0; bottom: calc(86px + env(safe-area-inset-bottom)); z-index: 500; display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; }
+@media (min-width: 1024px) { .zfm-toast-wrap { bottom: auto; top: calc(var(--zfm-toolbar-h) + 16px); } }
+.zfm-toast {
+  background: var(--surface); color: var(--fg); border: 1px solid var(--line); border-radius: 999px;
+  padding: 10px 18px; font-size: 13.5px; font-weight: 600; box-shadow: 0 14px 30px -12px rgba(0,0,0,0.4);
+  opacity: 0; transform: translateY(8px); transition: opacity .2s var(--zfm-ease), transform .2s var(--zfm-ease);
+}
+.zfm-toast.show { opacity: 1; transform: translateY(0); }
+
+/* ---------------------------------------------------------------------- */
+/* QR (table-menu.html) — faqat o'qish ko'rinishi                          */
+/* ---------------------------------------------------------------------- */
+
+.zfm-qr-header { background: var(--bg); padding: 22px max(16px, env(safe-area-inset-left)); text-align: center; border-bottom: 1px solid var(--line); }
+.zfm-qr-brand { font-family: var(--zfm-serif); color: var(--accent); font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; margin: 0 0 6px; font-weight: 700; }
+.zfm-qr-table { font-family: var(--zfm-serif); font-size: 24px; font-weight: 700; margin: 0; }

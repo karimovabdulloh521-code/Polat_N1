@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>Ziyo Famliy — kirish</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=202610281339">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg">
 </head>
@@ -17,38 +17,22 @@
         <p class="dim">Tizimga kirish uchun login va parolingizni kiriting</p>
       </div>
       <div class="login-label">Login</div>
-      <input type="text" id="username" autocomplete="username" required autofocus>
+      <div class="input-field">
+        <input type="text" id="username" autocomplete="username" required autofocus>
+        <span class="input-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 4-6 8-6s8 2 8 6"></path></svg>
+        </span>
+      </div>
       <div class="login-label">Parol</div>
-      <input type="password" id="password" autocomplete="current-password" required>
+      <div class="input-field">
+        <input type="password" id="password" autocomplete="current-password" required>
+        <button type="button" id="togglePassword" class="password-toggle-btn" aria-label="Parolni ko'rsatish"></button>
+      </div>
       <div class="error-msg" id="errorMsg"></div>
       <button type="submit">Kirish</button>
     </form>
   </div>
-  <script src="app.js"></script>
-  <script>
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value;
-      const errorEl = document.getElementById('errorMsg');
-      errorEl.textContent = '';
-      try {
-        const data = await api('/login', { method: 'POST', body: { username, password } });
-        if (data.role === 'admin') {
-          window.location.href = 'admin/index.html';
-        } else if (data.role === 'chef') {
-          window.location.href = 'chef/kitchen.html';
-        } else if (data.role === 'courier') {
-          window.location.href = 'courier/orders.html';
-        } else if (data.role === 'kassir') {
-          window.location.href = 'kassir/tables.html';
-        } else {
-          window.location.href = 'waiter/tables.html';
-        }
-      } catch (err) {
-        errorEl.textContent = err.message || "Kirishda xatolik";
-      }
-    });
-  </script>
+  <script src="app.js?v=202610281339"></script>
+  <script src="login.js?v=202610281339"></script>
 </body>
 </html>

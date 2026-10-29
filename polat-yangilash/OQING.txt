@@ -1,0 +1,10 @@
+1) polat-yangilash.zip ni VPS'dagi polat loyihasi papkasiga yuklang (WinSCP/FileZilla yoki scp).
+2) VPS'dagi AI'ni shu papkada oching va quyidagini yozing:
+
+   polat-yangilash.zip ni och va ichidagi polat-yangilash/PROMPT.md faylini to'liq o'qib, undagi barcha qadamlarni bajar.
+
+   (AI ikki bosqichda ishlaydi: 1 — yangi dizayn, 2 — yetkazish narxi: 10 km gacha 5 000, 10–20 km har km +500, 20 km dan uzoq — operator raqami.
+    2-bosqichda u sizdan oshxonaning aniq joylashuvini va operator telefon raqamini so'raydi.)
+
+3) AI tugatgach: https://polatuz.duckdns.org/landing/menu.html ni oching (Ctrl+F5).
+   Muammo bo'lsa AI'ga yozing: "rollback qil".

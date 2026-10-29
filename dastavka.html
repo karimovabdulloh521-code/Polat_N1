@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Yetkazib berish — Ziyo Family</title>
+<link rel="icon" href="/icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== Tokenlar (menyu bo'limi bilan bir xil) ===== */
+:root{
+  --bg:#13110d; --surface:#1c1914; --surface-2:#242019; --border:#352f25;
+  --accent:#e3a94a; --accent-ink:#1a1408; --accent-soft:rgba(227,169,74,.12);
+  --terra:#c1502e; --text:#f3ece0; --muted:#a89d8a; --ok:#6fbf73;
+  --radius:16px; --shadow:0 10px 30px rgba(0,0,0,.35);
+  --serif:"Playfair Display",Georgia,serif; --sans:"Onest",system-ui,sans-serif;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){
+  :root{
+    --bg:#f8f2e7; --surface:#fffaf1; --surface-2:#f1e8d8; --border:#e2d5bf;
+    --accent:#a8741f; --accent-ink:#fffaf1; --accent-soft:rgba(168,116,31,.12);
+    --text:#221c14; --muted:#6f6455; --shadow:0 10px 30px rgba(60,40,10,.12);
+    color-scheme:light;
+  }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font:15px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1200px;margin:0 auto;padding:0 16px}
+.serif{font-family:var(--serif)}
+.muted{color:var(--muted)}
+.gold{color:var(--accent)}
+
+/* ===== Header ===== */
+.top{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--serif);font-size:20px;font-weight:700}
+.brand i{width:34px;height:34px;border-radius:10px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-style:normal;font-size:17px}
+.top-call{display:flex;align-items:center;gap:8px;padding:9px 14px;border:1px solid var(--border);border-radius:999px;font-weight:600;font-size:14px}
+.top-call:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ===== Hero ===== */
+.hero{padding:48px 0 28px;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:-40% -10% auto auto;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,var(--accent-soft),transparent 70%);pointer-events:none}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600}
+.eyebrow::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 4px rgba(111,191,115,.18)}
+.hero h1{font-family:var(--serif);font-size:clamp(32px,6vw,56px);line-height:1.08;margin:14px 0 14px;max-width:14ch}
+.hero h1 em{font-style:italic;color:var(--accent)}
+.hero p{max-width:52ch;color:var(--muted);font-size:16px}
+.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:28px}
+.fact{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+.fact b{display:block;font-size:15px;margin:8px 0 2px}
+.fact span{font-size:13px;color:var(--muted)}
+.fact svg{color:var(--accent)}
+
+/* ===== Steps ===== */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:8px 0 36px}
+.step{display:flex;gap:12px;align-items:flex-start;padding:14px 0;border-top:1px solid var(--border)}
+.step n{font-family:var(--serif);font-size:26px;color:var(--accent);line-height:1}
+.step b{display:block}
+.step span{font-size:13px;color:var(--muted)}
+
+/* ===== Layout ===== */
+.layout{display:grid;grid-template-columns:1fr 370px;gap:28px;align-items:start;padding-bottom:60px}
+.layout>*{min-width:0}
+.sec-title{font-family:var(--serif);font-size:28px;margin-bottom:14px}
+
+/* ===== Filters ===== */
+.filters{position:sticky;top:64px;z-index:20;background:var(--bg);padding:12px 0;margin-bottom:8px}
+.search{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:0 14px;height:46px}
+.search:focus-within{border-color:var(--accent)}
+.search input{flex:1;background:none;border:0;outline:0;height:100%}
+.chips{display:flex;gap:8px;overflow-x:auto;margin-top:10px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;padding:8px 16px;border-radius:999px;border:1px solid var(--border);background:var(--surface);font-weight:500;font-size:14px;transition:.15s}
+.chip:hover{border-color:var(--accent)}
+.chip.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.chip small{opacity:.7;margin-left:4px}
+
+/* ===== Products ===== */
+.cat-h{font-family:var(--serif);font-size:22px;margin:22px 0 12px;display:flex;align-items:baseline;gap:10px}
+.cat-h small{font-family:var(--sans);font-size:13px;color:var(--muted);font-weight:400}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;transition:border-color .15s,transform .15s}
+.card:hover{border-color:color-mix(in srgb,var(--accent) 50%,var(--border));transform:translateY(-2px)}
+.ph{aspect-ratio:4/3;position:relative;display:grid;place-items:center;background:
+  radial-gradient(circle at 30% 20%,var(--accent-soft),transparent 60%),var(--surface-2)}
+.ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.ph .ini{font-family:var(--serif);font-size:54px;color:var(--accent);opacity:.9}
+.ph .tag{position:absolute;top:10px;left:10px;font-size:11px;font-weight:600;padding:4px 9px;border-radius:999px;background:var(--terra);color:#fff}
+.card .body{padding:14px;display:flex;flex-direction:column;gap:6px;flex:1}
+.card h3{font-size:16px;font-weight:600;line-height:1.3}
+.card p{font-size:13px;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sizes{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
+.size{font-size:12px;padding:4px 10px;border-radius:8px;border:1px solid var(--border)}
+.size.on{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.card .foot{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:8px}
+.price{font-weight:700;font-size:16px}
+.price small{font-weight:500;font-size:12px;color:var(--muted)}
+.add{width:40px;height:40px;border-radius:12px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;transition:transform .1s}
+.add:active{transform:scale(.92)}
+.stepper{display:flex;align-items:center;background:var(--accent-soft);border:1px solid var(--accent);border-radius:12px;height:40px}
+.stepper button{width:36px;height:100%;color:var(--accent);font-size:18px;font-weight:600}
+.stepper span{min-width:22px;text-align:center;font-weight:700}
+.empty{padding:40px;text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:var(--radius)}
+
+/* ===== Cart ===== */
+.cart{position:sticky;top:80px;background:var(--surface);border:1px solid var(--border);border-radius:20px;display:flex;flex-direction:column;max-height:calc(100vh - 100px)}
+.cart-h{display:flex;align-items:center;justify-content:space-between;padding:18px 18px 12px}
+.cart-h h2{font-family:var(--serif);font-size:22px}
+.cart-h .x{display:none}
+.clear{font-size:13px;color:var(--muted)}
+.clear:hover{color:var(--terra)}
+.lines{overflow:auto;padding:0 18px;flex:1}
+.line{display:flex;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--border)}
+.line .mini{width:46px;height:46px;border-radius:10px;background:var(--surface-2);display:grid;place-items:center;font-family:var(--serif);color:var(--accent);font-size:20px;flex:none}
+.line .info{flex:1;min-width:0}
+.line .info b{display:block;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.line .info span{font-size:13px;color:var(--muted)}
+.line .stepper{height:34px}
+.line .stepper button{width:30px}
+.cart-empty{padding:30px 18px 36px;text-align:center;color:var(--muted)}
+.cart-empty svg{color:var(--border);margin-bottom:10px}
+.sum{padding:16px 18px 18px;border-top:1px solid var(--border)}
+.row{display:flex;justify-content:space-between;font-size:14px;margin-bottom:6px}
+.row.total{font-size:18px;font-weight:700;margin:10px 0 14px}
+.note{font-size:12px;color:var(--muted);display:flex;gap:6px;align-items:flex-start;margin-bottom:14px}
+.btn{width:100%;height:52px;border-radius:14px;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center;gap:8px;transition:filter .15s}
+.btn:hover{filter:brightness(1.07)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--border)}
+
+/* ===== Mobile cart bar ===== */
+.bar{display:none;position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:40;height:58px;border-radius:16px;background:var(--accent);color:var(--accent-ink);align-items:center;justify-content:space-between;padding:0 18px;font-weight:700;box-shadow:var(--shadow);transform:translateY(120%);transition:transform .25s}
+.bar.show{transform:none}
+.bar .cnt{background:var(--accent-ink);color:var(--accent);border-radius:8px;padding:2px 8px;margin-right:8px;font-size:13px}
+
+/* ===== Modal (checkout) ===== */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:50;opacity:0;pointer-events:none;transition:opacity .2s}
+.overlay.open{opacity:1;pointer-events:auto}
+.modal{position:fixed;z-index:60;left:50%;top:50%;width:min(540px,calc(100% - 32px));max-height:calc(100vh - 40px);overflow:auto;background:var(--surface);border:1px solid var(--border);border-radius:22px;transform:translate(-50%,-46%);opacity:0;pointer-events:none;transition:.22s}
+.modal.open{transform:translate(-50%,-50%);opacity:1;pointer-events:auto}
+.m-h{display:flex;justify-content:space-between;align-items:center;padding:20px 22px 6px}
+.m-h h2{font-family:var(--serif);font-size:24px}
+.x{width:36px;height:36px;border-radius:10px;border:1px solid var(--border);display:grid;place-items:center}
+.m-b{padding:10px 22px 22px}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--surface-2);border-radius:14px;padding:4px;margin-bottom:18px}
+.seg button{height:46px;border-radius:11px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;color:var(--muted)}
+.seg button.on{background:var(--surface);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.seg button.on svg{color:var(--accent)}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:13px;font-weight:500;margin-bottom:6px}
+.field label small{color:var(--muted);font-weight:400}
+.inp{width:100%;height:48px;border-radius:12px;border:1px solid var(--border);background:var(--bg);padding:0 14px;outline:0;transition:border-color .15s}
+textarea.inp{height:auto;min-height:76px;padding:12px 14px;resize:vertical}
+.inp:focus{border-color:var(--accent)}
+.inp.err{border-color:var(--terra)}
+.err-t{font-size:12px;color:var(--terra);margin-top:4px;display:none}
+.inp.err + .err-t{display:block}
+.gps{margin-top:8px;display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--accent);padding:8px 12px;border-radius:10px;border:1px dashed var(--accent)}
+.gps.done{border-style:solid;background:var(--accent-soft)}
+.pickup-box{display:flex;gap:12px;padding:14px;border-radius:14px;background:var(--surface-2);margin-bottom:14px;font-size:14px}
+.pickup-box svg{color:var(--accent);flex:none}
+.recap{background:var(--surface-2);border-radius:14px;padding:14px;margin:6px 0 16px}
+.hidden{display:none!important}
+
+/* ===== Success ===== */
+.success{text-align:center;padding:34px 22px 26px}
+.ok-ic{width:76px;height:76px;border-radius:50%;margin:0 auto 18px;display:grid;place-items:center;background:rgba(111,191,115,.15);color:var(--ok)}
+.success h2{font-family:var(--serif);font-size:28px;margin-bottom:8px}
+.order-no{display:inline-block;margin:16px 0 20px;padding:10px 18px;border-radius:12px;border:1px solid var(--border);font-weight:700;letter-spacing:.06em}
+
+footer{border-top:1px solid var(--border);padding:24px 0 100px;font-size:13px;color:var(--muted)}
+footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+
+/* ===== Responsive ===== */
+@media (max-width:980px){
+  .layout{grid-template-columns:1fr}
+  .cart{position:fixed;left:0;right:0;bottom:0;top:auto;z-index:60;border-radius:22px 22px 0 0;max-height:86vh;transform:translateY(100%);transition:transform .25s;padding-bottom:env(safe-area-inset-bottom)}
+  .cart.open{transform:none}
+  .cart-h .x{display:grid}
+  .bar{display:flex}
+  .facts{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:640px){
+  .hero{padding:32px 0 20px}
+  .steps{grid-template-columns:1fr;gap:0}
+  .grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .card .body{padding:11px}
+  .card h3{font-size:14px}
+  .card p{display:none}
+  .ph .ini{font-size:40px}
+  .price{font-size:14px}
+  .add,.stepper{height:36px}
+  .add{width:36px}
+  .stepper button{width:30px}
+  .modal{top:auto;bottom:0;left:0;width:100%;max-height:92vh;border-radius:22px 22px 0 0;transform:translateY(100%)}
+  .modal.open{transform:none}
+  .top-call span{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<!-- ===== Header ===== -->
+<header class="top">
+  <div class="wrap">
+    <a href="/" class="brand"><i>Z</i>Ziyo Family</a>
+    <a href="tel:+998916527771" class="top-call">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>
+      <span>+998 91 652 77 71</span>
+    </a>
+  </div>
+</header>
+
+<main>
+  <!-- ===== Hero ===== -->
+  <section class="hero">
+    <div class="wrap">
+      <span class="eyebrow">Hozir buyurtma qabul qilinmoqda</span>
+      <h1>Sevimli taomlaringiz — <em>eshigingizgacha</em></h1>
+      <p>Menyudan tanlang, buyurtma bering — operatorimiz siz bilan bog'lanib, yetkazib berish narxi va vaqtini aniqlaydi.</p>
+
+      <div class="facts">
+        <div class="fact">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          <b>24/7</b><span>Har kuni, kecha-kunduz</span>
+        </div>
+        <div class="fact">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <b>Quva tumani</b><span>Farg'ona viloyati</span>
+        </div>
+        <div class="fact">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+          <b>Naqd yoki karta</b><span>Qabul qilganda to'lov</span>
+        </div>
+        <div class="fact">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          <b>Minimal summa yo'q</b><span>Istalgan miqdorda</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <div class="steps">
+      <div class="step"><n>1</n><div><b>Taom tanlang</b><span>Savatga qo'shing</span></div></div>
+      <div class="step"><n>2</n><div><b>Ma'lumot kiriting</b><span>Ism, telefon va manzil</span></div></div>
+      <div class="step"><n>3</n><div><b>Operator qo'ng'iroq qiladi</b><span>Narx va vaqtni tasdiqlaydi</span></div></div>
+    </div>
+
+    <div class="layout">
+      <!-- ===== Menyu ===== -->
+      <section id="menu">
+        <h2 class="sec-title">Menyu</h2>
+        <div class="filters">
+          <label class="search">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="muted"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input id="q" type="search" placeholder="Taom qidirish…" autocomplete="off">
+          </label>
+          <div class="chips" id="chips"></div>
+        </div>
+        <div id="list"></div>
+      </section>
+
+      <!-- ===== Savat ===== -->
+      <aside class="cart" id="cart" aria-label="Savat">
+        <div class="cart-h">
+          <h2>Savat</h2>
+          <div style="display:flex;gap:10px;align-items:center">
+            <button class="clear" id="clear">Tozalash</button>
+            <button class="x" id="cartClose" aria-label="Yopish">✕</button>
+          </div>
+        </div>
+        <div class="lines" id="lines"></div>
+        <div class="sum" id="sum">
+          <div class="row"><span class="muted">Taomlar</span><span id="sub">0 so'm</span></div>
+          <div class="row"><span class="muted">Yetkazib berish</span><span class="gold">Operator aytadi</span></div>
+          <div class="row total"><span>Jami</span><span id="tot">0 so'm</span></div>
+          <div class="note">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex:none;margin-top:2px"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            Yetkazib berish narxi manzilga qarab operator tomonidan telefon orqali aytiladi.
+          </div>
+          <button class="btn" id="toCheckout" disabled>Buyurtmani rasmiylashtirish</button>
+        </div>
+      </aside>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© Ziyo Family · Quva tumani, Farg'ona viloyati</span>
+    <span><a href="tel:+998916527771">+998 91 652 77 71</a> · <a href="tel:+998985757574">+998 98 575 75 74</a></span>
+  </div>
+</footer>
+
+<!-- Mobil savat paneli -->
+<button class="bar" id="bar"><span><span class="cnt" id="barCnt">0</span>Savatni ko'rish</span><span id="barSum">0 so'm</span></button>
+
+<div class="overlay" id="overlay"></div>
+
+<!-- ===== Checkout ===== -->
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div id="formView">
+    <div class="m-h"><h2 id="mTitle">Buyurtma</h2><button class="x" data-close aria-label="Yopish">✕</button></div>
+    <form class="m-b" id="form" novalidate>
+      <div class="seg" role="tablist">
+        <button type="button" class="on" data-mode="delivery">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 3h15v13H1zM16 8h4l3 3v5h-7"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Yetkazib berish
+        </button>
+        <button type="button" data-mode="pickup">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18M16 10a4 4 0 0 1-8 0"/></svg>Olib ketish
+        </button>
+      </div>
+
+      <div class="field">
+        <label for="name">Ismingiz</label>
+        <input class="inp" id="name" autocomplete="name" placeholder="Masalan: Abdulloh">
+        <div class="err-t">Ismingizni kiriting</div>
+      </div>
+      <div class="field">
+        <label for="phone">Telefon raqam</label>
+        <input class="inp" id="phone" type="tel" inputmode="numeric" autocomplete="tel" value="+998 ">
+        <div class="err-t">To'liq raqam kiriting</div>
+      </div>
+
+      <div id="deliveryFields">
+        <div class="field">
+          <label for="addr">Manzil</label>
+          <input class="inp" id="addr" autocomplete="street-address" placeholder="Mahalla, ko'cha, uy raqami, mo'ljal">
+          <div class="err-t">Manzilni kiriting</div>
+          <button type="button" class="gps" id="gps">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8"/></svg>
+            <span>Lokatsiyamni yuborish</span>
+          </button>
+        </div>
+      </div>
+      <div class="pickup-box hidden" id="pickupBox">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <div><b>Ziyo Family</b><div class="muted">Quva tumani, Farg'ona viloyati. Buyurtma tayyor bo'lganda qo'ng'iroq qilamiz.</div></div>
+      </div>
+
+      <div class="field">
+        <label for="note">Izoh <small>(ixtiyoriy)</small></label>
+        <textarea class="inp" id="note" placeholder="Masalan: piyozsiz, eshik oldida qo'ng'iroq qiling"></textarea>
+      </div>
+
+      <div class="recap">
+        <div class="row"><span class="muted" id="rCnt">0 ta taom</span><span id="rSub">0 so'm</span></div>
+        <div class="row" id="rDel"><span class="muted">Yetkazib berish</span><span class="gold">Operator aytadi</span></div>
+        <div class="row total" style="margin:8px 0 0"><span>Jami</span><span id="rTot">0 so'm</span></div>
+      </div>
+      <button class="btn" type="submit" id="submit">Buyurtma berish</button>
+      <p class="muted" style="font-size:12px;text-align:center;margin-top:10px">To'lov buyurtmani qabul qilganda — naqd yoki karta orqali</p>
+    </form>
+  </div>
+
+  <div class="success hidden" id="successView">
+    <div class="ok-ic"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg></div>
+    <h2>Buyurtma qabul qilindi!</h2>
+    <p class="muted">Operatorimiz tez orada <b id="sPhone"></b> raqamiga qo'ng'iroq qilib, buyurtmani tasdiqlaydi.</p>
+    <div class="order-no" id="orderNo">#0000</div>
+    <button class="btn" data-close>Yaxshi</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   NAMUNA MA'LUMOT — haqiqiy saytda bu /api/products dan keladi.
+   img: rasm manzili bo'lsa ko'rsatiladi, bo'lmasa bosh harf chiqadi.
+   variants: turli hajmdagi mahsulotlar uchun (masalan Pepsi).
+   ============================================================ */
+const CATS = ["Taomlar","Shirinliklar","Ichimliklar","Muzqaymoq"];
+const PRODUCTS = [
+  {id:1,cat:"Taomlar",name:"Lavash",price:40000,desc:"Tarkibi: Go'sht, Sous, Ketchup, Mayonez, Pomidor, Bodring",tag:"Xit"},
+  {id:2,cat:"Taomlar",name:"Shaurma",price:35000,desc:"Tovuq go'shti, sabzavotlar, maxsus sous"},
+  {id:3,cat:"Taomlar",name:"Osh",price:45000},
+  {id:4,cat:"Taomlar",name:"Lag'mon",price:38000},
+  {id:5,cat:"Taomlar",name:"Burger",price:32000,desc:"Mol go'shti kotleti, pishloq, salat bargi"},
+  {id:6,cat:"Taomlar",name:"Hot-dog",price:18000},
+  {id:7,cat:"Shirinliklar",name:"Napoleon",price:22000},
+  {id:8,cat:"Shirinliklar",name:"Medovik",price:22000},
+  {id:9,cat:"Shirinliklar",name:"Chizkeyk",price:28000,tag:"Yangi"},
+  {id:10,cat:"Ichimliklar",name:"Pepsi",variants:[{l:"0.5 L",p:12000},{l:"1 L",p:16000},{l:"1.5 L",p:20000}]},
+  {id:11,cat:"Ichimliklar",name:"Ko'k choy",price:5000},
+  {id:12,cat:"Ichimliklar",name:"Kompot",price:10000},
+  {id:13,cat:"Muzqaymoq",name:"Plombir",price:10000},
+  {id:14,cat:"Muzqaymoq",name:"Shokoladli muzqaymoq",price:12000}
+];
+
+const $ = s => document.querySelector(s);
+const fmt = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g," ") + " so'm";
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+const state = { cat:"all", q:"", sel:{}, cart:new Map(), mode:"delivery", gps:null };
+// cart key: "id|variantIndex" -> qty
+
+const priceOf = (p,vi=0) => p.variants ? p.variants[vi].p : p.price;
+const keyOf = (p,vi=0) => p.id + "|" + (p.variants ? vi : 0);
+
+/* ---------- Kategoriyalar ---------- */
+function renderChips(){
+  const all = [["all","Barchasi",PRODUCTS.length], ...CATS.map(c=>[c,c,PRODUCTS.filter(p=>p.cat===c).length])];
+  $("#chips").innerHTML = all.map(([v,l,n]) =>
+    `<button class="chip ${state.cat===v?"on":""}" data-cat="${esc(v)}">${esc(l)}<small>${n}</small></button>`).join("");
+}
+
+/* ---------- Mahsulotlar ---------- */
+function cardControl(p){
+  const vi = state.sel[p.id] || 0, k = keyOf(p,vi), q = state.cart.get(k)||0;
+  return q
+    ? `<div class="stepper"><button data-dec="${k}" aria-label="Kamaytirish">−</button><span>${q}</span><button data-inc="${k}" aria-label="Ko'paytirish">+</button></div>`
+    : `<button class="add" data-inc="${k}" aria-label="Savatga qo'shish"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg></button>`;
+}
+function card(p){
+  const vi = state.sel[p.id] || 0;
+  const media = p.img ? `<img src="${esc(p.img)}" alt="${esc(p.name)}" loading="lazy">` : `<span class="ini">${esc(p.name[0])}</span>`;
+  const sizes = p.variants ? `<div class="sizes">${p.variants.map((v,i)=>`<button class="size ${i===vi?"on":""}" data-size="${p.id}:${i}">${esc(v.l)}</button>`).join("")}</div>` : "";
+  return `<article class="card">
+    <div class="ph">${media}${p.tag?`<span class="tag">${esc(p.tag)}</span>`:""}</div>
+    <div class="body">
+      <h3>${esc(p.name)}</h3>
+      ${p.desc?`<p>${esc(p.desc)}</p>`:""}
+      ${sizes}
+      <div class="foot"><span class="price">${fmt(priceOf(p,vi))}</span><span id="ctl-${p.id}">${cardControl(p)}</span></div>
+    </div></article>`;
+}
+function renderList(){
+  const q = state.q.trim().toLowerCase();
+  const items = PRODUCTS.filter(p => (state.cat==="all"||p.cat===state.cat) && (!q || p.name.toLowerCase().includes(q)));
+  if(!items.length){ $("#list").innerHTML = `<div class="empty">Hech narsa topilmadi</div>`; return; }
+  const cats = state.cat==="all" ? CATS : [state.cat];
+  $("#list").innerHTML = cats.map(c=>{
+    const g = items.filter(p=>p.cat===c); if(!g.length) return "";
+    return `<h3 class="cat-h">${esc(c)} <small>${g.length} ta</small></h3><div class="grid">${g.map(card).join("")}</div>`;
+  }).join("");
+}
+
+/* ---------- Savat ---------- */
+function cartItems(){
+  return [...state.cart].map(([k,q])=>{
+    const [id,vi] = k.split("|").map(Number), p = PRODUCTS.find(x=>x.id===id);
+    return {k,q,p,vi,price:priceOf(p,vi),label:p.name + (p.variants?` · ${p.variants[vi].l}`:"")};
+  });
+}
+function renderCart(){
+  const items = cartItems();
+  const count = items.reduce((s,i)=>s+i.q,0), sub = items.reduce((s,i)=>s+i.q*i.price,0);
+  $("#lines").innerHTML = items.length ? items.map(i=>`
+    <div class="line">
+      <div class="mini">${esc(i.p.name[0])}</div>
+      <div class="info"><b>${esc(i.label)}</b><span>${fmt(i.price*i.q)}</span></div>
+      <div class="stepper"><button data-dec="${i.k}">−</button><span>${i.q}</span><button data-inc="${i.k}">+</button></div>
+    </div>`).join("")
+    : `<div class="cart-empty"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg><div>Savat hozircha bo'sh</div><div style="font-size:13px">Menyudan taom tanlang</div></div>`;
+  $("#clear").style.visibility = items.length ? "visible" : "hidden";
+  $("#sub").textContent = fmt(sub);
+  $("#tot").textContent = fmt(sub) + (state.mode==="delivery"&&sub?" +":"");
+  $("#toCheckout").disabled = !count;
+  $("#barCnt").textContent = count; $("#barSum").textContent = fmt(sub);
+  $("#bar").classList.toggle("show", count>0);
+  // checkout recap
+  $("#rCnt").textContent = count + " ta taom"; $("#rSub").textContent = fmt(sub);
+  $("#rTot").textContent = fmt(sub) + (state.mode==="delivery"?" + yetkazish":"");
+  $("#rDel").classList.toggle("hidden", state.mode!=="delivery");
+  // card controls
+  PRODUCTS.forEach(p=>{ const el=document.getElementById("ctl-"+p.id); if(el) el.innerHTML = cardControl(p); });
+}
+function change(k,d){
+  const q = (state.cart.get(k)||0)+d;
+  q>0 ? state.cart.set(k,q) : state.cart.delete(k);
+  renderCart();
+}
+
+/* ---------- Panel / modal ---------- */
+const isMobile = () => matchMedia("(max-width:980px)").matches;
+function openCart(){ $("#cart").classList.add("open"); $("#overlay").classList.add("open"); }
+function openModal(){
+  $("#cart").classList.remove("open");
+  $("#formView").classList.remove("hidden"); $("#successView").classList.add("hidden");
+  $("#modal").classList.add("open"); $("#overlay").classList.add("open");
+  setTimeout(()=>$("#name").focus(),200);
+}
+function closeAll(){ ["#cart","#modal","#overlay"].forEach(s=>$(s).classList.remove("open")); }
+
+/* ---------- Telefon formati: +998 XX XXX XX XX ---------- */
+function maskPhone(v){
+  let d = v.replace(/\D/g,""); if(d.startsWith("998")) d=d.slice(3); d=d.slice(0,9);
+  const p=[d.slice(0,2),d.slice(2,5),d.slice(5,7),d.slice(7,9)].filter(Boolean);
+  return "+998 " + p.join(" ");
+}
+
+/* ---------- Hodisalar ---------- */
+document.addEventListener("click",e=>{
+  const t = e.target.closest("button"); if(!t) return;
+  if(t.dataset.cat){ state.cat=t.dataset.cat; renderChips(); renderList(); return; }
+  if(t.dataset.inc){ change(t.dataset.inc,1); return; }
+  if(t.dataset.dec){ change(t.dataset.dec,-1); return; }
+  if(t.dataset.size){ const [id,i]=t.dataset.size.split(":").map(Number); state.sel[id]=i; renderList(); return; }
+  if(t.dataset.mode){
+    state.mode=t.dataset.mode;
+    document.querySelectorAll("[data-mode]").forEach(b=>b.classList.toggle("on",b===t));
+    $("#deliveryFields").classList.toggle("hidden",state.mode!=="delivery");
+    $("#pickupBox").classList.toggle("hidden",state.mode!=="pickup");
+    renderCart(); return;
+  }
+  if(t.hasAttribute("data-close")){ closeAll(); return; }
+});
+$("#q").addEventListener("input",e=>{ state.q=e.target.value; renderList(); });
+$("#clear").onclick = ()=>{ state.cart.clear(); renderCart(); };
+$("#bar").onclick = openCart;
+$("#cartClose").onclick = closeAll;
+$("#overlay").onclick = closeAll;
+$("#toCheckout").onclick = openModal;
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeAll(); });
+
+const phone = $("#phone");
+phone.addEventListener("input",()=>{ phone.value = maskPhone(phone.value); });
+const toEnd=()=>setTimeout(()=>phone.setSelectionRange(phone.value.length,phone.value.length));
+phone.addEventListener("focus",toEnd); phone.addEventListener("click",toEnd);
+phone.addEventListener("keydown",e=>{ if(e.key==="Backspace" && phone.value.length<=5) e.preventDefault(); });
+
+$("#gps").onclick = ()=>{
+  const b=$("#gps"), s=b.querySelector("span");
+  if(!navigator.geolocation){ s.textContent="Brauzer lokatsiyani qo'llamaydi"; return; }
+  s.textContent="Aniqlanmoqda…";
+  navigator.geolocation.getCurrentPosition(
+    pos=>{ state.gps={lat:pos.coords.latitude,lng:pos.coords.longitude}; b.classList.add("done"); s.textContent="Lokatsiya qo'shildi ✓"; },
+    ()=>{ s.textContent="Ruxsat berilmadi — qayta urinish"; },
+    {enableHighAccuracy:true,timeout:10000}
+  );
+};
+
+$("#form").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const name=$("#name"), addr=$("#addr");
+  const okName = name.value.trim().length>=2;
+  const okPhone = phone.value.replace(/\D/g,"").length===12;
+  const okAddr = state.mode==="pickup" || addr.value.trim().length>=5;
+  name.classList.toggle("err",!okName); phone.classList.toggle("err",!okPhone); addr.classList.toggle("err",!okAddr);
+  if(!(okName&&okPhone&&okAddr)) return;
+
+  const order = {
+    customer_name:name.value.trim(), phone:phone.value, type:state.mode,
+    address: state.mode==="delivery" ? addr.value.trim() : null,
+    location: state.mode==="delivery" ? state.gps : null,
+    note:$("#note").value.trim() || null,
+    items: cartItems().map(i=>({product_id:i.p.id, variant:i.p.variants?i.p.variants[i.vi].l:null, qty:i.q}))
+  };
+
+  const btn=$("#submit"); btn.disabled=true; btn.textContent="Yuborilmoqda…";
+  let no;
+  try{
+    /* Haqiqiy saytda — o'zingizning endpointingizga ulang:
+       const r = await fetch("/api/orders",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(order)});
+       if(!r.ok) throw new Error(); no = (await r.json()).id; */
+    await new Promise(r=>setTimeout(r,700)); no = Math.floor(1000+Math.random()*9000);
+    $("#orderNo").textContent = "Buyurtma #" + no;
+    $("#sPhone").textContent = order.phone;
+    $("#formView").classList.add("hidden"); $("#successView").classList.remove("hidden");
+    state.cart.clear(); renderCart(); $("#form").reset(); phone.value="+998 "; state.gps=null;
+    $("#gps").classList.remove("done"); $("#gps span").textContent="Lokatsiyamni yuborish";
+  }catch{
+    alert("Xatolik yuz berdi. Iltimos, +998 91 652 77 71 raqamiga qo'ng'iroq qiling.");
+  }finally{ btn.disabled=false; btn.textContent="Buyurtma berish"; }
+});
+
+renderChips(); renderList(); renderCart();
+</script>
+</body>
+</html>

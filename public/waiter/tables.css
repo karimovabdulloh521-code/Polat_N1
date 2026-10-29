@@ -1,0 +1,387 @@
+/* "Stollar" sahifasi uchun mustaqil dizayn (2026-10-15) — faqat shu sahifaga
+   ulanadi, boshqa sahifalar (order.html, admin/*, kassir/*) ishlatadigan
+   umumiy public/style.css'ga HECH TEGMAYDI. Barcha token/klass "tbl-"
+   prefiksi bilan — global klasslar (masalan .table-grid, .badge) bilan
+   to'qnashmasin deb (public/admin/ombor.css'dagi ".ov-" bilan bir xil naqsh).
+   Mobile-first: baza — telefon, keyin min-width bilan kengaytiriladi. */
+
+@import url('https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap');
+
+body.tbl-page {
+  --tbl-bg: #13110d;
+  --tbl-surface: #1c1914;
+  --tbl-surface-2: #25211a;
+  --tbl-line: #352f25;
+  --tbl-fg: #f2ead9;
+  --tbl-muted: #9c907c;
+
+  --tbl-busy: #e3a94a;
+  --tbl-busy-bg: #2e2416;
+  --tbl-busy-line: #6b4f22;
+  --tbl-free: #5fbf8a;
+  --tbl-free-bg: #16241c;
+  --tbl-free-line: #28503a;
+  --tbl-bill: #ec7a62;
+  --tbl-bill-bg: #331d17;
+  --tbl-bill-line: #6b3326;
+
+  --tbl-serif: 'Playfair Display', Georgia, 'Iowan Old Style', serif;
+  --tbl-sans: 'Onest', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  background: var(--tbl-bg);
+  color: var(--tbl-fg);
+  font-family: var(--tbl-sans);
+  margin: 0;
+}
+
+@media (prefers-color-scheme: light) {
+  body.tbl-page {
+    --tbl-bg: #f6f2ea;
+    --tbl-surface: #fffdf8;
+    --tbl-surface-2: #efe8db;
+    --tbl-line: #ddd3c2;
+    --tbl-fg: #231c14;
+    --tbl-muted: #7a6d5c;
+
+    --tbl-busy: #b9770e;
+    --tbl-busy-bg: #fbefd9;
+    --tbl-busy-line: #e6c48a;
+    --tbl-free: #2f7d55;
+    --tbl-free-bg: #e6f2ea;
+    --tbl-free-line: #b7d8c4;
+    --tbl-bill: #b4432f;
+    --tbl-bill-bg: #f9e3dd;
+    --tbl-bill-line: #e3ad9f;
+  }
+}
+
+body.tbl-page * { box-sizing: border-box; }
+body.tbl-page .tbl-num { font-variant-numeric: tabular-nums; }
+body.tbl-page.tbl-panel-lock { overflow: hidden; }
+
+@media (prefers-reduced-motion: reduce) {
+  body.tbl-page, body.tbl-page * { transition: none !important; animation: none !important; }
+}
+
+/* ---------------- Header ---------------- */
+
+.tbl-header {
+  position: sticky; top: 0; z-index: 20;
+  padding-top: env(safe-area-inset-top);
+  background: linear-gradient(180deg, var(--tbl-surface) 0%, var(--tbl-bg) 100%);
+  border-bottom: 1px solid var(--tbl-line);
+}
+.tbl-header-inner {
+  padding: 10px max(16px, env(safe-area-inset-right)) 10px max(16px, env(safe-area-inset-left));
+}
+.tbl-header-row1 {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+}
+.tbl-titles { min-width: 0; }
+.tbl-brand {
+  display: block; font-size: 10px; letter-spacing: 0.14em; color: var(--tbl-muted);
+  text-transform: uppercase; font-weight: 600;
+}
+.tbl-title {
+  font-family: var(--tbl-serif); font-weight: 700; margin: 0;
+  font-size: clamp(20px, 2.2vw + 12px, 28px);
+}
+.tbl-header-side {
+  display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+}
+.tbl-avatar {
+  width: 36px; height: 36px; border-radius: 999px; flex-shrink: 0;
+  background: var(--tbl-surface-2); border: 1px solid var(--tbl-line);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--tbl-serif); font-weight: 700; font-size: 13px; color: var(--tbl-busy);
+}
+.tbl-waiter-name { font-size: 13px; color: var(--tbl-muted); display: none; }
+.tbl-logout-btn {
+  min-height: 44px; min-width: 44px; padding: 0 14px;
+  background: var(--tbl-surface-2); color: var(--tbl-fg); border: 1px solid var(--tbl-line);
+  border-radius: 10px; font-weight: 600; font-size: 13px; font-family: inherit;
+}
+
+.tbl-stats {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 8px; margin-top: 10px;
+}
+.tbl-stat {
+  background: var(--tbl-surface); border: 1px solid var(--tbl-line); border-radius: 12px;
+  padding: 8px 10px; min-width: 0;
+}
+.tbl-stat-label {
+  font-size: 11px; color: var(--tbl-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.tbl-stat-value {
+  font-family: var(--tbl-serif); font-weight: 700; margin-top: 2px;
+  font-size: clamp(15px, .5vw + 13px, 18px);
+}
+.tbl-stat.is-busy .tbl-stat-value { color: var(--tbl-busy); }
+.tbl-stat.is-free .tbl-stat-value { color: var(--tbl-free); }
+.tbl-stat.is-ready .tbl-stat-value { color: var(--tbl-free); }
+
+/* ---------------- Filtrlar ---------------- */
+
+.tbl-filters {
+  padding: 10px max(16px, env(safe-area-inset-right)) 10px max(16px, env(safe-area-inset-left));
+  border-bottom: 1px solid var(--tbl-line);
+  background: var(--tbl-bg);
+}
+.tbl-hall-tabs {
+  display: flex; gap: 6px; overflow-x: auto; scroll-snap-type: x mandatory;
+  padding-bottom: 2px; -ms-overflow-style: none; scrollbar-width: none;
+}
+.tbl-hall-tabs::-webkit-scrollbar { display: none; }
+.tbl-hall-tab {
+  scroll-snap-align: start; flex-shrink: 0; min-height: 44px;
+  padding: 0 14px; border-radius: 999px; border: 1px solid var(--tbl-line);
+  background: var(--tbl-surface); color: var(--tbl-muted); font-family: inherit;
+  font-weight: 600; font-size: 13.5px; white-space: nowrap;
+  display: flex; align-items: center; gap: 6px;
+}
+.tbl-hall-tab .tbl-hall-tab-count { font-size: 11px; opacity: .8; }
+.tbl-hall-tab.is-active {
+  background: var(--tbl-busy-bg); color: var(--tbl-busy); border-color: var(--tbl-busy-line);
+}
+
+.tbl-segment {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px;
+}
+.tbl-segment-btn {
+  min-height: 44px; border-radius: 10px; border: 1px solid var(--tbl-line);
+  background: var(--tbl-surface); color: var(--tbl-muted); font-family: inherit;
+  font-weight: 600; font-size: 13px;
+}
+.tbl-segment-btn.is-active { background: var(--tbl-surface-2); color: var(--tbl-fg); border-color: var(--tbl-busy-line); }
+
+/* ---------------- Asosiy qism / zal bo'limlari ---------------- */
+
+.tbl-layout { display: block; }
+.tbl-main {
+  padding: 14px max(16px, env(safe-area-inset-right)) 24px max(16px, env(safe-area-inset-left));
+  min-width: 0;
+}
+.tbl-hall-section + .tbl-hall-section { margin-top: 22px; }
+.tbl-hall-head {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 10px; min-width: 0;
+}
+.tbl-hall-name {
+  font-family: var(--tbl-serif); font-weight: 600; font-size: 16px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
+}
+.tbl-hall-count { font-size: 12px; color: var(--tbl-muted); white-space: nowrap; flex-shrink: 0; }
+.tbl-hall-progress {
+  height: 4px; border-radius: 999px; background: var(--tbl-surface-2); margin: 8px 0 12px; overflow: hidden;
+}
+.tbl-hall-progress-fill { height: 100%; background: var(--tbl-busy); border-radius: 999px; }
+
+.tbl-grid {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;
+}
+
+.tbl-card {
+  min-height: 96px; padding: 12px; border-radius: 12px;
+  border: 1px solid var(--tbl-line); background: var(--tbl-surface);
+  color: var(--tbl-fg); text-align: left; font-family: inherit; min-width: 0;
+  display: flex; flex-direction: column; gap: 4px; position: relative;
+}
+.tbl-card:active { transform: scale(.97); }
+.tbl-card:focus-visible { outline: 2px solid var(--tbl-busy); outline-offset: 2px; }
+.tbl-card.is-busy { background: var(--tbl-busy-bg); border-color: var(--tbl-busy-line); }
+.tbl-card.is-bill { background: var(--tbl-bill-bg); border-color: var(--tbl-bill-line); }
+
+.tbl-card-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.tbl-card-number {
+  font-family: var(--tbl-serif); font-weight: 700; line-height: 1;
+  font-size: clamp(24px, 1.6vw + 18px, 32px);
+}
+.tbl-card-guests { font-size: 12px; color: var(--tbl-muted); }
+
+.tbl-pill {
+  display: inline-flex; align-items: center; padding: 2px 9px; border-radius: 999px;
+  font-size: 10.5px; font-weight: 700; letter-spacing: .04em; width: fit-content;
+}
+.tbl-pill.is-free { background: rgba(0,0,0,0); color: var(--tbl-free); border: 1px solid var(--tbl-free-line); }
+.tbl-pill.is-busy { color: var(--tbl-busy); border: 1px solid var(--tbl-busy-line); }
+.tbl-pill.is-bill { color: var(--tbl-bill); border: 1px solid var(--tbl-bill-line); }
+
+.tbl-ready-flag {
+  display: inline-flex; align-items: center; gap: 5px; width: fit-content;
+  font-size: 11px; font-weight: 700; color: var(--tbl-free);
+}
+.tbl-ready-dot {
+  width: 7px; height: 7px; border-radius: 999px; background: var(--tbl-free);
+  animation: tblReadyBlink 1.4s ease-in-out infinite;
+}
+@keyframes tblReadyBlink { 0%, 100% { opacity: 1; } 50% { opacity: .25; } }
+.tbl-pending-flag { font-size: 11px; color: var(--tbl-muted); }
+
+.tbl-card-total {
+  font-family: var(--tbl-serif); font-weight: 700;
+  font-size: clamp(15px, .5vw + 13px, 18px); margin-top: auto;
+}
+.tbl-card-meta { font-size: 11.5px; color: var(--tbl-muted); }
+.tbl-card-open-action { font-size: 12.5px; font-weight: 600; color: var(--tbl-free); margin-top: auto; }
+
+.tbl-empty { color: var(--tbl-muted); font-size: 14px; padding: 20px 0; }
+
+/* ---------------- Buyurtma paneli ---------------- */
+
+.tbl-panel-backdrop {
+  position: fixed; inset: 0; z-index: 30; background: rgba(0,0,0,.5);
+  opacity: 0; pointer-events: none; transition: opacity .25s ease;
+}
+.tbl-panel-backdrop.is-open { opacity: 1; pointer-events: auto; }
+
+.tbl-panel {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 31;
+  max-height: 85dvh; display: flex; flex-direction: column;
+  background: var(--tbl-surface); border: 1px solid var(--tbl-line);
+  border-bottom: none; border-radius: 18px 18px 0 0;
+  transform: translateY(100%); transition: transform .3s ease;
+  box-shadow: 0 -8px 30px rgba(0,0,0,.35);
+}
+.tbl-panel.is-open { transform: translateY(0); }
+.tbl-panel-handle {
+  width: 36px; height: 4px; border-radius: 999px; background: var(--tbl-line);
+  margin: 10px auto 2px; flex-shrink: 0;
+}
+.tbl-panel-head {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+  padding: 6px 18px 10px; flex-shrink: 0;
+}
+.tbl-panel-number {
+  font-family: var(--tbl-serif); font-weight: 700; font-size: clamp(22px, 1.6vw + 16px, 28px);
+}
+.tbl-panel-meta { font-size: 12.5px; color: var(--tbl-muted); margin-top: 2px; }
+.tbl-panel-bill-row { margin-top: 8px; }
+.tbl-bill-toggle-btn {
+  min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--tbl-line);
+  background: var(--tbl-surface-2); color: var(--tbl-muted); font-family: inherit;
+  font-weight: 600; font-size: 12.5px;
+}
+.tbl-bill-toggle-btn.is-on { background: var(--tbl-bill-bg); color: var(--tbl-bill); border-color: var(--tbl-bill-line); }
+.tbl-bill-toggle-btn:focus-visible { outline: 2px solid var(--tbl-busy); outline-offset: 2px; }
+.tbl-panel-close {
+  min-height: 44px; min-width: 44px; border-radius: 10px; border: 1px solid var(--tbl-line);
+  background: var(--tbl-surface-2); color: var(--tbl-fg); font-size: 18px; flex-shrink: 0;
+}
+.tbl-panel-body {
+  flex: 1; overflow-y: auto; padding: 0 18px 8px;
+}
+.tbl-panel-line {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 9px 0; border-bottom: 1px solid var(--tbl-line); min-width: 0;
+}
+.tbl-panel-line:last-child { border-bottom: none; }
+.tbl-line-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tbl-line-qty { font-size: 12.5px; color: var(--tbl-muted); flex-shrink: 0; }
+.tbl-line-sub { font-weight: 600; flex-shrink: 0; }
+.tbl-panel-empty { color: var(--tbl-muted); font-size: 14px; padding: 30px 0; text-align: center; }
+
+.tbl-panel-footer {
+  flex-shrink: 0; padding: 10px 18px max(10px, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--tbl-line); background: var(--tbl-surface);
+}
+.tbl-panel-total-row {
+  display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px;
+}
+.tbl-panel-total-label { font-size: 13px; color: var(--tbl-muted); }
+.tbl-panel-total-value { font-family: var(--tbl-serif); font-weight: 700; font-size: 21px; }
+.tbl-panel-actions { display: flex; gap: 8px; }
+.tbl-btn {
+  flex: 1; min-height: 44px; border-radius: 10px; border: 1px solid var(--tbl-line);
+  background: var(--tbl-surface-2); color: var(--tbl-fg); font-family: inherit;
+  font-weight: 600; font-size: 14px;
+}
+.tbl-btn.is-primary { background: var(--tbl-busy); color: #1a1208; border-color: var(--tbl-busy); }
+.tbl-btn.is-bill-toggle.is-on { background: var(--tbl-bill-bg); color: var(--tbl-bill); border-color: var(--tbl-bill-line); }
+.tbl-btn:focus-visible { outline: 2px solid var(--tbl-busy); outline-offset: 2px; }
+
+/* ---------------- Legenda ---------------- */
+
+.tbl-legend {
+  display: flex; gap: 16px; flex-wrap: wrap;
+  padding: 4px max(16px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  font-size: 12px; color: var(--tbl-muted);
+}
+.tbl-legend-item { display: flex; align-items: center; gap: 6px; }
+.tbl-legend-dot { width: 9px; height: 9px; border-radius: 999px; flex-shrink: 0; }
+.tbl-legend-dot.is-free { background: var(--tbl-free); }
+.tbl-legend-dot.is-busy { background: var(--tbl-busy); }
+.tbl-legend-dot.is-bill { background: var(--tbl-bill); }
+
+/* ---------------- Hover (faqat sichqoncha bor qurilmalarda) ---------------- */
+
+@media (hover: hover) {
+  .tbl-card:hover { border-color: var(--tbl-busy); }
+  .tbl-hall-tab:hover, .tbl-segment-btn:hover, .tbl-btn:hover, .tbl-logout-btn:hover, .tbl-panel-close:hover {
+    border-color: var(--tbl-busy-line);
+  }
+}
+
+/* ======================================================================
+   PLANSHET — 600px va undan katta
+   ====================================================================== */
+@media (min-width: 600px) {
+  .tbl-header-row1 { align-items: center; }
+  .tbl-header-top-grid {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  }
+  .tbl-stats { display: flex; gap: 8px; margin-top: 0; width: auto; }
+  .tbl-stat { min-width: 110px; }
+  .tbl-waiter-name { display: inline; }
+
+  .tbl-filters { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .tbl-hall-tabs { flex: 1; min-width: 0; }
+  .tbl-segment { margin-top: 0; width: auto; min-width: 260px; flex-shrink: 0; }
+
+  .tbl-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+  .tbl-card { min-height: 110px; padding: 14px; }
+
+  .tbl-panel {
+    left: auto; top: 0; bottom: 0; right: 0; width: 380px; max-height: none;
+    border-radius: 0; border-top: none; border-right: none;
+    transform: translateX(100%);
+  }
+  .tbl-panel.is-open { transform: translateX(0); }
+  .tbl-panel-handle { display: none; }
+}
+
+/* ======================================================================
+   KOMPYUTER — 1024px va undan katta
+   ====================================================================== */
+@media (min-width: 1024px) {
+  .tbl-header-inner, .tbl-filters, .tbl-main, .tbl-legend {
+    max-width: 1440px; margin-left: auto; margin-right: auto;
+  }
+  .tbl-grid { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
+  .tbl-card { min-height: 118px; transition: transform .15s ease, box-shadow .15s ease; }
+}
+@media (min-width: 1024px) and (hover: hover) {
+  .tbl-card:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,.25); }
+}
+
+/* ======================================================================
+   KATTA KOMPYUTER — 1280px va undan katta: panel doimiy, ustma-ust ochilmaydi
+   ====================================================================== */
+@media (min-width: 1280px) {
+  .tbl-layout {
+    max-width: 1440px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 400px; align-items: start;
+  }
+  .tbl-header-inner, .tbl-filters, .tbl-legend { max-width: 1440px; }
+  .tbl-main { max-width: none; margin: 0; }
+
+  .tbl-panel-backdrop { display: none; }
+  .tbl-panel {
+    position: sticky; top: calc(96px + env(safe-area-inset-top));
+    left: auto; right: auto; bottom: auto; width: 100%; height: calc(100dvh - 120px);
+    max-height: calc(100dvh - 120px);
+    transform: none; border-radius: 14px; border: 1px solid var(--tbl-line);
+    margin-top: 14px;
+  }
+  body.tbl-page.tbl-panel-lock { overflow: auto; }
+
+  .tbl-panel-close { display: none; }
+}

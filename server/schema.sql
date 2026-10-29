@@ -21,12 +21,24 @@ CREATE TABLE IF NOT EXISTS users (
   created_at TEXT NOT NULL
 );
 
+-- Stollar joylashgan zonalar (masalan "Zal", "Tashqari") — faqat guruhlash
+-- yorlig'i, inventory_categories bilan bir xil oddiy naqsh (is_active shart
+-- emas — zona o'chirilsa shunchaki hard-delete qilinadi, unga tegishli
+-- stollar zone_id=NULL bo'lib "Joysiz" guruhga tushadi).
+CREATE TABLE IF NOT EXISTS table_zones (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL
+);
+
 -- Restoran stollari.
 CREATE TABLE IF NOT EXISTS tables (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL,
   sort_order INTEGER NOT NULL DEFAULT 0,
   is_active INTEGER NOT NULL DEFAULT 1,
+  zone_id INTEGER REFERENCES table_zones(id),
   created_at TEXT NOT NULL
 );
 
@@ -116,6 +128,8 @@ CREATE TABLE IF NOT EXISTS order_items (
                 -- oshpaz kitchen ekranida ko'rmaydi — server/routes/chefKitchen.js filtrlaydi)
   picked_up_at TEXT, -- afitsiant "Qabul qildim" bosgach to'ldiriladi (server/routes/waiterNotifications.js) —
                       -- shundan keyin taom oshpaz ekranidan yo'qoladi (chefKitchen.js filtrlaydi)
+  note TEXT NOT NULL DEFAULT '', -- afitsiant oshpazga yozgan ixtiyoriy izoh (2026-10-15, "Stollar"/"Buyurtma"
+                                  -- sahifalari qayta dizayni) — faqat sent_at IS NULL bo'lganda tahrirlanadi
   created_at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_order_items_order ON order_items(order_id);
@@ -233,12 +247,56 @@ CREATE TABLE IF NOT EXISTS print_requests (
   printed_by TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_print_requests_pending ON print_requests(printed_at);
+
+-- Afitsiant "🍽️ Oshxonaga yuborish" tugmasini bosganda (2026-09-20'dan) har
+-- safar bitta "oshxona cheki" yaratiladi — server/services/orders.js'dagi
+-- sendPendingItems(). print_requests'dan farqli, bu yerda ADMIN tugma
+-- bosishini kutmaydi: oshpaz kompyuteridagi /chef/kitchen.html sahifasi
+-- (public/app.js, initChefKitchenTicketPrinting()) buni har necha soniyada
+-- so'rab (poll), HECH QANDAY tugma bosilmasdan darhol QZ Tray orqali
+-- oshxona printeriga chop etadi, so'ng printed_at'ni belgilaydi. table_name
+-- — buyurtma paytidagi stol nomi nusxasi (keyin stol nomi o'zgarsa ham chek
+-- matni o'zgarmaydi, order_items.name_snapshot bilan bir xil mantiq).
+-- 'customer_order_id' (2026-10-18) — mijoz landing saytidan (olib ketish/
+-- yetkazib berish) buyurtma berganda ham xuddi shu navbatga yoziladi, shu
+-- sabab 'order_id' endi IXTIYORIY (dine-in buyurtmada to'ldiriladi,
+-- mijoz-buyurtmasida bo'sh qoladi) — ikkalasidan aynan bittasi to'ldiriladi.
+CREATE TABLE IF NOT EXISTS kitchen_tickets (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  order_id INTEGER REFERENCES orders(id),
+  customer_order_id INTEGER REFERENCES customer_orders(id),
+  table_name TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  printed_at TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_kitchen_tickets_pending ON kitchen_tickets(printed_at);
+
+CREATE TABLE IF NOT EXISTS kitchen_ticket_items (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  kitchen_ticket_id INTEGER NOT NULL REFERENCES kitchen_tickets(id),
+  name_snapshot TEXT NOT NULL,
+  quantity INTEGER NOT NULL,
+  note TEXT NOT NULL DEFAULT '' -- order_items.note'dan nusxa (2026-10-15) — oshpaz ekranida ko'rinishi uchun
+);
+CREATE INDEX IF NOT EXISTS idx_kitchen_ticket_items_ticket ON kitchen_ticket_items(kitchen_ticket_id);
+
 CREATE INDEX IF NOT EXISTS idx_notifications_unread ON notifications(is_read);
 -- idx_notifications_ack SHU YERDA EMAS — server/db.js'dagi migrateAddNotificationAck()
 -- ichida yaratiladi. Sabab: eski (bu ustun qo'shilishidan oldingi) bazalarda
 -- CREATE TABLE IF NOT EXISTS mavjud jadvalga tegmaydi, shu sabab bu yerda turgan
 -- CREATE INDEX ustun hali ALTER bilan qo'shilmasdan turib ishga tushib, "no such
 -- column" xatosi bilan butun serverni yiqitadi (2026-08-26'da amalda topilgan bug).
+
+-- Ombor mahsuloti TURKUMI (2026-09-26) — masalan "Ichimliklar", "Tozalash
+-- vositalari" — FAQAT Ombor sahifasida mahsulotlarni ustunlarga ajratib
+-- ko'rsatish uchun. `menu_categories`dan ATAYLAB MUSTAQIL — ombor mahsuloti
+-- (masalan salfetka) menyuga umuman bog'lanmasligi ham mumkin.
+CREATE TABLE IF NOT EXISTS inventory_categories (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL
+);
 
 -- Ombor (2026-09-07): suv/salfetka va shunga o'xshash sotiladigan/sarflanadigan
 -- mahsulotlar qoldig'i. `menu_items.inventory_item_id` (server/db.js'dagi
@@ -254,7 +312,8 @@ CREATE INDEX IF NOT EXISTS idx_notifications_unread ON notifications(is_read);
 -- syncMenuPricing()) — admin narxni ikki joyda alohida kiritmaydi, yagona manba
 -- shu yerda. cost_price esa faqat Ombor sahifasida (admin/inventory.js, foyda
 -- ko'rsatkichi uchun) ko'rinadi — MENYUDA HECH QACHON chiqmaydi (faqat sale_price
--- orqali menu_items.price'ga o'tadi, o'zi emas).
+-- orqali menu_items.price'ga o'tadi, o'zi emas). category_id/image_url 2026-09-26'da
+-- qo'shildi (turkumga ajratish + ixtiyoriy rasm, faqat Ombor sahifasida ko'rinadi).
 CREATE TABLE IF NOT EXISTS inventory_items (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL,
@@ -264,10 +323,18 @@ CREATE TABLE IF NOT EXISTS inventory_items (
   cost_price INTEGER NOT NULL DEFAULT 0, -- tan narxi (so'm/birlik) — ixtiyoriy, 0 = kiritilmagan
   sale_price INTEGER NOT NULL DEFAULT 0, -- sotuv narxi (so'm/birlik) — bog'langan menyu taomiga shu narx o'tadi
   volume TEXT, -- hajmi (2026-09-07, masalan suv uchun "0.5L"/"1L"/"5L") — ixtiyoriy, erkin matn, faqat Ombor sahifasida ko'rinadi
+  category_id INTEGER REFERENCES inventory_categories(id), -- ixtiyoriy turkum (2026-09-26) — Ombor sahifasida ustunlarga ajratish uchun
+  image_url TEXT, -- ixtiyoriy rasm (2026-09-26, admin/inventory.js POST /upload-image orqali yuklanadi)
   is_active INTEGER NOT NULL DEFAULT 1, -- soft-delete (harakatlar tarixi — inventory_movements — bo'lsa hard-delete qilinmaydi)
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
+-- idx_inventory_items_category SHU YERDA EMAS — server/db.js'dagi
+-- migrateAddInventoryItemCategoryAndImage() ichida yaratiladi. Sabab
+-- idx_notifications_ack'dagi bilan bir xil (yuqoridagi izohga qarang): eski
+-- bazada bu CREATE INDEX ALTER'dan oldin ishga tushib "no such column"
+-- xatosi bilan serverni yiqitardi (2026-08-26'da amalda topilgan bug, shu
+-- saboqqa amal qilindi).
 
 -- Har bir ombor harakati (kirim/chiqim) — tarix va hisobot uchun append-only.
 -- delta musbat = kirim (admin qo'lda qo'shdi), manfiy = chiqim (buyurtma orqali
@@ -277,7 +344,7 @@ CREATE TABLE IF NOT EXISTS inventory_movements (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   inventory_item_id INTEGER NOT NULL REFERENCES inventory_items(id),
   delta INTEGER NOT NULL,
-  reason TEXT NOT NULL CHECK (reason IN ('restock', 'adjustment', 'order', 'return')),
+  reason TEXT NOT NULL CHECK (reason IN ('restock', 'adjustment', 'waste', 'stocktake', 'order', 'return')),
   note TEXT,
   order_item_id INTEGER REFERENCES order_items(id), -- 'order'/'return' bo'lsa qaysi afitsiant buyurtma qatoriga tegishli (kuzatuv uchun, ixtiyoriy)
   customer_order_item_id INTEGER REFERENCES customer_order_items(id), -- yoki mijoz (landing) buyurtma qatoriga (ikkalasi bir vaqtda to'lmaydi)
@@ -295,6 +362,9 @@ CREATE TABLE IF NOT EXISTS manual_bills (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   created_by INTEGER NOT NULL REFERENCES users(id),
   total_amount INTEGER NOT NULL,
+  customer_phone TEXT,
+  note TEXT,
+  delivery_price INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_manual_bills_created ON manual_bills(created_at);
@@ -308,3 +378,58 @@ CREATE TABLE IF NOT EXISTS manual_bill_items (
   subtotal INTEGER NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_manual_bill_items_bill ON manual_bill_items(manual_bill_id);
+
+-- Kassir smenasi (2026-10-10, "Moliya va kassa" auditi) — faqat kassir (va
+-- admin) rolidagi pul-hisob yopishlar uchun: kim qachon ishni boshladi/
+-- tugatdi, boshida qancha naqd bo'lgan, yopilganda kutilgan (orders/
+-- manual_bills.cash_amount yig'indisi + opening_cash) va haqiqiy (kassir
+-- qo'lda sanagan) naqd solishtiriladi. Bitta kassir bir vaqtda faqat bitta
+-- ochiq smenaga ega bo'lishi server/services/cashShifts.js'da (db.transaction
+-- ichida, "bitta stolda bitta ochiq buyurtma" bilan bir xil naqsh) ta'minlanadi.
+CREATE TABLE IF NOT EXISTS cash_shifts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  opened_by INTEGER NOT NULL REFERENCES users(id),
+  opened_at TEXT NOT NULL,
+  opening_cash INTEGER NOT NULL DEFAULT 0,
+  closed_by INTEGER REFERENCES users(id),
+  closed_at TEXT,
+  expected_cash INTEGER,
+  actual_cash INTEGER,
+  variance INTEGER,
+  status TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'closed')),
+  note TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_cash_shifts_opened_by ON cash_shifts(opened_by);
+CREATE INDEX IF NOT EXISTS idx_cash_shifts_status ON cash_shifts(status);
+
+-- Markazlashgan audit jurnali (2026-10-10, "Audit izi" auditi) — HECH QANDAY
+-- o'z ustuniga ega bo'lmagan nozik o'zgarishlar uchun (narx o'zgarishi, xodim
+-- roli o'zgarishi, xodim yaratish/o'chirish). Boshqa harakatlar (taom bekor
+-- qilish, qo'lda chek, smena yopish) allaqachon o'z jadvalida (order_items.
+-- cancelled_by, manual_bills.created_by, cash_shifts) kuzatiladi — bu yerga
+-- TAKRORLANMAYDI. Ilova darajasida FAQAT INSERT qilinadi — hech qanday route/
+-- funksiya bu jadvalga UPDATE/DELETE yozmaydi (server/services/auditLog.js'ga qarang).
+CREATE TABLE IF NOT EXISTS audit_log (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  action TEXT NOT NULL, -- masalan 'menu_item.price_change', 'user.role_change', 'user.create', 'user.deactivate'
+  entity_type TEXT NOT NULL,
+  entity_id INTEGER NOT NULL,
+  old_value TEXT, -- JSON
+  new_value TEXT, -- JSON
+  performed_by INTEGER REFERENCES users(id),
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_audit_log_entity ON audit_log(entity_type, entity_id);
+CREATE INDEX IF NOT EXISTS idx_audit_log_user ON audit_log(performed_by);
+
+-- Login urinishlari (2026-10-10, "Audit izi" auditi) — muvaffaqiyatli VA
+-- muvaffaqiyatsiz, ikkalasi ham. `users.last_login_at`dan farqli — bu TARIX
+-- (append-only), har safar yangi qator, ustidan yozilmaydi.
+CREATE TABLE IF NOT EXISTS login_attempts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  username TEXT NOT NULL,
+  success INTEGER NOT NULL,
+  ip TEXT,
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_login_attempts_username ON login_attempts(username, created_at);

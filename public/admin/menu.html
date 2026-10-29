@@ -4,33 +4,34 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>Menyu — Ziyo Famliy admin</title>
-<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="../style.css?v=202610281339">
+<link rel="stylesheet" href="theme.css?v=202610281339">
 <link rel="manifest" href="../manifest.json">
 <link rel="icon" href="../icon.svg">
 </head>
-<body class="app-body">
-  <div class="app-shell">
-    <nav class="bottom-nav" id="bottomNav">
-      <a href="index.html" data-page="index"><span class="ic">📊</span>Bosh sahifa</a>
-      <a href="menu.html" data-page="menu"><span class="ic">🍽️</span>Menyu</a>
-      <a href="tables.html" data-page="tables"><span class="ic">🪑</span>Stollar</a>
-      <a href="waiters.html" data-page="waiters"><span class="ic">👥</span>Xodimlar</a>
-      <a href="expenses.html" data-page="expenses"><span class="ic">💵</span>Xarajat</a>
-      <a href="reservations.html" data-page="reservations"><span class="ic">📅</span>Bronlar</a>
-      <a href="customer-orders.html" data-page="customer-orders"><span class="ic">🛒</span>Buyurtmalar</a>
-      <a href="inventory.html" data-page="inventory"><span class="ic">📦</span>Ombor</a>
-      <a href="reports.html" data-page="reports"><span class="ic">📈</span>Hisobot</a>
-    </nav>
-    <div style="flex:1;">
-      <div class="topbar">
-        <h1>Menyu</h1>
-        <button class="logout-btn" id="logoutBtn">Chiqish</button>
+<body>
+  <div class="admin-page">
+    <header class="page-head">
+      <div class="page-head-left">
+        <a href="index.html" class="icon-btn page-head-mobile-only" id="backBtn" aria-label="Ortga">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+        </a>
+        <div class="brand-mark page-head-mobile-only" aria-hidden="true">P</div>
+        <div class="page-head-text">
+          <p class="page-date" id="pageDate">&nbsp;</p>
+          <h1 class="page-title">Menyu</h1>
+        </div>
       </div>
-      <main>
+      <button class="icon-btn page-head-mobile-only" id="logoutBtn" type="button" aria-label="Chiqish">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17l5-5-5-5"/><path d="M20 12H9"/><path d="M12 19H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6"/></svg>
+      </button>
+      <div class="page-head-actions">
         <button class="btn primary block" id="addCatBtn">+ Yangi kategoriya</button>
-        <div id="categoryList" class="mt-16"><p class="dim">Yuklanmoqda...</p></div>
-      </main>
-    </div>
+      </div>
+    </header>
+    <main class="page-main">
+      <div id="categoryList" class="mt-16"><p class="dim">Yuklanmoqda...</p></div>
+    </main>
   </div>
 
   <div class="modal-backdrop hidden" id="catModal">
@@ -82,7 +83,12 @@
         <div class="field">
           <label>Rasm (ixtiyoriy — majburiy emas)</label>
           <img id="itemImagePreview" class="hidden" style="max-width:120px; border-radius:var(--radius-sm); display:block; margin-bottom:8px;">
-          <input id="itemImageFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <label class="btn small" for="itemImageFile" style="cursor:pointer;">🖼 Galereyadan tanlash</label>
+            <label class="btn small" for="itemImageCameraFile" style="cursor:pointer;">📷 Kamerada olish</label>
+          </div>
+          <input id="itemImageFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif" class="hidden">
+          <input id="itemImageCameraFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif" capture="environment" class="hidden">
           <button class="btn small" id="itemImageRemoveBtn" style="margin-top:6px;" type="button">Rasmni olib tashlash</button>
           <p id="itemImageStatus" class="dim" style="font-size:12px; margin-top:4px;"></p>
         </div>
@@ -94,7 +100,10 @@
     </div>
   </div>
 
-  <script src="../app.js" data-api-base="../"></script>
-  <script src="menu.js"></script>
+  <script src="../app.js?v=202610281339" data-api-base="../"></script>
+  <script src="../app-print.js?v=202610281339"></script>
+  <script src="../app-notify.js?v=202610281339"></script>
+  <script src="layout.js?v=202610281339"></script>
+  <script src="menu.js?v=202610281339"></script>
 </body>
 </html>

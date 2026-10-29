@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>Statistika — Kassa — Ziyo Famliy</title>
-<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="../style.css?v=202610281339">
 <link rel="manifest" href="../manifest.json">
 <link rel="icon" href="../icon.svg">
 </head>
@@ -12,6 +12,7 @@
   <div class="app-shell">
     <nav class="bottom-nav" id="bottomNav">
       <a href="tables.html" data-page="tables"><span class="ic">🪑</span>Stollar</a>
+      <a href="customer-orders.html" data-page="customer-orders"><span class="ic">🧾</span>Buyurtmalar</a>
       <a href="stats.html" data-page="stats"><span class="ic">📈</span>Statistika</a>
       <a href="manual.html" data-page="manual"><span class="ic">🧮</span>Hisoblash</a>
     </nav>
@@ -22,10 +23,10 @@
       </div>
       <main>
         <div class="card">
-          <div class="form-grid" style="flex-direction:row; gap:8px; align-items:flex-end;">
-            <div class="field"><label>Dan</label><input id="filterFrom" type="date"></div>
-            <div class="field"><label>Gacha</label><input id="filterTo" type="date"></div>
-            <button class="btn" id="filterBtn">Filtrlash</button>
+          <div class="form-grid" style="flex-direction:row; flex-wrap:wrap; gap:8px; align-items:flex-end;">
+            <div class="field" style="flex:1 1 140px; min-width:0;"><label>Dan</label><input id="filterFrom" type="date"></div>
+            <div class="field" style="flex:1 1 140px; min-width:0;"><label>Gacha</label><input id="filterTo" type="date"></div>
+            <button class="btn" id="filterBtn" style="flex:1 1 100%;">Filtrlash</button>
           </div>
         </div>
 
@@ -39,7 +40,9 @@
       </main>
     </div>
   </div>
-  <script src="../app.js" data-api-base="../"></script>
-  <script src="stats.js"></script>
+  <script src="../app.js?v=202610281339" data-api-base="../"></script>
+  <script src="../app-print.js?v=202610281339"></script>
+  <script src="../app-notify.js?v=202610281339"></script>
+  <script src="stats.js?v=202610281339"></script>
 </body>
 </html>

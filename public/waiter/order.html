@@ -2,38 +2,118 @@
 <html lang="uz">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Buyurtma — Ziyo Famliy</title>
-<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="../style.css?v=202610281339">
+<link rel="stylesheet" href="order.css?v=202610281339">
 <link rel="manifest" href="../manifest.json">
 <link rel="icon" href="../icon.svg">
 </head>
-<body class="app-body">
-  <div class="topbar">
-    <h1><a href="tables.html" style="text-decoration:none;">←</a> <span id="tableTitle">Stol</span></h1>
-    <button class="logout-btn" id="logoutBtn">Chiqish</button>
-  </div>
-  <main>
-    <div class="card">
-      <div class="card-row" style="justify-content:space-between; align-items:center;">
-        <div class="card-title mt-8">Joriy buyurtma</div>
-        <button class="btn small primary" id="sendBtn" style="display:none;"></button>
-      </div>
-      <div id="orderLines"><p class="dim">Yuklanmoqda...</p></div>
+<body class="ord-page">
+  <header class="ord-header" id="ordHeader">
+    <button class="ord-icon-btn" id="ordBackBtn" aria-label="Stollarga qaytish">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="ord-header-titles">
+      <h1 class="ord-title" id="ordTableTitle">Stol</h1>
+      <span class="ord-meta" id="ordMeta">Yangi buyurtma</span>
     </div>
+    <button class="ord-icon-btn" id="logoutBtn" aria-label="Chiqish">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+    </button>
+  </header>
 
-    <div class="card-title">Menyu</div>
-    <div class="tabs" id="catTabs"></div>
-    <div id="menuItems"></div>
-  </main>
-
-  <div class="order-total-bar">
-    <span>Jami: <span class="amount" id="totalAmount">0 so'm</span></span>
-    <button class="btn" id="cancelOrderBtn" style="display:none;background:#fff;color:#c0392b;">Bekor qilish</button>
-    <button class="btn" id="closeBtn" style="background:#fff;color:var(--primary);">Hisob-kitob</button>
+  <div class="ord-toolbar">
+    <div class="ord-search-wrap">
+      <svg class="ord-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="search" id="ordSearchInput" class="ord-search-input" placeholder="Qidirish…" autocomplete="off">
+    </div>
+    <div class="ord-cat-scroll">
+      <div class="ord-cat-tabs" id="ordCatTabs"></div>
+    </div>
   </div>
 
-  <script src="../app.js" data-api-base="../"></script>
-  <script src="order.js"></script>
+  <div class="ord-layout">
+    <nav class="ord-cat-sidebar" id="ordCatSidebar" aria-label="Kategoriyalar"></nav>
+
+    <main class="ord-main" id="ordMain">
+      <div class="ord-menu-grid" id="ordMenuGrid"><p class="ord-dim">Yuklanmoqda...</p></div>
+    </main>
+
+    <aside class="ord-panel" id="ordPanel" aria-hidden="true">
+      <div class="ord-panel-handle"></div>
+      <div class="ord-panel-head">
+        <span class="ord-panel-title">Buyurtma</span>
+        <span class="ord-panel-sub" id="ordPanelSub"></span>
+        <button class="ord-icon-btn ord-panel-close" id="ordPanelClose" aria-label="Yopish">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="ord-panel-body" id="ordPanelBody">
+        <p class="ord-panel-empty">Buyurtma bo'sh. Menyudan taom qo'shing.</p>
+      </div>
+      <div class="ord-panel-footer">
+        <div class="ord-panel-total-row">
+          <span class="ord-panel-total-label">Jami</span>
+          <span class="ord-panel-total-value ord-num" id="ordPanelTotal">0 so'm</span>
+        </div>
+        <button class="ord-send-btn" id="ordSendBtn" disabled>Oshxonaga yuborish</button>
+        <button class="ord-bill-btn" id="ordBillBtn" disabled>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2V2z"/><path d="M8 7h8M8 11h8M8 15h5"/></svg>
+          Hisob-kitob qilish
+        </button>
+      </div>
+    </aside>
+  </div>
+
+  <button class="ord-bottom-bar" id="ordBottomBar" style="display:none;" type="button">
+    <span class="ord-bottom-bar-count ord-num" id="ordBottomBarCount">0</span>
+    <span class="ord-bottom-bar-label">Buyurtma</span>
+    <span class="ord-bottom-bar-dots"></span>
+    <span class="ord-bottom-bar-total ord-num" id="ordBottomBarTotal">0 so'm</span>
+  </button>
+
+  <div class="ord-backdrop" id="ordBackdrop"></div>
+
+  <!-- Turlarni tanlash oynasi -->
+  <div class="ord-backdrop" id="ordVariantBackdrop">
+    <div class="ord-variant-sheet" id="ordVariantSheet" role="dialog" aria-modal="true" aria-labelledby="ordVariantTitle">
+      <div class="ord-panel-handle"></div>
+      <div class="ord-variant-head">
+        <h2 class="ord-variant-title" id="ordVariantTitle">Turini tanlash</h2>
+        <button class="ord-icon-btn" id="ordVariantClose" aria-label="Yopish">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="ord-variant-body" id="ordVariantBody"></div>
+      <div class="ord-variant-footer">
+        <button class="ord-variant-done-btn" id="ordVariantDoneBtn">Tayyor</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hisob-kitob tasdiqlash oynasi -->
+  <div class="ord-backdrop" id="ordBillBackdrop">
+    <div class="ord-bill-modal" id="ordBillModal" role="dialog" aria-modal="true" aria-labelledby="ordBillTitle">
+      <div class="ord-bill-head">
+        <div class="ord-bill-title" id="ordBillTitle">Stol hisobi</div>
+        <button class="ord-icon-btn" id="ordBillClose" aria-label="Yopish">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="ord-bill-body" id="ordBillBody"></div>
+      <div class="ord-bill-warning" id="ordBillWarning" style="display:none;"></div>
+      <div class="ord-bill-note">Hisob kassaga yuborilgach, stol avtomatik bo'shaydi.</div>
+      <div class="ord-bill-actions">
+        <button class="ord-btn" id="ordBillCancel">Bekor qilish</button>
+        <button class="ord-btn is-primary" id="ordBillConfirm">Kassaga yuborish</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../app.js?v=202610281339" data-api-base="../"></script>
+  <script src="../app-print.js?v=202610281339"></script>
+  <script src="../app-notify.js?v=202610281339"></script>
+  <script src="order.js?v=202610281339"></script>
 </body>
 </html>

@@ -1,4 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Poppins:wght@300;400;500;600;700&display=swap');
+/* Shrift endi CSS @import o'rniga index.html/menu.html <head>'idagi
+   <link rel="preconnect">+<link rel="stylesheet"> orqali yuklanadi —
+   @import render-blocking zanjir hosil qilardi (HTML → CSS → @import →
+   font CSS → shrift fayli, ketma-ket), <link> esa brauzerga shriftni CSS
+   bilan PARALLEL yuklash imkonini beradi. */
 
 :root {
   --black: #121212;
@@ -179,7 +183,13 @@ ul { list-style: none; margin: 0; padding: 0; }
 .menu-section { background: var(--cream); }
 
 .menu-tabs {
-  display: flex; gap: 10px; justify-content: center; margin: 0 0 44px;
+  /* justify-content ATAYLAB "center" EMAS, "flex-start" — bo'limlar (tab)
+     konteynerga sig'maganda ("overflow-x:auto" ishga tushganda) "center"
+     ortiqcha kenglikni ikki tomonga teng taqsimlab, chap/o'ng chetdagi
+     tab'larni DOIMIY ko'rinmas qilib qo'yardi (scroll bilan ham yetib
+     bo'lmaydi — scrollLeft manfiy bo'la olmaydi). 2026-10-10, QR-menyu
+     sahifasida (4 ta bo'lim sig'maganda) haqiqiy skrinshotda topilgan bug. */
+  display: flex; gap: 10px; justify-content: flex-start; margin: 0 0 44px;
   overflow-x: auto; padding-bottom: 4px;
 }
 .menu-tab {
@@ -350,7 +360,11 @@ ul { list-style: none; margin: 0; padding: 0; }
 }
 .info-list { display: flex; flex-direction: column; gap: 22px; margin: 26px 0 32px; }
 .info-list li { display: flex; gap: 16px; align-items: flex-start; }
-.info-ic { font-size: 20px; line-height: 1.4; }
+.info-ic {
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; width: 20px; height: 20px; margin-top: 2px;
+  color: var(--gold-light);
+}
 .info-list strong { color: var(--gold-light); font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em; }
 .info-list div { color: var(--text-light-dim); font-size: 15px; line-height: 1.7; }
 .info-list a { color: var(--text-light); border-bottom: 1px solid rgba(255,255,255,0.3); }

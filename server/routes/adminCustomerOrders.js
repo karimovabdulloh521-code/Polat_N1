@@ -6,9 +6,43 @@ const inventory = require('../services/inventory');
 const router = express.Router();
 
 router.get('/', asyncRoute((req, res) => {
-  const orders = db.prepare('SELECT * FROM customer_orders ORDER BY id DESC').all();
+  const orders = db
+    .prepare(
+      `SELECT co.*, COALESCE(cu.full_name, cu.username) AS assigned_courier_name
+       FROM customer_orders co
+       LEFT JOIN users cu ON cu.id = co.assigned_courier_id
+       ORDER BY co.id DESC`
+    )
+    .all();
   const itemsStmt = db.prepare('SELECT * FROM customer_order_items WHERE customer_order_id = ?');
   res.json(orders.map((o) => ({ ...o, items: itemsStmt.all(o.id) })));
+}));
+
+// Faol dastavkachilar ro'yxati — admin panelida yetkazib berish buyurtmasiga
+// kuryer biriktirish uchun (2026-10-10, xavfsizlik auditi: ilgari biriktirish
+// konsepsiyasi umuman yo'q edi, server/routes/courierOrders.js'ga qarang).
+router.get('/couriers', asyncRoute((req, res) => {
+  res.json(
+    db.prepare("SELECT id, username, full_name FROM users WHERE role = 'courier' AND is_active = 1 ORDER BY username").all()
+  );
+}));
+
+// Yetkazib berish buyurtmasini ma'lum dastavkachiga biriktiradi (yoki `null`
+// bilan biriktirishni bekor qiladi — shundan keyin yana BARCHA kuryerga
+// ko'rinadi, eski xulq-atvor). Faqat haqiqiy, faol 'courier' foydalanuvchiga
+// biriktirish mumkin.
+router.put('/:id/assign-courier', asyncRoute((req, res) => {
+  const existing = db.prepare('SELECT * FROM customer_orders WHERE id = ?').get(req.params.id);
+  if (!existing) return res.status(404).json({ error: 'Buyurtma topilmadi' });
+  const courierId = req.body?.courier_id;
+  if (courierId === null || courierId === undefined) {
+    db.prepare('UPDATE customer_orders SET assigned_courier_id = NULL WHERE id = ?').run(req.params.id);
+  } else {
+    const courier = db.prepare("SELECT id FROM users WHERE id = ? AND role = 'courier' AND is_active = 1").get(courierId);
+    if (!courier) return res.status(400).json({ error: 'Bunday faol dastavkachi topilmadi' });
+    db.prepare('UPDATE customer_orders SET assigned_courier_id = ? WHERE id = ?').run(courier.id, req.params.id);
+  }
+  res.json(db.prepare('SELECT * FROM customer_orders WHERE id = ?').get(req.params.id));
 }));
 
 // Ombordan (suv/salfetka va h.k.) sarflangan miqdorni qaytaradi/qayta ayiradi —
@@ -56,6 +90,19 @@ function consumeStockForCustomerOrder(orderId) {
   }
 }
 
+// Qaysi holatdan qaysi holatga o'tish mumkinligi (2026-10-10, "Buyurtma
+// oqimi" auditi: ilgari CHECK qiymat ro'yxati tekshirilsa ham, TARTIB
+// umuman tekshirilmasdi — masalan 'completed'ni to'g'ridan-to'g'ri 'new'ga
+// qaytarish mumkin edi). Ro'yxat production'da haqiqatan ishlatilgan
+// o'tishlarga mos (CLAUDE.md tarixi: 'cancelled'->'confirmed' qayta
+// faollashtirish ataylab qo'llab-quvvatlanadi).
+const ALLOWED_STATUS_TRANSITIONS = {
+  new: ['confirmed', 'cancelled'],
+  confirmed: ['completed', 'cancelled'],
+  completed: ['cancelled'],
+  cancelled: ['new', 'confirmed'],
+};
+
 router.put('/:id', asyncRoute((req, res) => {
   const existing = db.prepare('SELECT * FROM customer_orders WHERE id = ?').get(req.params.id);
   if (!existing) return res.status(404).json({ error: 'Buyurtma topilmadi' });
@@ -63,8 +110,14 @@ router.put('/:id', asyncRoute((req, res) => {
   if (!['new', 'confirmed', 'completed', 'cancelled'].includes(status)) {
     return res.status(400).json({ error: "Holatni to'g'ri tanlang" });
   }
+  if (status !== existing.status && !ALLOWED_STATUS_TRANSITIONS[existing.status]?.includes(status)) {
+    return res.status(400).json({ error: `'${existing.status}'dan '${status}'ga o'tish mumkin emas` });
+  }
+  const cancelReason = status === 'cancelled'
+    ? (String(req.body?.cancel_reason || '').trim() || null)
+    : (status === existing.status ? existing.cancel_reason : null);
   const run = db.transaction(() => {
-    db.prepare('UPDATE customer_orders SET status = ? WHERE id = ?').run(status, req.params.id);
+    db.prepare('UPDATE customer_orders SET status = ?, cancel_reason = ? WHERE id = ?').run(status, cancelReason, req.params.id);
     // 'completed' bo'lgan buyurtma (DELETE handleridagi bilan bir xil qoida —
     // taom allaqachon tayyorlangan/sarflangan deb hisoblanadi) bekor qilinsa
     // ombor QAYTARILMAYDI. Faqat hali 'completed'ga yetmagan ('new'/'confirmed')
@@ -82,16 +135,21 @@ router.put('/:id', asyncRoute((req, res) => {
   res.json(db.prepare('SELECT * FROM customer_orders WHERE id = ?').get(req.params.id));
 }));
 
+// 2026-10-10 ("Buyurtma oqimi" auditi, foydalanuvchi tasdig'i bilan): endi
+// FAQAT avval 'cancelled' qilingan buyurtmani o'chirish mumkin — "bekor
+// qilingan buyurtma o'chirilmaydi, holat+sabab bilan saqlanadi" tamoyiliga
+// mos bo'lsin uchun yangi/tasdiqlangan/tayyor buyurtma to'g'ridan-to'g'ri
+// o'chirilib, tarixi yo'qolib ketmasin deb (avval `PUT /:id` bilan
+// `status:'cancelled'` qilinishi, sabab bilan birga, talab qilinadi).
 router.delete('/:id', asyncRoute((req, res) => {
   const existing = db.prepare('SELECT * FROM customer_orders WHERE id = ?').get(req.params.id);
   if (!existing) return res.status(404).json({ error: 'Buyurtma topilmadi' });
+  if (existing.status !== 'cancelled') {
+    return res.status(400).json({ error: "Faqat avval \"Bekor qilish\" bilan bekor qilingan buyurtmani o'chirish mumkin" });
+  }
   const run = db.transaction(() => {
-    // Hali bekor qilinmagan/hisoblanmagan (tugallanmagan) buyurtma to'g'ridan-to'g'ri
-    // o'chirilsa ham, sarflangan ombor qoldig'i abadiy yo'qolib qolmasin uchun
-    // avval qaytaramiz (items o'chirilishidan OLDIN — join shunga tayanadi).
-    if (existing.status !== 'cancelled' && existing.status !== 'completed') {
-      returnStockForCustomerOrder(req.params.id);
-    }
+    // 'cancelled' holatida ombor allaqachon qaytarilgan bo'lishi kerak (PUT
+    // /:id'dagi mantiq), shu sabab bu yerda qayta qaytarilmaydi.
     db.prepare('DELETE FROM customer_order_items WHERE customer_order_id = ?').run(req.params.id);
     db.prepare('DELETE FROM customer_orders WHERE id = ?').run(req.params.id);
   });

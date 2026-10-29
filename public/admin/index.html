@@ -4,42 +4,151 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>Bosh sahifa — Ziyo Famliy admin</title>
-<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="../style.css?v=202610281339">
+<link rel="stylesheet" href="theme.css?v=202610281339">
 <link rel="manifest" href="../manifest.json">
 <link rel="icon" href="../icon.svg">
 </head>
-<body class="app-body">
-  <div class="app-shell">
-    <nav class="bottom-nav" id="bottomNav">
-      <a href="index.html" data-page="index"><span class="ic">📊</span>Bosh sahifa</a>
-      <a href="menu.html" data-page="menu"><span class="ic">🍽️</span>Menyu</a>
-      <a href="tables.html" data-page="tables"><span class="ic">🪑</span>Stollar</a>
-      <a href="waiters.html" data-page="waiters"><span class="ic">👥</span>Xodimlar</a>
-      <a href="expenses.html" data-page="expenses"><span class="ic">💵</span>Xarajat</a>
-      <a href="reservations.html" data-page="reservations"><span class="ic">📅</span>Bronlar</a>
-      <a href="customer-orders.html" data-page="customer-orders"><span class="ic">🛒</span>Buyurtmalar</a>
-      <a href="inventory.html" data-page="inventory"><span class="ic">📦</span>Ombor</a>
-      <a href="reports.html" data-page="reports"><span class="ic">📈</span>Hisobot</a>
-    </nav>
-    <div style="flex:1;">
-      <div class="topbar">
-        <h1>Bosh sahifa</h1>
-        <button class="logout-btn" id="logoutBtn">Chiqish</button>
-      </div>
-      <main>
-        <div class="stat-grid">
-          <div class="stat-tile"><div class="label">Bugungi tushum</div><div class="value" id="statRevenue">—</div></div>
-          <div class="stat-tile"><div class="label">Bugungi xarajat</div><div class="value" id="statExpenses">—</div></div>
-          <div class="stat-tile"><div class="label">Sof foyda</div><div class="value" id="statNet">—</div></div>
-          <div class="stat-tile"><div class="label">Yopilgan buyurtma</div><div class="value" id="statOrders">—</div></div>
-        </div>
+<body>
+  <div class="admin-page">
 
-        <div class="card-title mt-16">Hozir band stollar</div>
-        <div id="occupiedTables" class="mt-8"><p class="dim">Yuklanmoqda...</p></div>
-      </main>
-    </div>
+    <header class="page-head">
+      <div class="page-head-left">
+        <div class="brand-mark page-head-mobile-only" aria-hidden="true">P</div>
+        <div class="page-head-text">
+          <p class="page-date" id="pageDate">&nbsp;</p>
+          <h1 class="page-title">Bosh sahifa</h1>
+        </div>
+      </div>
+      <button class="icon-btn page-head-mobile-only" id="logoutBtn" type="button" aria-label="Chiqish">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17l5-5-5-5"/><path d="M20 12H9"/><path d="M12 19H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6"/></svg>
+      </button>
+    </header>
+
+    <main class="page-main">
+
+      <!-- To'lov kutilayotgan hisoblar ogohlantirishi (2026-10-24) — bo'lsa JS ko'rsatadi -->
+      <section class="unpaid-alert hidden" id="unpaidAlert" role="alert"></section>
+
+      <!-- Mobil: katta "Bugungi tushum" karta + 3 kichik ko'rsatkich -->
+      <section class="hero-card mobile-only">
+        <div class="hero-top">
+          <span class="hero-label">Bugungi tushum</span>
+          <span class="hero-badge">Bugun</span>
+        </div>
+        <div class="hero-amount">
+          <span class="hero-number js-stat-revenue">0</span>
+          <span class="hero-currency">so'm</span>
+        </div>
+        <div class="hero-divider"></div>
+        <div class="hero-cols">
+          <div class="hero-col">
+            <span class="hero-col-label">Xarajat</span>
+            <span class="hero-col-value js-stat-expenses">—</span>
+          </div>
+          <div class="hero-col">
+            <span class="hero-col-label">Sof foyda</span>
+            <span class="hero-col-value profit js-stat-net">—</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="stat-row mobile-only">
+        <div class="stat-card">
+          <span class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+          <span class="stat-value js-stat-closed">0</span>
+          <span class="stat-label">Yopilgan buyurtma</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></span>
+          <span class="stat-value js-stat-open">0</span>
+          <span class="stat-label">Ochiq buyurtma</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18"/><path d="M8 3v4"/><path d="M16 3v4"/></svg></span>
+          <span class="stat-value js-stat-reservations">0</span>
+          <span class="stat-label">Bugungi bron</span>
+        </div>
+      </section>
+
+      <!-- Desktop: 4 ta ko'rsatkich bir qatorda -->
+      <section class="stat-row cols-4 desktop-only">
+        <div class="stat-card featured">
+          <span class="stat-label">Bugungi tushum</span>
+          <span class="stat-value js-stat-revenue" style="font-size:28px;">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Bugungi xarajat</span>
+          <span class="stat-value js-stat-expenses">—</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Sof foyda</span>
+          <span class="stat-value profit js-stat-net">—</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Yopilgan buyurtma</span>
+          <span class="stat-value js-stat-closed">0</span>
+        </div>
+      </section>
+
+      <section class="page-section">
+        <h2 class="page-section-title">Tezkor amallar</h2>
+        <div style="display:flex; gap:12px;">
+          <a class="btn-primary block" href="../waiter/tables.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+            Yangi buyurtma
+          </a>
+          <a class="btn-secondary block" href="expenses.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10h18"/><circle cx="16.5" cy="14.2" r="1.1" fill="currentColor" stroke="none"/></svg>
+            Xarajat qo'shish
+          </a>
+        </div>
+      </section>
+
+      <!-- Mobil: faqat band stollar -->
+      <section class="page-section mobile-only">
+        <div class="page-section-head">
+          <h2 class="page-section-title">Hozir band stollar</h2>
+          <a class="page-section-link" href="../waiter/tables.html">Barchasi</a>
+        </div>
+        <div class="js-occupied-tables data-list">
+          <p class="helper-text">Yuklanmoqda...</p>
+        </div>
+      </section>
+
+      <!-- Desktop: ikki ustun — band stollar (keng) + Bugun/Yaqin bronlar -->
+      <section class="two-col desktop-only">
+        <div class="page-section">
+          <div class="page-section-head">
+            <h2 class="page-section-title">Hozir band stollar</h2>
+            <a class="page-section-link" href="../waiter/tables.html">Barchasi</a>
+          </div>
+          <div class="js-occupied-tables data-list">
+            <p class="helper-text">Yuklanmoqda...</p>
+          </div>
+        </div>
+        <div class="page-section">
+          <div class="card" style="display:flex; flex-direction:column; gap:10px;">
+            <div class="page-section-title">Bugun</div>
+            <div class="card-row"><span class="card-sub">Ochiq buyurtma</span><span class="card-title js-stat-open">0</span></div>
+            <div class="card-row"><span class="card-sub">Bugungi bron</span><span class="card-title js-stat-reservations">0</span></div>
+          </div>
+          <div class="page-section-head">
+            <h2 class="page-section-title">Yaqin bronlar</h2>
+          </div>
+          <div class="js-upcoming-reservations data-list">
+            <p class="helper-text">Yuklanmoqda...</p>
+          </div>
+        </div>
+      </section>
+
+    </main>
   </div>
-  <script src="../app.js" data-api-base="../"></script>
-  <script src="index.js"></script>
+
+  <script src="../app.js?v=202610281339" data-api-base="../"></script>
+  <script src="../app-print.js?v=202610281339"></script>
+  <script src="../app-notify.js?v=202610281339"></script>
+  <script src="layout.js?v=202610281339"></script>
+  <script src="index.js?v=202610281339"></script>
 </body>
 </html>

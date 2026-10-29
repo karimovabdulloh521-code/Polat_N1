@@ -11,7 +11,7 @@ let resettingId = null;
 // server/roles.js bilan BIRGA shu ro'yxatga ham (va public/login.html'dagi
 // redirect switch'iga) qo'lda qo'shish kerak.
 const ROLE_LABEL = { admin: 'admin', waiter: 'afitsiant', chef: 'oshpaz', courier: 'dastavka', kassir: 'kassir' };
-const ROLE_BADGE = { admin: 'debt', waiter: 'ok', chef: 'low', courier: 'ok', kassir: 'low' };
+const ROLE_BADGE = { admin: 'gold', waiter: 'green', chef: 'dim', courier: 'green', kassir: 'dim' };
 
 async function loadUsers() {
   const box = document.getElementById('userList');
@@ -31,13 +31,10 @@ async function loadUsers() {
       }
       return `
       <div class="card">
-        <div class="card-row">
-          <div>
-            <div class="card-title">${escapeHtml(u.full_name || u.username)} <span class="badge ${ROLE_BADGE[u.role] || 'ok'}">${ROLE_LABEL[u.role] || u.role}</span> ${u.is_active ? '' : '<span class="badge low">faolsiz</span>'}</div>
-            <div class="card-sub">login: ${escapeHtml(u.username)}</div>
-          </div>
-        </div>
-        <div class="mt-8" style="display:flex; gap:6px; flex-wrap:wrap;">
+        <div class="card-title">${escapeHtml(u.full_name || u.username)} <span class="badge badge-${ROLE_BADGE[u.role] || 'green'}">${ROLE_LABEL[u.role] || u.role}</span> ${u.is_active ? '' : '<span class="badge badge-dim">faolsiz</span>'}</div>
+        <div class="card-sub">login: ${escapeHtml(u.username)}</div>
+        <div class="card-sub">${u.last_login_at ? `Oxirgi kirish: ${fmtDateTime(u.last_login_at)}${u.last_login_ip ? ' · ' + escapeHtml(u.last_login_ip) : ''}` : 'Hali hech kirmagan'}</div>
+        <div class="card-actions" style="margin-top:8px;">
           <button class="btn small" data-edit="${u.id}">Tahrirlash</button>
           <button class="btn small" data-reset="${u.id}">Parolni tiklash</button>
           ${actionBtns}
@@ -50,7 +47,7 @@ async function loadUsers() {
     box.querySelectorAll('[data-activate]').forEach((b) => b.addEventListener('click', () => activateUser(Number(b.dataset.activate))));
     box.querySelectorAll('[data-del]').forEach((b) => b.addEventListener('click', () => delUser(Number(b.dataset.del), b.dataset.hard === 'true')));
   } catch (err) {
-    box.innerHTML = `<p class="dim">${escapeHtml(err.message)}</p>`;
+    box.innerHTML = `<p class="helper-text">${escapeHtml(err.message)}</p>`;
   }
 }
 
@@ -134,6 +131,6 @@ async function activateUser(id) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  initNav('waiters');
+  initLayout('waiters');
   loadUsers();
 });

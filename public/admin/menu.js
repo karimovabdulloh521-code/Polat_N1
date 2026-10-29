@@ -12,6 +12,10 @@ let currentImageUrl = null; // taom modalida hozir tanlangan rasm URL'i (ixtiyor
 // O'chirilgan (is_active=0) kategoriya/taomlar bo'limi ochiq/yopiqligi —
 // standart holatda yopiq (2026-09-09'da qo'shildi, pastdagi izohga qarang).
 let showInactive = false;
+// Har bir kategoriya (bo'lim) endi akkordeon — bir vaqtda faqat bittasi ochiq
+// turadi (2026-09-27, admin ekranida kategoriyalar juda uzun/chalkash
+// ko'rinayotgani sababli). null = hech qaysi ochiq emas.
+let openCategoryId = null;
 
 // escapeHtml() — endi ../app.js'dan global (2026-09-09'da 15 xil fayldagi
 // nusxa birlashtirildi).
@@ -77,6 +81,48 @@ function renderItemRow(it, c, isVariant) {
   `;
 }
 
+// Taomlar balandligi har xil bo'lgani uchun (ba'zisida ko'p "turi" bor)
+// CSS'ning tayyor ustun mexanizmi (column-width) ularni teng taqsimlay
+// olmaydi — bir ustun juda uzun, boshqasi qisqa qolib, katta bo'sh joy
+// paydo bo'ladi. Shu sabab klassik "masonry" mantig'i qo'lda qilingan:
+// har bir taom blokini navbat bilan hozircha ENG QISQA ustunga qo'yamiz.
+// Tor ekranda (bitta ustunga sig'adigan joy bo'lsa) hech narsa qilinmaydi —
+// taomlar oddiy vertikal ro'yxat bo'lib qoladi.
+function layoutMasonryColumns(container) {
+  const COL_WIDTH = 280;
+  const GAP = 24;
+  const width = container.clientWidth;
+  const columns = Math.max(1, Math.floor((width + GAP) / (COL_WIDTH + GAP)));
+  if (columns <= 1) return;
+  const blocks = Array.from(container.children);
+  if (blocks.length === 0) return;
+  const colHeights = new Array(columns).fill(0);
+  const colEls = Array.from({ length: columns }, () => {
+    const d = document.createElement('div');
+    d.className = 'menu-items-col';
+    return d;
+  });
+  // Ustunlar avval DOM'ga qo'shiladi (bo'sh holda) — shundan keyingina
+  // ularning haqiqiy (tor) kengligi ma'lum bo'ladi. Har bir blokni AVVAL
+  // shu tor ustunning biriga qo'yib, SHUNDAN KEYIN balandligini o'qiymiz —
+  // aks holda blok hali to'liq kenglikda turgan chog'da o'lchansa, matn
+  // kamroq qatorga sig'ib, ustunga tushgandagidan qisqaroq ko'rsatilib,
+  // natijada ustunlar notekis (ba'zisi juda uzun, ba'zisi bo'sh) chiqib
+  // qolgan edi (2026-09-27).
+  container.classList.add('menu-items-columns-js');
+  colEls.forEach((col) => container.appendChild(col));
+  blocks.forEach((block) => {
+    colEls[0].appendChild(block);
+    const height = block.offsetHeight;
+    let shortest = 0;
+    for (let i = 1; i < columns; i++) {
+      if (colHeights[i] < colHeights[shortest]) shortest = i;
+    }
+    if (shortest !== 0) colEls[shortest].appendChild(block);
+    colHeights[shortest] += height + GAP;
+  });
+}
+
 function render() {
   const box = document.getElementById('categoryList');
   const activeCategories = categories.filter((c) => c.is_active);
@@ -91,32 +137,53 @@ function render() {
     // ko'rsatiladi — har birining "turi" (variant) 2026-09-09'da qo'shilgan
     // pastdagi ichma-ich ro'yxatda, "+ Turi qo'shish" tugmasi bilan chiqadi.
     const catItems = items.filter((it) => it.category_id === c.id && it.is_active && !it.parent_item_id);
+    const isOpen = openCategoryId === c.id;
     return `
-      <div class="card">
+      <div class="card${isOpen ? ' card-open' : ''}">
         <div class="card-row">
-          <div class="card-title">${escapeHtml(c.name)}${c.require_inventory_link ? ' <span class="badge ok">📦 Faqat ombor</span>' : ''}</div>
+          <div class="card-title menu-cat-toggle" data-toggle-cat="${c.id}">
+            <span class="cat-chevron">${isOpen ? '▾' : '▸'}</span>
+            ${escapeHtml(c.name)}${c.require_inventory_link ? ' <span class="badge ok">📦 Faqat ombor</span>' : ''}
+          </div>
           <div style="display:flex; gap:6px;">
             <button class="btn small" data-edit-cat="${c.id}">Tahrirlash</button>
             <button class="btn small danger" data-del-cat="${c.id}">O'chirish</button>
           </div>
         </div>
-        <div class="mt-8">
-          ${catItems.length === 0 ? '<p class="dim" style="font-size:13px;">Taom yo\'q</p>' : catItems.map((it) => {
+        <div class="mt-8${isOpen ? '' : ' hidden'}">
+          ${catItems.length === 0 ? '<p class="dim" style="font-size:13px;">Taom yo\'q</p>' : `<div class="menu-items-columns">${catItems.map((it) => {
             const variants = items.filter((v) => v.parent_item_id === it.id && v.is_active);
-            return renderItemRow(it, c, false) + `
+            return `<div class="menu-item-block">${renderItemRow(it, c, false)}
               <div class="menu-item-variants">
                 ${variants.map((v) => renderItemRow(v, c, true)).join('')}
                 <button class="btn small" data-add-variant="${it.id}">+ Turi qo'shish</button>
               </div>
-            `;
-          }).join('')}
+            </div>`;
+          }).join('')}</div>`}
           <button class="btn small mt-8" data-add-item-cat="${c.id}">+ ${escapeHtml(singularizeCategoryName(c.name))} qo'shish</button>
         </div>
       </div>
     `;
   }).join('');
 
-  box.innerHTML = catsHtml + renderInactiveSection();
+  box.innerHTML = `<div class="category-grid">${catsHtml}</div>` + renderInactiveSection();
+
+  // Ochilgan kategoriyaning taomlari — CSS multi-column (column-width) taom
+  // balandliklari bir xil bo'lmagani (ba'zisida ko'p "turi" bor) sababli
+  // ustunlarda katta bo'sh joy qoldirib qo'yayotgan edi. Endi haqiqiy
+  // "masonry" (har yangi taom eng qisqa ustunga qo'yiladi) JS orqali
+  // qilinadi — bo'sh joy qolmaydi (2026-09-27).
+  if (openCategoryId != null) {
+    const toggleEl = box.querySelector(`[data-toggle-cat="${openCategoryId}"]`);
+    const colsEl = toggleEl ? toggleEl.closest('.card').querySelector('.menu-items-columns') : null;
+    if (colsEl) layoutMasonryColumns(colsEl);
+  }
+
+  box.querySelectorAll('[data-toggle-cat]').forEach((el) => el.addEventListener('click', () => {
+    const id = Number(el.dataset.toggleCat);
+    openCategoryId = openCategoryId === id ? null : id;
+    render();
+  }));
 
   box.querySelectorAll('[data-edit-cat]').forEach((b) => b.addEventListener('click', () => openCatModal(Number(b.dataset.editCat))));
   box.querySelectorAll('[data-del-cat]').forEach((b) => b.addEventListener('click', () => delCategory(Number(b.dataset.delCat))));
@@ -266,6 +333,7 @@ function openItemModal(categoryId, itemId, parentId) {
   document.getElementById('itemDescription').value = item ? (item.description || '') : '';
   renderInventorySelect(item ? item.inventory_item_id : null);
   document.getElementById('itemImageFile').value = '';
+  document.getElementById('itemImageCameraFile').value = '';
   document.getElementById('itemImageStatus').textContent = '';
   currentImageUrl = item ? (item.image_url || null) : null;
   updateImagePreview();
@@ -329,7 +397,9 @@ document.getElementById('itemCancelBtn').addEventListener('click', closeItemModa
 // Rasm — MAJBURIY EMAS: fayl tanlangan zahoti (Saqlash bosilishidan oldin)
 // alohida (multipart, oddiy JSON api() orqali emas) so'rov bilan yuklanadi,
 // natijada kelgan URL keyin taom saqlanganda yuboriladi.
-document.getElementById('itemImageFile').addEventListener('change', async (e) => {
+// Ikkita manba bor: galereyadan tanlash va kamerada bevosita olish (capture="environment") —
+// ikkalasi ham bir xil yuklash funksiyasiga ulanadi.
+async function handleItemImageInputChange(e) {
   const file = e.target.files[0];
   if (!file) return;
   const statusEl = document.getElementById('itemImageStatus');
@@ -348,11 +418,14 @@ document.getElementById('itemImageFile').addEventListener('change', async (e) =>
     toast(err.message, 'error');
     e.target.value = '';
   }
-});
+}
+document.getElementById('itemImageFile').addEventListener('change', handleItemImageInputChange);
+document.getElementById('itemImageCameraFile').addEventListener('change', handleItemImageInputChange);
 
 document.getElementById('itemImageRemoveBtn').addEventListener('click', () => {
   currentImageUrl = null;
   document.getElementById('itemImageFile').value = '';
+  document.getElementById('itemImageCameraFile').value = '';
   document.getElementById('itemImageStatus').textContent = '';
   updateImagePreview();
 });
@@ -406,6 +479,6 @@ async function delItem(id) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  initNav('menu');
+  initLayout('menu');
   loadAll();
 });

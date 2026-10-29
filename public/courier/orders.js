@@ -44,6 +44,7 @@ async function loadOrders() {
         <div class="mt-8">
           <div class="card-sub"><a href="tel:${escapeHtml(o.phone)}">${escapeHtml(o.phone)}</a></div>
           ${o.address ? `<div class="card-sub">${escapeHtml(o.address)}</div>` : ''}
+          ${o.delivery_fee != null ? `<div class="card-sub">Yetkazish: ${o.delivery_distance_km} km — ${fmtMoney(o.delivery_fee)}</div>` : ''}
           ${o.note ? `<div class="card-sub">📝 ${escapeHtml(o.note)}</div>` : ''}
         </div>
         <div class="mt-8" style="border-top:1px dashed var(--border); padding-top:8px;">

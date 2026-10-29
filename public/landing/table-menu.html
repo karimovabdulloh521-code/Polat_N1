@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Menyu — Ziyo Famliy</title>
+<link rel="stylesheet" href="menu.css?v=202610281339">
+<link rel="icon" href="../icon.svg">
+</head>
+<body>
+  <!-- QR skanerlab ochiladigan yengil, FAQAT O'QISH uchun menyu (2026-10-10,
+       yangilangan dizayn 2026-10-15) — savat/buyurtma/bron/galereya/aloqa
+       ATAYLAB yo'q, faqat menyuni ko'rish. -->
+  <div class="zfm-root">
+    <header class="zfm-qr-header">
+      <p class="zfm-qr-brand">Ziyo Famliy</p>
+      <p class="zfm-qr-table" id="tmTableName">&nbsp;</p>
+    </header>
+
+    <div class="zfm-toolbar" id="tmToolbar">
+      <div class="zfm-toolbar-inner">
+        <div class="zfm-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input type="search" id="tmSearchInput" placeholder="Taom qidirish" aria-label="Taom qidirish" autocomplete="off">
+        </div>
+        <div class="zfm-cats" id="tmCats" role="tablist" aria-label="Menyu bo'limlari"></div>
+      </div>
+    </div>
+
+    <div class="zfm-desktop-layout">
+      <main class="zfm-main" id="tmMain" aria-live="polite"></main>
+    </div>
+  </div>
+
+  <!-- Taom tafsiloti (faqat ko'rish — tanlov/savat yo'q) -->
+  <div class="zfm-root zfm-backdrop" id="tmItemBackdrop" role="dialog" aria-modal="true" aria-label="Taom tafsiloti">
+    <div class="zfm-sheet" id="tmItemSheet">
+      <div class="zfm-sheet-drag"></div>
+      <div class="zfm-item-img" id="tmItemImgWrap">
+        <button type="button" class="zfm-item-close" id="tmItemClose" aria-label="Yopish">&times;</button>
+      </div>
+      <div class="zfm-item-body">
+        <div>
+          <h3 class="zfm-item-name" id="tmItemName"></h3>
+          <p class="zfm-item-volume" id="tmItemVolume"></p>
+        </div>
+        <p class="zfm-item-desc" id="tmItemDesc"></p>
+        <div id="tmVariantWrap">
+          <p class="zfm-variant-label">Turlari</p>
+          <div class="zfm-variant-list" id="tmVariantList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="table-menu.js?v=202610281339"></script>
+</body>
+</html>

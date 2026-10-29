@@ -6,6 +6,7 @@ const multer = require('multer');
 const { db, nowIso } = require('../db');
 const { asyncRoute } = require('../routeUtils');
 const inventory = require('../services/inventory');
+const { logAudit } = require('../services/auditLog');
 
 const router = express.Router();
 
@@ -27,12 +28,17 @@ const upload = multer({
       cb(null, `${Date.now()}-${crypto.randomBytes(6).toString('hex')}${ext}`);
     },
   }),
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB — taom rasmi uchun yetarli
+  limits: { fileSize: 15 * 1024 * 1024 }, // 15MB — telefon kamerasi rasmlari ko'pincha 5-10MB bo'ladi
   fileFilter: (req, file, cb) => {
     if (!ALLOWED_EXT[file.mimetype]) return cb(new Error('Faqat rasm fayli (jpg/png/webp/gif) yuklash mumkin'));
     cb(null, true);
   },
 });
+
+function describeUploadError(err) {
+  if (err && err.code === 'LIMIT_FILE_SIZE') return 'Rasm hajmi juda katta (15MB dan oshmasin)';
+  return (err && err.message) || 'Rasm yuklashda xatolik';
+}
 
 // Eski rasm faylini xavfsiz o'chiradi — faqat bizning UPLOAD_DIR ichidagi
 // "/uploads/menu/<nom>" ko'rinishidagi qiymatlarga tegadi (tashqi URL yoki
@@ -48,7 +54,7 @@ function deleteOldImageIfLocal(imageUrl) {
 
 router.post('/upload-image', (req, res) => {
   upload.single('image')(req, res, (err) => {
-    if (err) return res.status(400).json({ error: err.message || 'Rasm yuklashda xatolik' });
+    if (err) return res.status(400).json({ error: describeUploadError(err) });
     if (!req.file) return res.status(400).json({ error: 'Rasm tanlanmagan' });
     res.json({ url: `/uploads/menu/${req.file.filename}` });
   });
@@ -315,6 +321,12 @@ router.put('/items/:id', asyncRoute((req, res) => {
   db.prepare(
     'UPDATE menu_items SET name = ?, price = ?, cost_price = ?, category_id = ?, sort_order = ?, is_active = ?, description = ?, image_url = ?, volume = ?, inventory_item_id = ?, parent_item_id = ?, is_available = ?, updated_at = ? WHERE id = ?'
   ).run(name, price, costPrice, categoryId, sortOrder, isActive, description, imageUrl, volume, inventoryItemId, parentItemId, isAvailable, nowIso(), req.params.id);
+  // Narx o'zgarishi — "Audit izi" auditi (2026-10-10): ilgari eski narx
+  // hech qayerga yozilmasdi, narxni "vaqtincha" o'zgartirib qaytarib qo'yish
+  // izsiz qolardi.
+  if (price !== existing.price) {
+    logAudit('menu_item.price_change', 'menu_item', existing.id, { price: existing.price }, { price }, req.user.id);
+  }
   // Rasm almashtirilgan/olib tashlangan bo'lsa — eski faylni diskdan tozalaymiz
   // (bo'sh joy to'planib qolmasin uchun).
   if (existing.image_url && existing.image_url !== imageUrl) deleteOldImageIfLocal(existing.image_url);

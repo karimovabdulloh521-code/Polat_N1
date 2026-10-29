@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Menyu — Ziyo Famliy</title>
+<meta name="description" content="Ziyo Famliy menyusi — taomlar, shirinliklar, ichimliklar. Olib ketish yoki yetkazib berish uchun onlayn buyurtma bering.">
+<link rel="canonical" href="https://ziyofamily.com/landing/menu.html">
+<link rel="icon" href="../icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Poppins:wght@300;400;500;600;700&display=swap">
+<link rel="stylesheet" href="style.css?v=202610281339">
+<link rel="stylesheet" href="menu-v2.css?v=202610281339">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" integrity="sha512-h9FcoyWjHcOcmEVkxOfTLnmZFWIH0iZhZT1H2TbOq55xssQGEJHEaIm+PgoUaZbRvQTNTluNOEfb1ZRy6D3BOw==" crossorigin="anonymous">
+</head>
+<body class="menu-page">
+
+  <!-- ============ HEADER (index.html bilan bir xil, "Menyu" shu sahifaga ishora qiladi) ============ -->
+  <header class="site-header" id="siteHeader">
+    <div class="header-inner">
+      <a href="index.html" class="brand">Ziyo Famliy</a>
+      <nav class="nav-links" id="navLinks">
+        <button class="nav-close" id="navClose" type="button" aria-label="Yopish">&times;</button>
+        <a href="index.html#hero">Bosh sahifa</a>
+        <a href="menu.html" aria-current="page">Menyu</a>
+        <a href="index.html#galereya">Galereya</a>
+        <a href="index.html#biz-haqimizda">Biz haqimizda</a>
+        <a href="index.html#aloqa">Aloqa</a>
+        <a href="../login.html" class="nav-login">Xodim kirishi</a>
+      </nav>
+      <a href="#" class="btn-pill header-cta" data-book>Stol bron qilish</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Menyu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ============ MENU + SAVAT ("dastavka.html" namunasi asosida, 2026-10-18) ============ -->
+  <section id="menu">
+    <div class="zfd-root">
+
+      <!-- ---- Qisqa intro: holat + 4 fakt + 3 qadam ---- -->
+      <div class="zfd-intro">
+        <div class="zfd-wrap">
+          <span class="zfd-eyebrow"><span class="zfd-dot"></span>Hozir buyurtma qabul qilinmoqda</span>
+          <h2 class="zfd-intro-title">Sevimli taomlaringiz — <em>bir qadam uzoqlikda</em></h2>
+          <p class="zfd-intro-sub">Menyudan tanlang, buyurtma bering — operatorimiz siz bilan bog&rsquo;lanib, yetkazib berish narxi va vaqtini aniqlaydi.</p>
+
+          <div class="zfd-facts">
+            <div class="zfd-fact">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              <b>24/7</b><span>Har kuni, kecha-kunduz</span>
+            </div>
+            <div class="zfd-fact">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <b>Quva tumani</b><span>Farg&rsquo;ona viloyati</span>
+            </div>
+            <div class="zfd-fact">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+              <b>Naqd yoki karta</b><span>Qabul qilganda to&rsquo;lov</span>
+            </div>
+            <div class="zfd-fact">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              <b>Minimal summa yo&rsquo;q</b><span>Istalgan miqdorda</span>
+            </div>
+          </div>
+
+          <div class="zfd-steps">
+            <div class="zfd-step"><span class="zfd-step-n">1</span><div><b>Taom tanlang</b><span>Savatga qo&rsquo;shing</span></div></div>
+            <div class="zfd-step"><span class="zfd-step-n">2</span><div><b>Ma&rsquo;lumot kiriting</b><span>Ism, telefon va manzil</span></div></div>
+            <div class="zfd-step"><span class="zfd-step-n">3</span><div><b>Operator qo&rsquo;ng&rsquo;iroq qiladi</b><span>Narx va vaqtni tasdiqlaydi</span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ---- Sticky qidiruv + kategoriya chiplari ---- -->
+      <div class="zfd-toolbar" id="zfdToolbar">
+        <div class="zfd-wrap zfd-toolbar-inner">
+          <label class="zfd-search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input id="zfdSearchInput" type="search" placeholder="Taom qidirish…" aria-label="Taom qidirish" autocomplete="off">
+          </label>
+          <div class="zfd-chips" id="zfdChips" role="tablist" aria-label="Menyu bo'limlari"></div>
+        </div>
+      </div>
+
+      <!-- ---- Menyu ro'yxati + savat ---- -->
+      <div class="zfd-wrap zfd-layout">
+        <section aria-label="Taomlar">
+          <div id="zfdMain" aria-live="polite"></div>
+        </section>
+
+        <aside class="zfd-cart" id="zfdCart" aria-label="Savat">
+          <div class="zfd-cart-head">
+            <h2>Savat</h2>
+            <div style="display:flex; gap:10px; align-items:center;">
+              <button type="button" class="zfd-cart-clear" id="zfdCartClear">Tozalash</button>
+              <button type="button" class="zfd-cart-close" id="zfdCartClose" aria-label="Yopish">&times;</button>
+            </div>
+          </div>
+          <div class="zfd-cart-lines" id="zfdCartLines"></div>
+          <div class="zfd-cart-sum" id="zfdCartSum"></div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---- Savat: mobilda pastki "Savatni ko'rish" tugmasi ---- -->
+  <button type="button" class="zfd-root zfd-bar" id="zfdBar">
+    <span><span class="zfd-bar-cnt" id="zfdBarCnt">0</span>Savatni ko&rsquo;rish</span>
+    <span id="zfdBarSum">0 so&rsquo;m</span>
+  </button>
+
+  <div class="zfd-root zfd-overlay" id="zfdOverlay"></div>
+
+  <!-- ---- Buyurtmani rasmiylashtirish — to'liq ekranli checkout ko'rinishi
+       (2026-10-23, maket: _mockups/ziyo-buyurtma-maket.html). Kompyuter/
+       planshetda 2 ustun (chapda savat+forma, o'ngda yopishgan "Hisob"
+       kartasi+tugma), telefonda 1 ustun + pastda qotib turadigan tugma. ---- -->
+  <div class="zfd-root zfd-checkout" id="zfdCheckout" role="dialog" aria-modal="true" aria-labelledby="zfdCheckoutTitle">
+    <div id="zfdFormView">
+      <div class="zfd-checkout-head">
+        <button type="button" class="zfd-modal-close" data-close aria-label="Orqaga qaytish">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </button>
+        <h2 id="zfdCheckoutTitle">Buyurtmani rasmiylashtirish</h2>
+      </div>
+
+      <div class="zfd-checkout-cols">
+        <div class="zfd-checkout-main">
+          <div class="zfd-co-card">
+            <div class="zfd-co-card-head">
+              <h3>Savatingiz</h3>
+              <button type="button" class="zfd-link" data-close>+ Menyudan qo&rsquo;shish</button>
+            </div>
+            <div id="zfdCheckoutLines"></div>
+          </div>
+
+          <form class="zfd-co-card" id="zfdCheckoutForm" novalidate>
+            <h3>Qanday olasiz?</h3>
+            <div class="zfd-fulfill-seg" id="zfdFulfillmentSegment" role="tablist">
+              <button type="button" class="active" data-fulfillment="pickup" role="tab" aria-selected="true">
+                <b><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18M16 10a4 4 0 0 1-8 0"/></svg>Olib ketish</b>
+                <span>Oshxonadan o&rsquo;zingiz olasiz</span>
+              </button>
+              <button type="button" data-fulfillment="delivery" role="tab" aria-selected="false">
+                <b><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="7" width="13" height="10" rx="1"/><path d="M14 10h4l3 3v4h-7"/><circle cx="6" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>Yetkazib berish</b>
+                <span>Manzilingizga olib boramiz</span>
+              </button>
+            </div>
+
+            <div class="zfd-field-grid">
+              <div class="zfd-field" id="zfdNameField">
+                <label for="zfdName">Ism familiya</label>
+                <input class="zfd-inp" type="text" id="zfdName" autocomplete="name" maxlength="60" placeholder="Masalan: Abdulloh">
+                <div class="zfd-err-t" id="zfdNameError"></div>
+              </div>
+
+              <div class="zfd-field" id="zfdPhoneField">
+                <label for="zfdPhone">Telefon raqam</label>
+                <div class="zfd-phone-wrap" id="zfdPhoneWrap">
+                  <span class="zfd-phone-prefix">+998</span>
+                  <input class="zfd-inp" type="tel" id="zfdPhone" inputmode="tel" autocomplete="tel" placeholder="90 123 45 67" maxlength="12" style="border:0; height:auto;">
+                </div>
+                <div class="zfd-err-t" id="zfdPhoneError"></div>
+              </div>
+            </div>
+
+            <div class="zfd-field hidden" id="zfdAddressField">
+              <label for="zfdAddress">Manzil</label>
+              <textarea class="zfd-inp" id="zfdAddress" rows="2" placeholder="Mahalla, ko&rsquo;cha, uy raqami, mo&rsquo;ljal" maxlength="200"></textarea>
+              <button type="button" class="zfd-location-btn" id="zfdLocationBtn">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8"/></svg>
+                <span>Lokatsiyamni yuborish</span>
+              </button>
+              <div class="zfd-location-status" id="zfdLocationStatus"></div>
+              <div class="zfd-dz-wrap hidden" id="zfdDzWrap">
+                <div class="zfd-dz-map" id="zfdDzMap"></div>
+                <div class="zfd-dz-zone" id="zfdDzZone"></div>
+              </div>
+              <div class="zfd-err-t" id="zfdAddressError"></div>
+            </div>
+
+            <div class="zfd-pickup-box" id="zfdPickupBox">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <div><b>Ziyo Famliy</b><div class="zfd-muted">Quva tumani, Farg&rsquo;ona viloyati. Buyurtma tayyor bo&rsquo;lganda qo&rsquo;ng&rsquo;iroq qilamiz.</div></div>
+            </div>
+
+            <div class="zfd-field" style="margin-bottom:0">
+              <label for="zfdNote">Izoh <small>(ixtiyoriy)</small></label>
+              <textarea class="zfd-inp" id="zfdNote" rows="2" placeholder="Masalan: piyozsiz, eshik oldida qo&rsquo;ng&rsquo;iroq qiling" maxlength="300"></textarea>
+            </div>
+
+            <!-- Bot-himoya (honeypot) — bexos "website"/"email"/"url" kabi
+                 odatiy nom ishlatilgan bo'lsa, ba'zi brauzer kengaytmalari
+                 (parol menejerlari, "formani avtomatik to'ldirish" vositalari)
+                 ko'rinmasligiga qaramay shu maydonni ham avtomatik to'ldirib
+                 qo'yishi mumkin — natijada HAQIQIY mijoz botga o'xshab
+                 "ushlanib", buyurtmasi yaratilmay, soxta "muvaffaqiyatli"
+                 ekran ko'rsatilardi (2026-10-28 audit). Nom atayin
+                 avtofill-heuristikalarga mos kelmaydigan qilib tanlandi. -->
+            <div class="zfd-honeypot" aria-hidden="true">
+              <label for="zfdExtraNote2">Qo'shimcha izoh 2</label>
+              <input type="text" id="zfdExtraNote2" name="zfd_extra_note_2" tabindex="-1" autocomplete="off">
+            </div>
+          </form>
+        </div>
+
+        <aside class="zfd-checkout-aside">
+          <div class="zfd-co-card zfd-co-sum-card">
+            <h3>Hisob <small id="zfdRecapCount"></small></h3>
+            <div id="zfdRecap"></div>
+            <div class="zfd-pay-row">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+              <span>To&rsquo;lov: <b>naqd yoki karta</b> — buyurtmani qabul qilganda</span>
+            </div>
+          </div>
+          <div class="zfd-form-error" id="zfdFormError"></div>
+          <button class="zfd-btn zfd-checkout-submit" type="button" id="zfdSubmitBtn"><span>Buyurtma berish</span><span class="zfd-submit-sum" id="zfdSubmitSum"></span></button>
+        </aside>
+      </div>
+    </div>
+
+    <div class="zfd-success hidden" id="zfdSuccessView">
+      <div class="zfd-success-icon"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg></div>
+      <h2>Buyurtma qabul qilindi!</h2>
+      <p>Operatorimiz tez orada <b id="zfdSuccessPhone"></b> raqamiga qo&rsquo;ng&rsquo;iroq qilib, buyurtmani tasdiqlaydi.</p>
+      <div class="zfd-order-no" id="zfdOrderNo">#0000</div>
+      <div class="zfd-success-items" id="zfdSuccessItems"></div>
+      <div class="zfd-success-sum" id="zfdSuccessSum"></div>
+      <button class="zfd-btn" type="button" data-close>Yaxshi</button>
+    </div>
+
+    <div class="zfd-checkout-mobile-bar" id="zfdCheckoutMobileBar">
+      <button type="button" class="zfd-btn" id="zfdSubmitBtnMobile"><span>Buyurtma berish</span><span class="zfd-submit-sum" id="zfdSubmitSumMobile"></span></button>
+    </div>
+  </div>
+
+  <div class="zfd-root zfd-toast-wrap" id="zfdToastWrap" aria-live="polite"></div>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span class="brand small">Ziyo Famliy</span>
+      <p>&copy; 2026 Ziyo Famliy restorani. Barcha huquqlar himoyalangan.</p>
+    </div>
+  </footer>
+
+  <!-- ============ STOL BRON QILISH OYNASI (index.html bilan bir xil) ============ -->
+  <div class="book-backdrop" id="bookBackdrop">
+    <div class="book-modal">
+      <button class="book-modal-close" id="bookModalClose" aria-label="Yopish">&times;</button>
+
+      <div id="bookFormWrap">
+        <p class="kicker">Ziyo Famliy</p>
+        <h3>Stol bron qilish</h3>
+        <form id="bookForm" class="book-form" novalidate>
+          <div class="book-field">
+            <label for="bkName">Ism familiya</label>
+            <input type="text" id="bkName" name="full_name" required autocomplete="name">
+          </div>
+          <div class="book-field">
+            <label for="bkPhone">Telefon raqam</label>
+            <input type="tel" id="bkPhone" name="phone" required autocomplete="tel" placeholder="+998 90 123 45 67">
+          </div>
+          <div class="book-row">
+            <div class="book-field">
+              <label for="bkDate">Sana</label>
+              <input type="date" id="bkDate" name="res_date" required>
+            </div>
+            <div class="book-field">
+              <label for="bkTime">Vaqt</label>
+              <input type="time" id="bkTime" name="res_time" required>
+            </div>
+          </div>
+          <div class="book-field">
+            <label for="bkGuests">Kishilar soni</label>
+            <input type="number" id="bkGuests" name="party_size" min="1" max="50" value="2" required>
+          </div>
+          <div class="book-field">
+            <label for="bkNote">Qo&rsquo;shimcha izoh (ixtiyoriy)</label>
+            <textarea id="bkNote" name="note" rows="2" placeholder="Masalan: deraza yonida stol"></textarea>
+          </div>
+          <div class="book-error" id="bkError"></div>
+          <button type="submit" class="btn-solid block" id="bkSubmit">Bron qilish</button>
+        </form>
+      </div>
+
+      <div class="book-success hidden" id="bookSuccess">
+        <div class="book-success-icon">&#10003;</div>
+        <h3>Rahmat!</h3>
+        <p id="bookSuccessText">Bron so&rsquo;rovingiz qabul qilindi. Tez orada siz bilan bog&rsquo;lanamiz.</p>
+        <button class="btn-ghost dark" id="bookSuccessClose">Yopish</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js?v=202610281339"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" integrity="sha512-puJW3E/qXDqYp9IfhAI54BJEaWIfloJ7JWs7OeD5i6ruC9JZL1gERT1wjtwXFlh7CjE7ZJ+/vcRZRkIYIb6p4g==" crossorigin="anonymous"></script>
+  <script src="menu-v2-utils.js?v=202610281339"></script>
+  <script src="menu-v2.js?v=202610281339"></script>
+</body>
+</html>

@@ -16,7 +16,10 @@ async function loadTables() {
           ${(t.items && t.items.length)
             ? t.items.map((it) => `
               <div class="card-row mt-4">
-                <div class="card-sub">${it.quantity} × ${escapeHtml(it.name_snapshot)} — ${fmtMoney(it.unit_price)}</div>
+                <div class="card-sub">
+                  ${it.quantity} × ${escapeHtml(it.name_snapshot)} — ${fmtMoney(it.unit_price)}
+                  ${it.note ? `<div class="badge debt" style="margin-top:4px;">📝 ${escapeHtml(it.note)}</div>` : ''}
+                </div>
                 <button class="btn small ${it.ready_at ? 'primary' : ''}" data-ready="${it.id}" data-val="${it.ready_at ? '0' : '1'}">${it.ready_at ? '✅ Tayyor' : '🏁 Tayyor'}</button>
               </div>
             `).join('')

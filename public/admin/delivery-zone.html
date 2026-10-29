@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Yetkazish hududi — Ziyo Famliy admin</title>
+<link rel="stylesheet" href="../style.css?v=202610281339">
+<link rel="stylesheet" href="theme.css?v=202610281339">
+<link rel="manifest" href="../manifest.json">
+<link rel="icon" href="../icon.svg">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" integrity="sha512-h9FcoyWjHcOcmEVkxOfTLnmZFWIH0iZhZT1H2TbOq55xssQGEJHEaIm+PgoUaZbRvQTNTluNOEfb1ZRy6D3BOw==" crossorigin="anonymous">
+</head>
+<body>
+  <div class="admin-page">
+
+    <header class="page-head">
+      <div class="page-head-left">
+        <a href="index.html" class="icon-btn page-head-mobile-only" id="backBtn" aria-label="Ortga">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+        </a>
+        <div class="brand-mark page-head-mobile-only" aria-hidden="true">P</div>
+        <div class="page-head-text">
+          <p class="page-date" id="pageDate">&nbsp;</p>
+          <h1 class="page-title">Yetkazish hududi</h1>
+        </div>
+      </div>
+      <button class="icon-btn page-head-mobile-only" id="logoutBtn" type="button" aria-label="Chiqish">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17l5-5-5-5"/><path d="M20 12H9"/><path d="M12 19H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6"/></svg>
+      </button>
+    </header>
+
+    <main class="page-main">
+      <p class="dim">Mijozlar menyusidagi (landing) yetkazib berish narxi shu sozlamalarga qarab avtomatik hisoblanadi: 0–<span id="dzBaseKmLabel">10</span> km ichida qat'iy narx, undan 20 km gacha har boshlangan km uchun qo'shimcha, 20 km dan uzoqqa saytdan buyurtma qabul qilinmaydi — operator raqami ko'rsatiladi.</p>
+
+      <div class="card mt-16">
+        <div class="card-title">Oshxona joylashuvi</div>
+        <p class="dim">Xaritada bosib oshxonaning aniq nuqtasini belgilang, yoki lat/lng qiymatini qo'lda kiriting. Bo'sh qoldirilsa, tizim "Operator aytadi" rejimida ishlaydi (xaritasiz, hozirgi holat).</p>
+        <div id="dzMap" style="height:320px;border-radius:12px;margin:12px 0;background:var(--surface-2,#1b1612);"></div>
+        <div class="field-row">
+          <div class="field"><label>Kenglik (lat)</label><input id="dzLat" type="text" inputmode="decimal" placeholder="masalan: 40.509851"></div>
+          <div class="field"><label>Uzunlik (lng)</label><input id="dzLng" type="text" inputmode="decimal" placeholder="masalan: 72.086136"></div>
+        </div>
+        <div class="field-row">
+          <button class="btn-secondary" id="dzAutoLocate" type="button">Joriy joylashuvni olish</button>
+          <button class="btn-secondary" id="dzClearOrigin" type="button">Joylashuvni tozalash</button>
+        </div>
+      </div>
+
+      <div class="card mt-16">
+        <div class="card-title">Tarif</div>
+        <div class="field-row">
+          <div class="field"><label>Asosiy hudud (km)</label><input id="dzBaseKm" type="number" min="0" step="0.1"></div>
+          <div class="field"><label>Asosiy narx (so'm)</label><input id="dzBaseFee" type="number" min="0" step="500"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Har qo'shimcha km narxi (so'm)</label><input id="dzPerKm" type="number" min="0" step="100"></div>
+          <div class="field"><label>Maksimal masofa (km)</label><input id="dzMaxKm" type="number" min="0" step="0.1"></div>
+        </div>
+        <div class="field">
+          <label>Operator telefon raqami (20 km dan uzoqda ko'rsatiladi)</label>
+          <input id="dzOperatorPhone" type="text" placeholder="masalan: +998901234567">
+        </div>
+      </div>
+
+      <button class="btn-primary mt-16" id="dzSaveBtn" type="button">Saqlash</button>
+      <p id="dzMsg" class="dim mt-8"></p>
+    </main>
+
+  </div>
+
+  <script src="../app.js?v=202610281339" data-api-base="../"></script>
+  <script src="../app-print.js?v=202610281339"></script>
+  <script src="../app-notify.js?v=202610281339"></script>
+  <script src="layout.js?v=202610281339"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" integrity="sha512-puJW3E/qXDqYp9IfhAI54BJEaWIfloJ7JWs7OeD5i6ruC9JZL1gERT1wjtwXFlh7CjE7ZJ+/vcRZRkIYIb6p4g==" crossorigin="anonymous"></script>
+  <script src="delivery-zone.js?v=202610281339"></script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<style>
+  :root{ --paper-w: 320px; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{
+    width:100%;height:100%;
+    background:#3c3c3c;
+    display:flex;align-items:center;justify-content:center;
+    font-family:"DejaVu Sans Mono","Courier New",monospace;
+  }
+  body{padding:60px 0 90px;}
+  .stage{position:relative;width:var(--paper-w);}
+  .receipt{
+    position:relative;width:100%;
+    background:#ffffff;color:#111111;
+    box-shadow:0 18px 40px rgba(0,0,0,.45), 0 2px 6px rgba(0,0,0,.3);
+    padding:0 18px 20px;overflow:hidden;
+  }
+  .banner{
+    margin:0 -18px 14px;background:#fff;color:#000;text-align:center;
+    font-weight:800;font-size:21px;letter-spacing:2.5px;padding:10px 0 9px;
+    border:4px solid #000;
+  }
+  .order-row{display:flex;align-items:flex-end;justify-content:space-between;padding-bottom:10px;}
+  .order-no{font-size:58px;font-weight:900;line-height:1;letter-spacing:-1px;}
+  .when{text-align:right;line-height:1.25;}
+  .when .date{font-size:12px;color:#555;font-weight:500;}
+  .when .time{font-size:22px;font-weight:800;}
+  .sep-double{border-top:4px double #000;margin:4px 0 12px;}
+  .kv{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:14px;padding:3px 0;}
+  .kv .k{color:#777;font-size:12px;font-weight:500;white-space:nowrap;}
+  .kv .v{font-weight:700;text-align:right;}
+  .sep-dash{border-top:2px dashed #000;margin:12px 0;}
+  .item-line{font-size:25px;font-weight:900;letter-spacing:-.5px;padding:2px 0;}
+  .total-row{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;padding:2px 0;}
+  .total-row .v{font-weight:800;font-size:18px;}
+  .note-box{border:3px solid #000;padding:9px 12px;margin-top:14px;font-size:14px;font-weight:600;}
+  .tear{
+    position:absolute;left:0;right:0;bottom:0;height:16px;
+    background:
+      linear-gradient(135deg, #fff 9px, transparent 0) 0 0,
+      linear-gradient(-135deg, #fff 9px, transparent 0) 0 0;
+    background-size:18px 18px;background-repeat:repeat-x;background-position:left bottom;
+  }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="receipt">
+      <div class="banner">OLIB KETISH</div>
+
+      <div class="order-row">
+        <div class="order-no">#25</div>
+        <div class="when">
+          <div class="date">18.10.2026</div>
+          <div class="time">11:12</div>
+        </div>
+      </div>
+
+      <div class="sep-double"></div>
+
+      <div class="kv"><span class="k">Mijoz:</span><span class="v">Abdulloh Karimov</span></div>
+      <div class="kv"><span class="k">Tel:</span><span class="v">+998 50 993 09 30</span></div>
+
+      <div class="sep-dash"></div>
+
+      <div class="item-line">1 x LAVASH</div>
+
+      <div class="sep-dash"></div>
+
+      <div class="total-row"><span class="k">Jami pozitsiya:</span><span class="v">1</span></div>
+
+      <div class="note-box">Izoh: -</div>
+
+      <div class="tear"></div>
+    </div>
+  </div>
+</body>
+</html>

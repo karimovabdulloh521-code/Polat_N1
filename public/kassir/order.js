@@ -8,15 +8,20 @@ async function loadTableName() {
   try {
     const tables = await api('/kassir/tables');
     const t = tables.find((x) => String(x.id) === String(TABLE_ID));
-    if (t) document.getElementById('tableTitle').textContent = t.name;
+    if (t) {
+      document.getElementById('tableTitle').textContent = t.zone_name ? `${t.name} · ${t.zone_name}` : t.name;
+    }
   } catch (e) { /* jim */ }
 }
+
+let currentOrderTotal = 0; // to'lov turi so'rovida kerak (askPaymentInfo)
 
 function renderOrder(view) {
   const box = document.getElementById('orderLines');
   const totalEl = document.getElementById('totalAmount');
   const closeBtn = document.getElementById('closeBtn');
   const cancelOrderBtn = document.getElementById('cancelOrderBtn');
+  currentOrderTotal = view ? view.total : 0;
 
   if (!view) {
     box.innerHTML = '<p class="dim">Hozircha bu stolda ochiq buyurtma yo\'q.</p>';
@@ -63,8 +68,12 @@ async function loadOrder() {
 document.getElementById('closeBtn').addEventListener('click', async () => {
   const ok = await customConfirm("Stolni yopib, hisob-kitob qilasizmi? Bu amalni ortga qaytarib bo'lmaydi.");
   if (!ok) return;
+  // To'lov turi (naqd/karta/aralash) — "Moliya va kassa" auditi (2026-10-10),
+  // kassir uchun majburiy (serverda ham tekshiriladi).
+  const paymentInfo = await askPaymentInfo(currentOrderTotal);
+  if (!paymentInfo) return;
   try {
-    const receipt = await api(`/kassir/tables/${TABLE_ID}/close`, { method: 'POST' });
+    const receipt = await api(`/kassir/tables/${TABLE_ID}/close`, { method: 'POST', body: paymentInfo });
     toast('Hisob-kitob yakunlandi.');
     // Chekni kassir o'zi shu yerda ko'rib chop eta oladi (afitsiantdan farqli —
     // u yerda printer administrator kompyuteriga ulangani uchun faqat navbatga

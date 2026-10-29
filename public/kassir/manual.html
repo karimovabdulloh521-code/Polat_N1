@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>Hisoblash — Kassa — Ziyo Famliy</title>
-<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="../style.css?v=202610281339">
 <link rel="manifest" href="../manifest.json">
 <link rel="icon" href="../icon.svg">
 </head>
@@ -12,6 +12,7 @@
   <div class="app-shell">
     <nav class="bottom-nav" id="bottomNav">
       <a href="tables.html" data-page="tables"><span class="ic">🪑</span>Stollar</a>
+      <a href="customer-orders.html" data-page="customer-orders"><span class="ic">🧾</span>Buyurtmalar</a>
       <a href="stats.html" data-page="stats"><span class="ic">📈</span>Statistika</a>
       <a href="manual.html" data-page="manual"><span class="ic">🧮</span>Hisoblash</a>
     </nav>
@@ -31,14 +32,26 @@
         </div>
       </main>
 
-      <div class="order-total-bar">
+      <div class="order-total-bar with-phone">
+        <input type="tel" id="customerPhoneInput" class="phone-input" placeholder="📞 Mijoz raqami (ixtiyoriy)" inputmode="tel" maxlength="30">
+        <input type="text" id="billNoteInput" class="phone-input" placeholder="📍 Manzil (ixtiyoriy)" maxlength="300">
+        <input type="text" id="billReasonInput" class="phone-input" placeholder="📝 Nega qo'lda yozildi? (ixtiyoriy)" maxlength="300">
+        <label class="phone-input delivery-price-field">
+          <input type="checkbox" id="deliveryPriceEnabled">
+          <span>🚚 Yetkazib berish</span>
+          <input type="number" id="deliveryPriceInput" min="0" step="500" inputmode="numeric" value="5000" disabled>
+        </label>
         <span>Jami: <span class="amount" id="totalAmount">0 so'm</span></span>
         <button class="btn" id="clearBtn" style="background:#fff;color:#c0392b;">Tozalash</button>
         <button class="btn" id="createBtn" style="background:#fff;color:var(--primary);">💳 Chek chiqarish</button>
       </div>
     </div>
   </div>
-  <script src="../app.js" data-api-base="../"></script>
-  <script src="manual.js"></script>
+  <script src="../app.js?v=202610281339" data-api-base="../"></script>
+  <script src="../app-print.js?v=202610281339"></script>
+  <script src="../app-notify.js?v=202610281339"></script>
+  <script src="../menu-picker.js?v=202610281339"></script>
+  <script src="shift-ui.js?v=202610281339"></script>
+  <script src="manual.js?v=202610281339"></script>
 </body>
 </html>

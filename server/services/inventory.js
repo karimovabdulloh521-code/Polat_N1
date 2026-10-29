@@ -33,14 +33,57 @@ function listItems({ includeInactive = false } = {}) {
   const where = includeInactive ? '' : 'WHERE i.is_active = 1';
   return db
     .prepare(
-      `SELECT i.*,
+      `SELECT i.*, c.name AS category_name,
               (SELECT GROUP_CONCAT(m.name, ', ') FROM menu_items m WHERE m.inventory_item_id = i.id AND m.is_active = 1) AS linked_menu_items,
               (SELECT COUNT(*) FROM menu_items m WHERE m.inventory_item_id = i.id AND m.is_active = 1) AS linked_menu_count
        FROM inventory_items i
+       LEFT JOIN inventory_categories c ON c.id = i.category_id
        ${where}
        ORDER BY i.name COLLATE NOCASE`
     )
     .all();
+}
+
+// ---------------- Turkumlar (2026-09-26, faqat Ombor sahifasida ustunlarga
+// ajratish uchun — menu_categories'dan mustaqil, pastdagi izohga qarang) ----------------
+
+function listCategories() {
+  return db.prepare('SELECT * FROM inventory_categories ORDER BY sort_order, id').all();
+}
+
+function createCategory({ name, sort_order }) {
+  const trimmed = String(name || '').trim();
+  if (!trimmed) throw new InventoryError('Turkum nomi kiritilishi shart');
+  const ts = nowIso();
+  const info = db
+    .prepare('INSERT INTO inventory_categories (name, sort_order, created_at) VALUES (?, ?, ?)')
+    .run(trimmed, Number(sort_order) || 0, ts);
+  return db.prepare('SELECT * FROM inventory_categories WHERE id = ?').get(info.lastInsertRowid);
+}
+
+function updateCategory(id, { name, sort_order }) {
+  const existing = db.prepare('SELECT * FROM inventory_categories WHERE id = ?').get(id);
+  if (!existing) throw new InventoryError('Turkum topilmadi', 404);
+  const trimmed = name !== undefined ? String(name).trim() : existing.name;
+  if (!trimmed) throw new InventoryError('Turkum nomi kiritilishi shart');
+  const sortOrder = sort_order !== undefined ? Number(sort_order) || 0 : existing.sort_order;
+  db.prepare('UPDATE inventory_categories SET name = ?, sort_order = ? WHERE id = ?').run(trimmed, sortOrder, id);
+  return db.prepare('SELECT * FROM inventory_categories WHERE id = ?').get(id);
+}
+
+// Turkumning o'zi harakat tarixiga ega emas (faqat guruhlash yorlig'i) — shu
+// sabab boshqa jadvallardan (menu_categories/inventory_items) farqli o'laroq
+// soft-delete kerak emas: unga bog'langan mahsulotlar avval "turkumsiz"
+// (category_id=NULL) qilinadi, so'ng turkum bazadan butunlay o'chiriladi.
+function deleteCategory(id) {
+  const existing = db.prepare('SELECT * FROM inventory_categories WHERE id = ?').get(id);
+  if (!existing) throw new InventoryError('Turkum topilmadi', 404);
+  const run = db.transaction(() => {
+    db.prepare('UPDATE inventory_items SET category_id = NULL, updated_at = ? WHERE category_id = ?').run(nowIso(), id);
+    db.prepare('DELETE FROM inventory_categories WHERE id = ?').run(id);
+  });
+  run();
+  return { ok: true };
 }
 
 // Manfiy bo'lmagan butun narx (so'm) — berilmagan/noto'g'ri bo'lsa fallback qaytadi.
@@ -87,7 +130,11 @@ function ensureMenuLink(inventoryItemId, categoryId) {
   ).run(catId, item.name, item.sale_price, item.cost_price, isAvailable, item.volume, inventoryItemId, ts, ts);
 }
 
-function createItem({ name, unit, quantity, low_stock_threshold, cost_price, sale_price, volume, menu_category_id }) {
+// category_id — ixtiyoriy, Ombor sahifasida ustunlarga ajratish uchun
+// (inventory_categories, MENU_category_id'dan MUSTAQIL — chalkashtirmaslik
+// uchun parametr nomi ataylab boshqacha). image_url — ixtiyoriy, admin
+// panelidagi POST /upload-image orqali oldindan yuklab olingan yo'l.
+function createItem({ name, unit, quantity, low_stock_threshold, cost_price, sale_price, volume, menu_category_id, category_id, image_url }) {
   const trimmedName = String(name || '').trim();
   if (!trimmedName) throw new InventoryError('Nom kiritilishi shart');
   const unitVal = String(unit || '').trim() || 'dona';
@@ -98,15 +145,17 @@ function createItem({ name, unit, quantity, low_stock_threshold, cost_price, sal
   const costVal = parseNonNegativeInt(cost_price, 0);
   const saleVal = parseNonNegativeInt(sale_price, 0);
   const volumeVal = volume ? String(volume).trim() || null : null;
+  const categoryIdVal = category_id ? Number(category_id) : null;
+  const imageUrlVal = image_url ? String(image_url).trim() || null : null;
   const ts = nowIso();
 
   const run = db.transaction(() => {
     const info = db
       .prepare(
-        `INSERT INTO inventory_items (name, unit, quantity, low_stock_threshold, cost_price, sale_price, volume, is_active, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?)`
+        `INSERT INTO inventory_items (name, unit, quantity, low_stock_threshold, cost_price, sale_price, volume, category_id, image_url, is_active, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)`
       )
-      .run(trimmedName, unitVal, qtyVal, thresholdVal, costVal, saleVal, volumeVal, ts, ts);
+      .run(trimmedName, unitVal, qtyVal, thresholdVal, costVal, saleVal, volumeVal, categoryIdVal, imageUrlVal, ts, ts);
     // Boshlang'ich qoldiq bo'lsa ham harakat tarixida ko'rinishi uchun 'restock' yozuvi.
     if (qtyVal > 0) {
       db.prepare(
@@ -144,7 +193,7 @@ function createItem({ name, unit, quantity, low_stock_threshold, cost_price, sal
   return linkWarning ? { ...item, _link_warning: linkWarning } : item;
 }
 
-function updateItem(id, { name, unit, low_stock_threshold, is_active, cost_price, sale_price, volume, menu_category_id }) {
+function updateItem(id, { name, unit, low_stock_threshold, is_active, cost_price, sale_price, volume, menu_category_id, category_id, image_url }) {
   const existing = getItemRow(id);
   const trimmedName = name !== undefined ? String(name).trim() : existing.name;
   if (!trimmedName) throw new InventoryError('Nom kiritilishi shart');
@@ -155,11 +204,13 @@ function updateItem(id, { name, unit, low_stock_threshold, is_active, cost_price
   const costVal = cost_price !== undefined ? parseNonNegativeInt(cost_price, existing.cost_price) : existing.cost_price;
   const saleVal = sale_price !== undefined ? parseNonNegativeInt(sale_price, existing.sale_price) : existing.sale_price;
   const volumeVal = volume !== undefined ? (String(volume).trim() || null) : existing.volume;
+  const categoryIdVal = category_id !== undefined ? (category_id ? Number(category_id) : null) : existing.category_id;
+  const imageUrlVal = image_url !== undefined ? (String(image_url).trim() || null) : existing.image_url;
 
   const run = db.transaction(() => {
     db.prepare(
-      'UPDATE inventory_items SET name = ?, unit = ?, low_stock_threshold = ?, is_active = ?, cost_price = ?, sale_price = ?, volume = ?, updated_at = ? WHERE id = ?'
-    ).run(trimmedName, unitVal, thresholdVal, isActiveVal, costVal, saleVal, volumeVal, nowIso(), id);
+      'UPDATE inventory_items SET name = ?, unit = ?, low_stock_threshold = ?, is_active = ?, cost_price = ?, sale_price = ?, volume = ?, category_id = ?, image_url = ?, updated_at = ? WHERE id = ?'
+    ).run(trimmedName, unitVal, thresholdVal, isActiveVal, costVal, saleVal, volumeVal, categoryIdVal, imageUrlVal, nowIso(), id);
     // is_active o'zgargan bo'lishi mumkin (o'chirilgan mahsulotga bog'langan taom
     // ham "tugadi" deb ko'rsatilishi kerak) — bog'liq taomlarni qayta sinxronlaymiz.
     syncMenuAvailability(id);
@@ -195,17 +246,25 @@ function updateItem(id, { name, unit, low_stock_threshold, is_active, cost_price
 // qoladi, joriy mavjudlik holati o'zgarishsiz qoladi (admin keyin qo'lda tuzatadi).
 function deleteItem(id) {
   const existing = getItemRow(id);
+  let wasHardDeleted = false;
   const run = db.transaction(() => {
     const hasMovements = db.prepare('SELECT 1 FROM inventory_movements WHERE inventory_item_id = ? LIMIT 1').get(id);
     db.prepare('UPDATE menu_items SET inventory_item_id = NULL, updated_at = ? WHERE inventory_item_id = ?').run(nowIso(), id);
     if (!hasMovements) {
       db.prepare('DELETE FROM inventory_items WHERE id = ?').run(id);
+      wasHardDeleted = true;
     } else {
       db.prepare('UPDATE inventory_items SET is_active = 0, updated_at = ? WHERE id = ?').run(nowIso(), id);
     }
   });
   run();
-  return { ok: true, hard_deleted: existing };
+  // ESLATMA: `hard_deleted` maydoni ilgari (2026-09-26'gacha) chalkash tarzda
+  // har doim `existing` snapshot'ini o'zi qaytarardi (ya'ni har doim "haqiqiy"
+  // edi, soft-delete bo'lganda ham) — buni ombor rasmini o'chirish logikasi
+  // (adminInventory.js) ishlatganda, soft-delete qilingan (hali "tiklash"
+  // mumkin) mahsulotning rasmi ham noto'g'ri o'chib ketardi. Endi haqiqiy
+  // boolean, snapshot esa alohida `item` maydonida.
+  return { ok: true, hard_deleted: wasHardDeleted, item: existing };
 }
 
 // Bog'langan menyu taom(lar)ining is_available'ini joriy qoldiqdan qayta hisoblaydi.
@@ -260,6 +319,23 @@ function adjustStock(id, delta, { reason = 'adjustment', note, userId } = {}) {
   return getItemRow(id);
 }
 
+// Inventarizatsiya (qo'lda fizik sanash) — Ombor auditi (2026-10-10): admin
+// avval (qo'lda hisoblab) FARQNI o'zi kiritishi SHART emas, to'g'ridan-to'g'ri
+// "haqiqatda nechta bor" sonini kiritadi, farq (`delta`) shu yerda avtomatik
+// hisoblanadi va `reason='stocktake'` bilan yoziladi — oddiy qo'lda
+// kirim/chiqimdan (adjustStock, reason='restock'/'adjustment'/'waste')
+// ANIQ ajratilgan bo'lishi uchun.
+function stocktake(id, actualQtyRaw, { note, userId } = {}) {
+  const actualQty = Number(actualQtyRaw);
+  if (!Number.isFinite(actualQty) || !Number.isInteger(actualQty) || actualQty < 0) {
+    throw new InventoryError("Haqiqiy qoldiqni to'g'ri kiriting");
+  }
+  const item = getItemRow(id);
+  const delta = actualQty - item.quantity;
+  if (delta === 0) return item; // farq yo'q — yozuv shart emas
+  return adjustStock(id, delta, { reason: 'stocktake', note, userId });
+}
+
 // Buyurtma (afitsiant yoki mijoz) shu ombor mahsulotidan `qty` dona sarflaydi.
 // Yetarli qoldiq bo'lmasa OrderError-ga o'xshash InventoryError otadi (chaqiruvchi
 // buni o'z transaction()i ichida ushlab, butun amalni bekor qiladi).
@@ -300,6 +376,23 @@ function release(inventoryItemId, qty, { orderItemId, customerOrderItemId, userI
   run();
 }
 
+// Ombor sahifasi tepasidagi 4 ta ko'rsatkich — bitta SQL agregatsiya so'rovi
+// (JS siklida emas), faqat faol mahsulotlar bo'yicha.
+function getStats() {
+  return db
+    .prepare(
+      `SELECT
+         COUNT(*) AS item_count,
+         COUNT(DISTINCT CASE WHEN category_id IS NOT NULL THEN category_id END) AS category_count,
+         COALESCE(SUM(quantity * cost_price), 0) AS total_value,
+         COALESCE(SUM(quantity * (sale_price - cost_price)), 0) AS expected_profit,
+         COALESCE(SUM(CASE WHEN quantity <= 0 OR (low_stock_threshold > 0 AND quantity <= low_stock_threshold) THEN 1 ELSE 0 END), 0) AS low_stock_count
+       FROM inventory_items
+       WHERE is_active = 1`
+    )
+    .get();
+}
+
 function listMovements(inventoryItemId, limit = 50) {
   getItemRow(inventoryItemId); // 404 bo'lsa shu yerda otadi
   const lim = Number.isFinite(Number(limit)) ? Math.min(Math.max(Number(limit), 1), 200) : 50;
@@ -318,6 +411,10 @@ function listMovements(inventoryItemId, limit = 50) {
 module.exports = {
   InventoryError,
   listItems,
+  listCategories,
+  createCategory,
+  updateCategory,
+  deleteCategory,
   getItemRow,
   createItem,
   updateItem,
@@ -326,7 +423,9 @@ module.exports = {
   syncMenuPricing,
   ensureMenuLink,
   computeAvailability,
+  getStats,
   adjustStock,
+  stocktake,
   consume,
   release,
   listMovements,

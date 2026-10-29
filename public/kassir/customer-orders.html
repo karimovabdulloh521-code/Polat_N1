@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Mijoz buyurtmalari — Kassa — Ziyo Famliy</title>
+<link rel="stylesheet" href="../style.css?v=202610281339">
+<link rel="manifest" href="../manifest.json">
+<link rel="icon" href="../icon.svg">
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <nav class="bottom-nav" id="bottomNav">
+      <a href="tables.html" data-page="tables"><span class="ic">🪑</span>Stollar</a>
+      <a href="customer-orders.html" data-page="customer-orders"><span class="ic">🧾</span>Buyurtmalar</a>
+      <a href="stats.html" data-page="stats"><span class="ic">📈</span>Statistika</a>
+      <a href="manual.html" data-page="manual"><span class="ic">🧮</span>Hisoblash</a>
+    </nav>
+    <div style="flex:1;">
+      <div class="topbar">
+        <h1>Mijoz buyurtmalari</h1>
+        <button class="logout-btn" id="logoutBtn">Chiqish</button>
+      </div>
+      <main>
+        <div class="card-title mt-8">🧾 Olib ketish / Yetkazib berish</div>
+        <div id="customerOrders" class="mt-8"><p class="dim">Yuklanmoqda...</p></div>
+      </main>
+    </div>
+  </div>
+  <script src="../app.js?v=202610281339" data-api-base="../"></script>
+  <script src="../app-print.js?v=202610281339"></script>
+  <script src="../app-notify.js?v=202610281339"></script>
+  <script src="customer-orders.js?v=202610281339"></script>
+</body>
+</html>

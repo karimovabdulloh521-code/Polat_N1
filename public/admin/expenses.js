@@ -15,11 +15,11 @@ async function loadExpenses() {
     }
     const total = rows.reduce((s, r) => s + r.amount, 0);
     box.innerHTML = `
-      <div class="card-title mt-16">Jami: ${fmtMoney(total)}</div>
+      <div class="total-chip mt-16">Jami: ${fmtMoney(total)}</div>
     ` + rows.map((r) => `
       <div class="card card-row">
         <div>
-          <div class="card-title">${fmtMoney(r.amount)} ${r.category ? `<span class="badge debt">${escapeHtml(r.category)}</span>` : ''}</div>
+          <div class="card-title">${fmtMoney(r.amount)} ${r.category ? `<span class="badge badge-gold">${escapeHtml(r.category)}</span>` : ''}</div>
           <div class="card-sub">${escapeHtml(r.expense_date)} ${r.note ? '· ' + escapeHtml(r.note) : ''}</div>
         </div>
         <button class="btn small danger" data-del="${r.id}">O'chirish</button>
@@ -63,7 +63,7 @@ async function delExpense(id) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  initNav('expenses');
+  initLayout('expenses');
   document.getElementById('fDate').value = todayStr();
   loadExpenses();
 });

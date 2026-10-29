@@ -3,10 +3,11 @@ const { db, nowIso } = require('../db');
 const { hashPassword } = require('../passwords');
 const { asyncRoute } = require('../routeUtils');
 const { ROLE_NAMES } = require('../roles');
+const { logAudit } = require('../services/auditLog');
 
 const router = express.Router();
 
-const PUBLIC_FIELDS = 'id, username, role, full_name, is_active, created_at';
+const PUBLIC_FIELDS = 'id, username, role, full_name, is_active, created_at, last_login_at, last_login_ip';
 
 // Xodim orders/order_items/expenges jadvallarida FK orqali izi bormi —
 // bo'lsa haqiqiy o'chirish (FK buziladi/tarix yo'qoladi) xavfli, shuning
@@ -44,6 +45,9 @@ router.post('/', asyncRoute((req, res) => {
        VALUES (?, ?, ?, ?, ?, 1, ?)`
     )
     .run(uname, hash, salt, role, full_name ? String(full_name).trim() : null, nowIso());
+  // "Audit izi" auditi (2026-10-10): yangi xodim yaratilishi (kim, qaysi
+  // login/rol bilan) endi doimiy iz qoldiradi.
+  logAudit('user.create', 'user', info.lastInsertRowid, null, { username: uname, role }, req.user.id);
   res.json(db.prepare(`SELECT ${PUBLIC_FIELDS} FROM users WHERE id = ?`).get(info.lastInsertRowid));
 }));
 
@@ -57,6 +61,15 @@ router.put('/:id', asyncRoute((req, res) => {
   db.prepare('UPDATE users SET full_name = ?, role = ?, is_active = ? WHERE id = ?').run(
     fullName, role, isActive, req.params.id
   );
+  // Rol o'zgarishi — "Audit izi" auditi (2026-10-10): ilgari eski/yangi rol
+  // hech qayerga yozilmasdi (masalan "afitsiant" dan "admin"ga ko'tarilishi
+  // izsiz qolardi). is_active o'zgarishi ham shu bilan birga loglanadi.
+  if (role !== existing.role) {
+    logAudit('user.role_change', 'user', existing.id, { role: existing.role }, { role }, req.user.id);
+  }
+  if (isActive !== existing.is_active) {
+    logAudit('user.active_change', 'user', existing.id, { is_active: existing.is_active }, { is_active: isActive }, req.user.id);
+  }
   res.json(db.prepare(`SELECT ${PUBLIC_FIELDS} FROM users WHERE id = ?`).get(req.params.id));
 }));
 
@@ -82,9 +95,11 @@ router.delete('/:id', asyncRoute((req, res) => {
   // xodim) qator butunlay o'chiriladi.
   if (userHasActivity(req.params.id)) {
     db.prepare('UPDATE users SET is_active = 0 WHERE id = ?').run(req.params.id);
+    logAudit('user.deactivate', 'user', existing.id, { is_active: 1 }, { is_active: 0 }, req.user.id);
     return res.json({ ok: true, hardDeleted: false });
   }
   db.prepare('DELETE FROM users WHERE id = ?').run(req.params.id);
+  logAudit('user.delete', 'user', existing.id, { username: existing.username, role: existing.role }, null, req.user.id);
   res.json({ ok: true, hardDeleted: true });
 }));
 

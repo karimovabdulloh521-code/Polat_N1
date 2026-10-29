@@ -4,34 +4,57 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>Ombor — Ziyo Famliy admin</title>
-<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="../style.css?v=202610281339">
+<link rel="stylesheet" href="theme.css?v=202610281339">
+<link rel="stylesheet" href="../css/ombor.css?v=202610281339">
 <link rel="manifest" href="../manifest.json">
 <link rel="icon" href="../icon.svg">
 </head>
-<body class="app-body">
-  <div class="app-shell">
-    <nav class="bottom-nav" id="bottomNav">
-      <a href="index.html" data-page="index"><span class="ic">📊</span>Bosh sahifa</a>
-      <a href="menu.html" data-page="menu"><span class="ic">🍽️</span>Menyu</a>
-      <a href="tables.html" data-page="tables"><span class="ic">🪑</span>Stollar</a>
-      <a href="waiters.html" data-page="waiters"><span class="ic">👥</span>Xodimlar</a>
-      <a href="expenses.html" data-page="expenses"><span class="ic">💵</span>Xarajat</a>
-      <a href="reservations.html" data-page="reservations"><span class="ic">📅</span>Bronlar</a>
-      <a href="customer-orders.html" data-page="customer-orders"><span class="ic">🛒</span>Buyurtmalar</a>
-      <a href="inventory.html" data-page="inventory"><span class="ic">📦</span>Ombor</a>
-      <a href="reports.html" data-page="reports"><span class="ic">📈</span>Hisobot</a>
-    </nav>
-    <div style="flex:1;">
-      <div class="topbar">
-        <h1>Ombor</h1>
-        <button class="logout-btn" id="logoutBtn">Chiqish</button>
+<body>
+  <div class="admin-page">
+    <main class="page-main">
+      <div class="ov-page">
+        <header class="ov-header">
+          <div class="ov-header-left">
+            <p class="ov-date" id="pageDate">&nbsp;</p>
+            <h1 class="ov-title">Ombor</h1>
+            <p class="ov-sub">Suv, salfetka va boshqa sarflanadigan mahsulotlar qoldig'i. Menyudagi taom shu yerdagi mahsulotga bog'langan bo'lsa, uning &ldquo;mavjud / tugadi&rdquo; holati qoldiqdan avtomatik hisoblanadi.</p>
+          </div>
+          <div class="ov-header-actions">
+            <a href="index.html" class="ov-btn page-head-mobile-only" id="backBtn" aria-label="Ortga" title="Ortga">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+            </a>
+            <button class="ov-btn ov-logout page-head-mobile-only" id="logoutBtn" type="button" aria-label="Chiqish" title="Chiqish">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17l5-5-5-5"/><path d="M20 12H9"/><path d="M12 19H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6"/></svg>
+            </button>
+            <button class="ov-btn" id="addCategoryBtn" type="button" aria-label="Turkum qo'shish" title="Turkum qo'shish">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/><path d="M3 17l9 5 9-5"/></svg>
+              <span class="ov-btn-label">Turkum qo'shish</span>
+            </button>
+            <button class="ov-btn ov-btn-accent" id="addItemBtn" type="button" aria-label="Yangi mahsulot" title="Yangi mahsulot">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+              <span class="ov-btn-label">Yangi mahsulot</span>
+            </button>
+          </div>
+        </header>
+
+        <div class="ov-stats" id="ovStats">
+          <p class="dim">Yuklanmoqda...</p>
+        </div>
+
+        <div class="ov-toolbar">
+          <div class="ov-search">
+            <label class="ov-search-label" for="ovSearchInput">Mahsulot nomini qidirish</label>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input id="ovSearchInput" type="text" placeholder="Mahsulot nomini qidirish…" autocomplete="off">
+          </div>
+          <div class="ov-chips" id="ovChips"></div>
+        </div>
+
+        <div class="ov-list-desktop" id="ovListDesktop"></div>
+        <div class="ov-list-mobile" id="ovListMobile"><p class="dim">Yuklanmoqda...</p></div>
       </div>
-      <main>
-        <p class="dim" style="margin-bottom:12px;">Suv, salfetka va shunga o'xshash sarflanadigan mahsulotlar qoldig'i. Menyu bo'limida (masalan ichimlik) taomni shu yerdagi mahsulotga bog'lasangiz, uning "mavjud/tugadi" holati bu yerdagi qoldiqdan avtomatik hisoblanadi.</p>
-        <button class="btn primary block" id="addItemBtn">+ Yangi ombor mahsuloti</button>
-        <div id="inventoryList" class="mt-16"><p class="dim">Yuklanmoqda...</p></div>
-      </main>
-    </div>
+    </main>
   </div>
 
   <div class="modal-backdrop hidden" id="invModal">
@@ -48,6 +71,24 @@
           <label>Sotuv narxi (so'm/birlik)</label>
           <input id="invSale" type="number" value="0">
           <p class="dim" style="font-size:12px; margin-top:4px;">Bu mahsulot Menyu bo'limida biror taomga bog'lansa, o'sha taomning narxi AVTOMATIK shu qiymatga tenglanadi (tan narxi menyuda hech qachon ko'rinmaydi).</p>
+        </div>
+        <div class="field">
+          <label>Turkumi (ixtiyoriy — Ombor sahifasida ustunlarga ajratadi)</label>
+          <select id="invCategory">
+            <option value="">— Turkumsiz —</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Rasmi (ixtiyoriy)</label>
+          <img id="invImagePreview" class="hidden" style="max-width:120px; border-radius:var(--radius-sm); display:block; margin-bottom:8px;">
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <label class="btn small" for="invImageFile" style="cursor:pointer;">🖼 Galereyadan tanlash</label>
+            <label class="btn small" for="invImageCameraFile" style="cursor:pointer;">📷 Kamerada olish</label>
+          </div>
+          <input id="invImageFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif" class="hidden">
+          <input id="invImageCameraFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif" capture="environment" class="hidden">
+          <button class="btn small" id="invImageRemoveBtn" style="margin-top:6px;" type="button">Rasmni olib tashlash</button>
+          <p id="invImageStatus" class="dim" style="font-size:12px; margin-top:4px;"></p>
         </div>
         <div class="field" id="invMenuCategoryField">
           <label>Menyuda ko'rsatish (ixtiyoriy)</label>
@@ -71,11 +112,48 @@
       <p class="dim" id="adjustCurrentQty"></p>
       <div class="form-grid">
         <div class="field"><label id="adjustQtyLabel">Necha dona keldi?</label><input id="adjustDelta" type="number" min="1" placeholder="masalan: 24"></div>
+        <div class="field hidden" id="adjustReasonField">
+          <label>Chiqim sababi</label>
+          <select id="adjustReason">
+            <option value="adjustment">Boshqa sabab</option>
+            <option value="waste">Isrof (buzilgan/chiqib ketgan)</option>
+          </select>
+        </div>
         <div class="field"><label>Izoh (ixtiyoriy)</label><input id="adjustNote" placeholder="masalan: yangi partiya keldi"></div>
       </div>
       <div class="modal-actions">
         <button class="btn" id="adjustCancelBtn">Bekor</button>
         <button class="btn primary" id="adjustSaveBtn">Saqlash</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop hidden" id="stocktakeModal">
+    <div class="modal">
+      <h2 id="stocktakeModalTitle">Inventarizatsiya</h2>
+      <p class="dim" id="stocktakeCurrentQty"></p>
+      <div class="form-grid">
+        <div class="field"><label>Haqiqatda nechta bor?</label><input id="stocktakeQty" type="number" min="0" placeholder="masalan: 47"></div>
+        <div class="field"><label>Izoh (ixtiyoriy)</label><input id="stocktakeNote" placeholder="masalan: oylik sanash"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn" id="stocktakeCancelBtn">Bekor</button>
+        <button class="btn primary" id="stocktakeSaveBtn">Saqlash</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop hidden" id="categoryModal">
+    <div class="modal">
+      <h2>Turkumlar</h2>
+      <p class="dim" style="font-size:12px;">Ombor mahsulotlarini (masalan "Ichimliklar", "Tozalash vositalari") guruhlab, sahifada ustunlarga ajratib ko'rsatish uchun.</p>
+      <div id="categoryList" class="mt-8"></div>
+      <div class="form-grid mt-16">
+        <div class="field"><label>Yangi turkum nomi</label><input id="newCategoryName" placeholder="masalan: Ichimliklar"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn" id="categoryCloseBtn">Yopish</button>
+        <button class="btn primary" id="addCategorySaveBtn">Qo'shish</button>
       </div>
     </div>
   </div>
@@ -90,7 +168,10 @@
     </div>
   </div>
 
-  <script src="../app.js" data-api-base="../"></script>
-  <script src="inventory.js"></script>
+  <script src="../app.js?v=202610281339" data-api-base="../"></script>
+  <script src="../app-print.js?v=202610281339"></script>
+  <script src="../app-notify.js?v=202610281339"></script>
+  <script src="layout.js?v=202610281339"></script>
+  <script src="inventory.js?v=202610281339"></script>
 </body>
 </html>

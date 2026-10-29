@@ -2,21 +2,98 @@
 <html lang="uz">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Stollar — Ziyo Famliy</title>
-<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="../style.css?v=202610281339">
+<link rel="stylesheet" href="tables.css?v=202610281339">
 <link rel="manifest" href="../manifest.json">
 <link rel="icon" href="../icon.svg">
 </head>
-<body class="app-body">
-  <div class="topbar">
-    <h1>Stollar</h1>
-    <button class="logout-btn" id="logoutBtn">Chiqish</button>
+<body class="tbl-page">
+  <header class="tbl-header">
+    <div class="tbl-header-inner">
+      <div class="tbl-header-row1 tbl-header-top-grid">
+        <div class="tbl-titles">
+          <span class="tbl-brand">ZIYO FAMLIY</span>
+          <h1 class="tbl-title">Stollar</h1>
+        </div>
+        <div class="tbl-header-side">
+          <span class="tbl-waiter-name" id="tblWaiterName"></span>
+          <div class="tbl-avatar" id="tblAvatar">--</div>
+          <button class="tbl-logout-btn" id="logoutBtn">Chiqish</button>
+        </div>
+      </div>
+      <div class="tbl-stats">
+        <div class="tbl-stat is-busy">
+          <div class="tbl-stat-label">Band</div>
+          <div class="tbl-stat-value tbl-num" id="tblStatBusy">0</div>
+        </div>
+        <div class="tbl-stat is-free">
+          <div class="tbl-stat-label">Bo'sh</div>
+          <div class="tbl-stat-value tbl-num" id="tblStatFree">0</div>
+        </div>
+        <div class="tbl-stat">
+          <div class="tbl-stat-label">Ochiq hisob</div>
+          <div class="tbl-stat-value tbl-num" id="tblStatOpenTotal">0 so'm</div>
+        </div>
+        <div class="tbl-stat is-ready" id="tblStatReadyBox" style="display:none;">
+          <div class="tbl-stat-label">Tayyor taom</div>
+          <div class="tbl-stat-value tbl-num" id="tblStatReady">0</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="tbl-filters">
+    <div class="tbl-hall-tabs" id="tblHallTabs" role="tablist" aria-label="Zallar"></div>
+    <div class="tbl-segment" id="tblSegment" role="tablist" aria-label="Holat">
+      <button class="tbl-segment-btn is-active" data-status="all" role="tab" aria-selected="true">Barchasi</button>
+      <button class="tbl-segment-btn" data-status="busy" role="tab" aria-selected="false">Band</button>
+      <button class="tbl-segment-btn" data-status="free" role="tab" aria-selected="false">Bo'sh</button>
+    </div>
   </div>
-  <main>
-    <div id="tableGrid" class="table-grid"><p class="dim">Yuklanmoqda...</p></div>
-  </main>
-  <script src="../app.js" data-api-base="../"></script>
-  <script src="tables.js"></script>
+
+  <div class="tbl-layout">
+    <main class="tbl-main" id="tblMain">
+      <p class="tbl-empty">Yuklanmoqda...</p>
+    </main>
+
+    <aside class="tbl-panel" id="tblPanel" aria-hidden="true">
+      <div class="tbl-panel-handle"></div>
+      <div class="tbl-panel-head">
+        <div class="tbl-panel-titles">
+          <div class="tbl-panel-number tbl-num" id="tblPanelNumber">—</div>
+          <div class="tbl-panel-meta" id="tblPanelMeta"></div>
+          <div class="tbl-panel-bill-row" id="tblPanelBillRow" style="display:none">
+            <button class="tbl-bill-toggle-btn" id="tblBillToggleBtn" type="button">🧾 Hisob so'ra</button>
+          </div>
+        </div>
+        <button class="tbl-panel-close" id="tblPanelClose" aria-label="Panelni yopish">×</button>
+      </div>
+      <div class="tbl-panel-body" id="tblPanelBody">
+        <p class="tbl-panel-empty">Stolni tanlang</p>
+      </div>
+      <div class="tbl-panel-footer" id="tblPanelFooter" style="display:none">
+        <div class="tbl-panel-total-row">
+          <span class="tbl-panel-total-label">Jami</span>
+          <span class="tbl-panel-total-value tbl-num" id="tblPanelTotal">0 so'm</span>
+        </div>
+        <div class="tbl-panel-actions" id="tblPanelActions"></div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="tbl-panel-backdrop" id="tblPanelBackdrop"></div>
+
+  <footer class="tbl-legend">
+    <span class="tbl-legend-item"><span class="tbl-legend-dot is-free"></span>Bo'sh</span>
+    <span class="tbl-legend-item"><span class="tbl-legend-dot is-busy"></span>Band</span>
+    <span class="tbl-legend-item"><span class="tbl-legend-dot is-bill"></span>Hisob so'ralgan</span>
+  </footer>
+
+  <script src="../app.js?v=202610281339" data-api-base="../"></script>
+  <script src="../app-print.js?v=202610281339"></script>
+  <script src="../app-notify.js?v=202610281339"></script>
+  <script src="tables.js?v=202610281339"></script>
 </body>
 </html>

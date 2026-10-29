@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /landing/
+Disallow: /login.html
+Disallow: /admin/
+Disallow: /waiter/
+Disallow: /chef/
+Disallow: /courier/
+Disallow: /kassir/
+Disallow: /api/
+
+Sitemap: https://ziyofamily.com/sitemap.xml

@@ -4,6 +4,7 @@
 // erkin nom + narx + miqdor kiritadi, server faqat qiymatlarni tekshiradi va
 // subtotal/jamini o'zi hisoblaydi (mijoz tomonidan yuborilgan jamiga ishonilmaydi).
 const { db, nowIso } = require('../db');
+const cashShifts = require('./cashShifts');
 
 class ManualBillError extends Error {
   constructor(message, status = 400) {
@@ -35,15 +36,90 @@ function validateItems(rawItems) {
   });
 }
 
-function createManualBill(rawItems, userId) {
+// Mijoz raqami ixtiyoriy — kiritilmasa NULL saqlanadi, formati qat'iy
+// tekshirilmaydi, chunki bu shunchaki eslatma/qidiruv uchun, to'lov/SMS uchun
+// ishlatilmaydi. Kassir mamlakat kodisiz (masalan "901234567" yoki "0901234567")
+// kiritsa, avtomatik "+998" qo'yiladi (2026-09-26, foydalanuvchi so'rovi) —
+// lekin agar kassir o'zi biror "+" bilan boshlangan kodni kiritgan bo'lsa
+// (masalan boshqa mamlakat raqami), unga tegilmaydi.
+function sanitizePhone(raw) {
+  let phone = String(raw || '').trim();
+  if (!phone) return null;
+  if (phone.length > 30) throw new ManualBillError("Mijoz raqami juda uzun");
+  if (!phone.startsWith('+')) {
+    let digits = phone.replace(/\D/g, '');
+    if (digits.startsWith('998')) digits = digits.slice(3);
+    else if (digits.startsWith('0')) digits = digits.slice(1);
+    phone = `+998${digits}`;
+  }
+  return phone;
+}
+
+// Izoh — mijoz raqami yonidagi ixtiyoriy erkin matn (2026-09-27, foydalanuvchi
+// so'rovi). Formati tekshirilmaydi, faqat uzunlik cheklanadi.
+function sanitizeNote(raw) {
+  const note = String(raw || '').trim();
+  if (!note) return null;
+  if (note.length > 300) throw new ManualBillError('Izoh juda uzun');
+  return note;
+}
+
+// Yetkazib berish narxi — ixtiyoriy, standart qiymat (5000) frontendda
+// (public/kassir/manual.js) qo'yiladi, bu yerda faqat kelgan qiymat
+// tekshiriladi (2026-09-27, foydalanuvchi so'rovi). Berilmasa/bo'sh bo'lsa 0,
+// manfiy bo'lsa xato. Taomlar summasiga qo'shilib umumiy "Jami"ni tashkil qiladi.
+function sanitizeDeliveryPrice(raw) {
+  if (raw === undefined || raw === null || raw === '') return 0;
+  const price = Number(raw);
+  if (!Number.isFinite(price) || price < 0) {
+    throw new ManualBillError("Yetkazib berish narxi noto'g'ri");
+  }
+  return Math.round(price);
+}
+
+// Sabab — "nima uchun qo'lda yozildi" (ixtiyoriy, `note`dan ATAYLAB alohida —
+// `note` mijoz uchun erkin izoh, `reason` esa ichki/hisobot uchun).
+function sanitizeReason(raw) {
+  const reason = String(raw || '').trim();
+  if (!reason) return null;
+  if (reason.length > 300) throw new ManualBillError('Sabab juda uzun');
+  return reason;
+}
+
+// `rawPaymentInfo` — IXTIYORIY, kassa smenasi auditi (2026-10-10):
+// `{payment_method, cash_amount, card_amount}` (xom, hali tekshirilmagan —
+// jami summa shu funksiya ichida hisoblangach, `cashShifts.validatePaymentInfo()`
+// bilan shu yerda tekshiriladi). Berilmasa — eski xulq-atvor, barchasi NULL.
+function createManualBill(rawItems, userId, rawPhone, rawNote, rawDeliveryPrice, rawReason, rawPaymentInfo) {
   const items = validateItems(rawItems);
-  const total = items.reduce((sum, it) => sum + it.subtotal, 0);
+  const itemsTotal = items.reduce((sum, it) => sum + it.subtotal, 0);
+  const customerPhone = sanitizePhone(rawPhone);
+  const note = sanitizeNote(rawNote);
+  const deliveryPrice = sanitizeDeliveryPrice(rawDeliveryPrice);
+  const reason = sanitizeReason(rawReason);
+  const total = itemsTotal + deliveryPrice;
+  const paymentInfo = rawPaymentInfo ? cashShifts.validatePaymentInfo(total, rawPaymentInfo) : null;
 
   const run = db.transaction(() => {
     const ts = nowIso();
-    const info = db
-      .prepare('INSERT INTO manual_bills (created_by, total_amount, created_at) VALUES (?, ?, ?)')
-      .run(userId, total, ts);
+    let info;
+    if (paymentInfo) {
+      const shift = cashShifts.requireOpenShift(userId);
+      info = db
+        .prepare(
+          `INSERT INTO manual_bills (created_by, total_amount, customer_phone, note, delivery_price, reason,
+           payment_method, cash_amount, card_amount, cash_shift_id, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        )
+        .run(
+          userId, total, customerPhone, note, deliveryPrice, reason,
+          paymentInfo.payment_method, paymentInfo.cash_amount, paymentInfo.card_amount, shift.id, ts
+        );
+    } else {
+      info = db
+        .prepare('INSERT INTO manual_bills (created_by, total_amount, customer_phone, note, delivery_price, reason, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)')
+        .run(userId, total, customerPhone, note, deliveryPrice, reason, ts);
+    }
     const billId = info.lastInsertRowid;
     const insertItem = db.prepare(
       `INSERT INTO manual_bill_items (manual_bill_id, name, unit_price, quantity, subtotal)
@@ -76,6 +152,10 @@ function getManualBillReceipt(billId) {
       heading: "Qo'lda hisoblash",
       created_at: bill.created_at,
       created_by_name: bill.created_by_name,
+      customer_phone: bill.customer_phone,
+      note: bill.note,
+      reason: bill.reason,
+      delivery_price: bill.delivery_price,
     },
     items: items.map((it) => ({
       name_snapshot: it.name,

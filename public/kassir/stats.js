@@ -37,7 +37,8 @@ async function loadBills() {
       <div class="card card-row" data-kind="${b.kind}" data-id="${b.id}" style="cursor:pointer;">
         <div>
           <div class="card-title">${KIND_ICON[b.kind] || ''} ${escapeHtml(b.label)}</div>
-          <div class="card-sub">${fmtDateTime(b.at)}${b.by_name ? ' · ' + escapeHtml(b.by_name) : ''}</div>
+          <div class="card-sub">${fmtDateTime(b.at)}${b.by_name ? ' · ' + escapeHtml(b.by_name) : ''}${b.phone ? ' · 📞 ' + escapeHtml(b.phone) : ''}</div>
+          ${b.reason ? `<div class="card-sub">📝 ${escapeHtml(b.reason)}</div>` : ''}
         </div>
         <div class="card-title">${fmtMoney(b.total_amount)}</div>
       </div>

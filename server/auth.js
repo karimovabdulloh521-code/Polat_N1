@@ -20,13 +20,39 @@ const COOKIE_NAME = 'polat_session';
 
 const OPEN_PATHS = new Set([
   '/login.html',
+  '/login.js',
   '/api/login',
   '/api/ping',
   '/style.css',
   '/app.js',
   '/manifest.json',
   '/icon.svg',
+  // 2026-10-10, "Oldingi audit tuzatishlari" tekshiruvi: ilgari bu ikkisi
+  // mavjud EMAS edi (static fayl ham yo'q edi), shu sabab so'ralganda
+  // requireAuth ularni /login.html'ga REDIRECT qilib yuborardi — qidiruv
+  // tizimi botiga ("robots.txt" o'rniga login sahifasi ko'rsatilgan) va
+  // sitemap botiga ham xuddi shunday noto'g'ri javob berardi.
+  '/robots.txt',
+  '/sitemap.xml',
+  // 2026-10-25, ziyofamily.com uchun Google Search Console egalik
+  // tasdiqlash fayli — yuqoridagi robots.txt/sitemap.xml bilan bir xil
+  // sabab: login talab qilinsa Google buni /login.html deb o'qib,
+  // tasdiqlashni rad etardi.
+  '/googlea333966d6ffa2376.html',
 ]);
+
+// 2026-10-10, "Rollar va ruxsatlar" auditi — "standart holda taqiqlash"
+// kuchaytirildi. Ilgari: agar /api/* yo'l biror rol-prefiksiga (masalan
+// /api/waiter/) mos kelmasa, areaRole topilmay, requireAuth HECH QANDAY
+// cheklov qo'ymasdan next()ga o'tkazib yuborardi — yagona himoya pastroqda
+// (server/index.js'da qo'lda yozilgan requireRole()) bo'lardi. Agar
+// kelajakda dasturchi yangi route qo'shib requireRole()ni unutsa, u standart
+// holda HAR QANDAY login qilgan xodimga (hatto kuryerga ham) ochiq bo'lib
+// qolardi. Endi: rol-prefiksiga mos kelmaydigan /api/* yo'l faqat shu
+// ro'yxatdagi, atayin ko'p-rolli umumiy endpointlar uchun o'tadi — boshqa
+// HAMMASI standart holda 403. Static (CSS/JS) fayllarga tegilmadi — ular
+// turli rol papkalari orasida ulashiladigan kod, maxfiy ma'lumot emas.
+const SHARED_API_PREFIXES = ['/api/me', '/api/qz', '/api/delivery-alerts'];
 
 function createAuth({ sessionSecret }) {
   function sign(value) {
@@ -111,9 +137,14 @@ function createAuth({ sessionSecret }) {
       (r) => req.path.startsWith(`/${r}/`) || req.path.startsWith(`/api/${r}/`)
     ) || null;
 
-    if (areaRole && user.role !== areaRole && user.role !== 'admin') {
-      if (req.path.startsWith('/api/')) return res.status(403).json({ error: 'forbidden' });
-      return res.redirect(homeForRole(user.role));
+    if (areaRole) {
+      if (user.role !== areaRole && user.role !== 'admin') {
+        if (req.path.startsWith('/api/')) return res.status(403).json({ error: 'forbidden' });
+        return res.redirect(homeForRole(user.role));
+      }
+    } else if (req.path.startsWith('/api/')) {
+      const shared = SHARED_API_PREFIXES.some((p) => req.path === p || req.path.startsWith(`${p}/`));
+      if (!shared) return res.status(403).json({ error: 'forbidden' });
     }
     next();
   }
@@ -129,17 +160,33 @@ function createAuth({ sessionSecret }) {
     };
   }
 
+  // Login urinishlari tarixi (2026-10-10, "Audit izi" auditi) — muvaffaqiyatli
+  // VA muvaffaqiyatsiz, ikkalasi ham. `users.last_login_at`dan farqli (u faqat
+  // ENG OXIRGISINI saqlaydi, ustidan yoziladi) — bu APPEND-ONLY tarix.
+  function logLoginAttempt(username, success, req) {
+    db.prepare('INSERT INTO login_attempts (username, success, ip, created_at) VALUES (?, ?, ?, ?)')
+      .run(username, success ? 1 : 0, req.ip || null, new Date().toISOString());
+  }
+
   function loginRoute(req, res) {
     const { username, password } = req.body || {};
     if (typeof username !== 'string' || typeof password !== 'string') {
       return res.status(400).json({ error: "Login va parol kiritilishi shart" });
     }
-    const user = db.prepare('SELECT * FROM users WHERE username = ? AND is_active = 1').get(username.trim());
+    const uname = username.trim();
+    const user = db.prepare('SELECT * FROM users WHERE username = ? AND is_active = 1').get(uname);
     if (!user || !verifyPassword(password, user.password_salt, user.password_hash)) {
+      logLoginAttempt(uname, false, req);
       return res.status(401).json({ error: "Login yoki parol noto'g'ri" });
     }
     const token = sign(String(user.id));
     setCookie(res, req, token, 2592000);
+    // Kim qachon, qaysi IP'dan kirgani (2026-10-10, xavfsizlik auditi) —
+    // umumiy login ulashilayotganini keyinchalik admin "Xodimlar" sahifasida
+    // payqash uchun (texnik cheklov emas, faqat kuzatuv).
+    db.prepare('UPDATE users SET last_login_at = ?, last_login_ip = ? WHERE id = ?')
+      .run(new Date().toISOString(), req.ip || null, user.id);
+    logLoginAttempt(uname, true, req);
     res.json({ ok: true, role: user.role, full_name: user.full_name || user.username });
   }
 

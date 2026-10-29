@@ -21,13 +21,21 @@ const router = express.Router();
 // proporsional o'sib borardi. Endi items bitta IN(...) so'rov bilan olinib,
 // JS tomonida guruhlanadi — buyurtmalar soni qancha bo'lmasin doim 2 ta so'rov.
 router.get('/orders', asyncRoute((req, res) => {
+  // 2026-10-10 (xavfsizlik auditi): kuryer endi FAQAT o'ziga biriktirilgan
+  // YOKI hali hech kimga biriktirilmagan (assigned_courier_id IS NULL)
+  // buyurtmalarni ko'radi — admin esa (bu yo'lga ham kira oladi) hamon
+  // barchasini ko'radi, chunki boshqarish/biriktirish ishi uning o'zida.
+  // Admin hech qachon biriktirmasa (NULL qoladi) — eski xulq-atvor (hamma
+  // kuryer hammasini ko'radi) saqlanib qoladi, hech narsa buzilmaydi.
+  const isAdmin = req.user.role === 'admin';
   const rows = db
     .prepare(
       `SELECT * FROM customer_orders
        WHERE fulfillment = 'delivery' AND status != 'cancelled'
+         ${isAdmin ? '' : 'AND (assigned_courier_id IS NULL OR assigned_courier_id = ?)'}
        ORDER BY (delivered_at IS NOT NULL), id DESC`
     )
-    .all();
+    .all(...(isAdmin ? [] : [req.user.id]));
   if (rows.length === 0) return res.json([]);
   const ids = rows.map((o) => o.id);
   const placeholders = ids.map(() => '?').join(',');
@@ -47,6 +55,14 @@ router.put('/orders/:id/deliver', asyncRoute((req, res) => {
   if (!existing) return res.status(404).json({ error: 'Buyurtma topilmadi' });
   if (existing.fulfillment !== 'delivery') {
     return res.status(400).json({ error: "Bu buyurtma yetkazib berish turida emas" });
+  }
+  // 2026-10-10, "Rollar va ruxsatlar" auditi (IDOR) — yuqoridagi GET /orders
+  // ro'yxati allaqachon boshqa kuryerga biriktirilgan buyurtmani yashiradi
+  // (2026-10-10 (1) tuzatishi), lekin bu YAKKA amal ID orqali chaqirilsa
+  // (ro'yxatda ko'rinmasa ham) tekshiruvsiz edi — boshqa kuryerga
+  // biriktirilgan buyurtmani ham "yetkazdim" deb belgilab qo'yish mumkin edi.
+  if (req.user.role !== 'admin' && existing.assigned_courier_id && existing.assigned_courier_id !== req.user.id) {
+    return res.status(403).json({ error: 'Bu buyurtma boshqa kuryerga biriktirilgan' });
   }
   if (existing.status !== 'completed') {
     return res.status(400).json({ error: "Buyurtma hali tayyor emas (oshxona tomonidan tasdiqlanmagan)" });

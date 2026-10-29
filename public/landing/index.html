@@ -4,9 +4,34 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>Ziyo Famliy — zamonaviy restoran</title>
-<meta name="description" content="Ziyo Famliy restorani — issiq taomlar, salatlar va ichimliklar. Toshkent markazida hashamatli va samimiy muhit.">
+<meta name="description" content="Ziyo Famliy restorani — issiq taomlar, salatlar va ichimliklar. Farg'ona viloyati, Quva tumanida hashamatli va samimiy muhit.">
+<link rel="canonical" href="https://ziyofamily.com/landing/">
+<meta property="og:type" content="restaurant">
+<meta property="og:title" content="Ziyo Famliy — zamonaviy restoran">
+<meta property="og:description" content="Ziyo Famliy restorani — issiq taomlar, salatlar va ichimliklar. Farg'ona viloyati, Quva tumanida hashamatli va samimiy muhit.">
+<meta property="og:url" content="https://ziyofamily.com/landing/">
+<meta property="og:image" content="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=1200&auto=format&fit=crop">
+<meta property="og:locale" content="uz_UZ">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Restaurant",
+  "name": "Ziyo Famliy",
+  "url": "https://ziyofamily.com/landing/",
+  "telephone": "+998985757574",
+  "address": {
+    "@type": "PostalAddress",
+    "addressRegion": "Farg'ona viloyati",
+    "addressLocality": "Quva",
+    "addressCountry": "UZ"
+  }
+}
+</script>
 <link rel="icon" href="../icon.svg">
-<link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Poppins:wght@300;400;500;600;700&display=swap">
+<link rel="stylesheet" href="style.css?v=202610281339">
 </head>
 <body>
 
@@ -17,7 +42,7 @@
       <nav class="nav-links" id="navLinks">
         <button class="nav-close" id="navClose" type="button" aria-label="Yopish">&times;</button>
         <a href="#hero">Bosh sahifa</a>
-        <a href="#menu">Menyu</a>
+        <a href="menu.html">Menyu</a>
         <a href="#galereya">Galereya</a>
         <a href="#biz-haqimizda">Biz haqimizda</a>
         <a href="#aloqa">Aloqa</a>
@@ -39,23 +64,12 @@
       <p class="hero-tagline">Olov ustida pishirilgan taomlar, samimiy muhit va unutilmas kechqurun.</p>
       <div class="hero-actions">
         <a href="#" class="btn-solid" data-book>Stol bron qilish</a>
-        <a href="#menu" class="btn-ghost">Menyuni ko&rsquo;rish</a>
+        <a href="menu.html" class="btn-ghost">Menyuni ko&rsquo;rish</a>
       </div>
     </div>
-    <a href="#menu" class="scroll-cue" aria-label="Pastga">
+    <a href="menu.html" class="scroll-cue" aria-label="Menyuga o'tish">
       <span></span>
     </a>
-  </section>
-
-  <!-- ============ MENU (real menyu, DB'dan) ============ -->
-  <section class="section menu-section" id="menu">
-    <div class="container">
-      <p class="kicker center">Bizning menyu</p>
-      <h2 class="section-title center">Taomlarimiz bilan tanishing</h2>
-
-      <div class="menu-tabs" id="menuTabs"></div>
-      <div id="menuPanels"><p class="dim center">Menyu yuklanmoqda...</p></div>
-    </div>
   </section>
 
   <!-- ============ GALEREYA ============ -->
@@ -104,15 +118,15 @@
 
         <ul class="info-list">
           <li>
-            <span class="info-ic">&#128205;</span>
+            <span class="info-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
             <div><strong>Manzil</strong><br>Farg&rsquo;ona viloyati, Quva tumani, Farg&rsquo;ona halqa yo&rsquo;li</div>
           </li>
           <li>
-            <span class="info-ic">&#128337;</span>
+            <span class="info-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
             <div><strong>Ish vaqti</strong><br>Har kuni &middot; 24/7</div>
           </li>
           <li>
-            <span class="info-ic">&#128222;</span>
+            <span class="info-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
             <div><strong>Telefon</strong><br><a href="tel:+998916527771">+998 91 652 77 71</a><br><a href="tel:+998985757574">+998 98 575 75 74</a></div>
           </li>
         </ul>
@@ -188,72 +202,6 @@
     </div>
   </div>
 
-  <!-- ============ SAVAT PANELI (pastda suzuvchi) ============ -->
-  <div class="cart-bar" id="cartBar">
-    <div class="cart-bar-inner">
-      <div class="cart-info">
-        <span id="cartCount">0 ta taom</span>
-        <span class="cart-total" id="cartTotal">0 so&rsquo;m</span>
-      </div>
-      <button type="button" class="btn-solid" id="cartOpenBtn">Buyurtma berish</button>
-    </div>
-  </div>
-
-  <!-- ============ BUYURTMA BERISH OYNASI ============ -->
-  <div class="book-backdrop" id="checkoutBackdrop">
-    <div class="book-modal">
-      <button class="book-modal-close" id="checkoutModalClose" aria-label="Yopish">&times;</button>
-
-      <div id="checkoutFormWrap">
-        <p class="kicker">Ziyo Famliy</p>
-        <h3>Buyurtma berish</h3>
-
-        <div class="checkout-summary" id="checkoutSummary"></div>
-
-        <form id="checkoutForm" class="book-form" novalidate>
-          <div class="book-field">
-            <label for="coName">Ism familiya</label>
-            <input type="text" id="coName" name="full_name" required autocomplete="name">
-          </div>
-          <div class="book-field">
-            <label for="coPhone">Telefon raqam</label>
-            <input type="tel" id="coPhone" name="phone" required autocomplete="tel" placeholder="+998 90 123 45 67">
-          </div>
-
-          <div class="book-field">
-            <label>Buyurtma turi</label>
-            <div class="fulfillment-toggle" id="fulfillmentToggle">
-              <button type="button" class="fulfillment-opt active" data-fulfillment="pickup">Olib ketish</button>
-              <button type="button" class="fulfillment-opt" data-fulfillment="delivery">Yetkazib berish</button>
-            </div>
-          </div>
-
-          <div class="book-field hidden" id="coAddressField">
-            <label for="coAddress">Yetkazish manzili</label>
-            <input type="text" id="coAddress" name="address" placeholder="Ko&rsquo;cha, uy, mo&rsquo;ljal">
-            <button type="button" class="location-btn" id="coLocationBtn">&#128205; Joylashuvni yuborish</button>
-            <div class="location-status" id="coLocationStatus"></div>
-          </div>
-
-          <div class="book-field">
-            <label for="coNote">Qo&rsquo;shimcha izoh (ixtiyoriy)</label>
-            <textarea id="coNote" name="note" rows="2" placeholder="Masalan: achchiq bo&rsquo;lmasin"></textarea>
-          </div>
-
-          <div class="book-error" id="coError"></div>
-          <button type="submit" class="btn-solid block" id="coSubmit">Buyurtma berish</button>
-        </form>
-      </div>
-
-      <div class="book-success hidden" id="checkoutSuccess">
-        <div class="book-success-icon">&#10003;</div>
-        <h3>Rahmat!</h3>
-        <p id="checkoutSuccessText">Buyurtmangiz qabul qilindi. Tez orada siz bilan bog&rsquo;lanamiz.</p>
-        <button class="btn-ghost dark" id="checkoutSuccessClose">Yopish</button>
-      </div>
-    </div>
-  </div>
-
-  <script src="script.js"></script>
+  <script src="script.js?v=202610281339"></script>
 </body>
 </html>

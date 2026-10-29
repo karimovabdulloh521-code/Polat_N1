@@ -1,0 +1,480 @@
+/* ===========================================================================
+   Ziyo Famliy — menyu + savat, "dastavka.html" namunasi asosidagi yangi dizayn
+   (2026-10-18). Foydalanuvchi bergan maketdan ko'chirilgan, lekin:
+     - hamma narsa `.zfd-root` ICHIDA skoplangan (rang o'zgaruvchilari ham) —
+       sahifaning qolgan qismi (header/hero/galereya/about/aloqa/bron oynasi,
+       style.css) hech tegilmaydi;
+     - eski `.zfm-*` (menu.css) klasslariga ATAYLAB tegilmadi — ular hamon
+       table-menu.html (QR-menyu)ni xizmat qiladi, u bu fayldan foydalanmaydi.
+   =========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&family=Onest:wght@400;500;600;700&display=swap');
+
+.zfd-root {
+  --bg: #13110d; --surface: #1c1914; --surface-2: #242019; --border: #352f25;
+  --accent: #e3a94a; --accent-ink: #1a1408; --accent-soft: rgba(227, 169, 74, .12);
+  --terra: #c1502e; --text: #f3ece0; --muted: #a89d8a; --ok: #6fbf73;
+  --radius: 16px; --shadow: 0 10px 30px rgba(0, 0, 0, .35);
+  --serif: 'Playfair Display', Georgia, serif;
+  --sans: 'Onest', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --zfd-header-h: 72px;
+  --zfd-toolbar-h: 64px;
+
+  background: var(--bg); color: var(--text); font-family: var(--sans);
+  font-size: 15px; line-height: 1.5; font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+@media (prefers-color-scheme: light) {
+  .zfd-root {
+    --bg: #f8f2e7; --surface: #fffaf1; --surface-2: #f1e8d8; --border: #e2d5bf;
+    --accent: #a8741f; --accent-ink: #fffaf1; --accent-soft: rgba(168, 116, 31, .12);
+    --terra: #8f3420; --text: #221c14; --muted: #6f6455; --ok: #2f7d55;
+    --shadow: 0 10px 30px rgba(60, 40, 10, .12);
+  }
+}
+
+/* menu.html — mustaqil sahifa, hero yo'q, shuning uchun site-header (fixed)
+   tagida qolmasligi uchun tepaga bo'sh joy beramiz (style.css'ning umumiy
+   .site-header balandligiga mos, .zfd-root ICHIDA emas — chunki #menu
+   bo'limining o'zi .zfd-root'dan tashqarida joylashgan). */
+body.menu-page #menu { padding-top: 96px; }
+
+/* site-header o'zi (style.css) pastga tushirilmaguncha shaffof — orqasida
+   boshqa sahifalarda katta surat bor, lekin bu sahifada yo'q, shu sabab
+   style.css'ning umumiy krem fon (body{background:var(--cream)}) header
+   ostidan "bo'rtib" ko'rinib qolardi. Faqat shu sahifaga xos tuzatish —
+   style.css'ning o'ziga tegilmadi (boshqa sahifalarga ta'sir qilmasin). */
+body.menu-page { background: #13110d; }
+@media (prefers-color-scheme: light) { body.menu-page { background: #f8f2e7; } }
+
+.zfd-root * { box-sizing: border-box; }
+.zfd-root img { max-width: 100%; display: block; }
+.zfd-root button { font-family: inherit; cursor: pointer; border: 0; background: none; color: inherit; }
+.zfd-root input, .zfd-root textarea { font-family: inherit; color: inherit; }
+.zfd-root a { color: inherit; text-decoration: none; }
+@media (prefers-reduced-motion: reduce) {
+  .zfd-root, .zfd-root * { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+}
+
+.zfd-wrap { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+.zfd-serif { font-family: var(--serif); }
+.zfd-muted { color: var(--muted); }
+.zfd-gold { color: var(--accent); }
+
+/* ---------------------------------------------------------------------- */
+/* Intro — "hozir qabul qilinmoqda" blok + 4 fakt + 3 qadam                */
+/* ---------------------------------------------------------------------- */
+
+.zfd-intro { padding: clamp(36px, 7vw, 56px) 0 clamp(20px, 4vw, 30px); position: relative; overflow: hidden; }
+.zfd-intro::before {
+  content: ''; position: absolute; inset: -40% -10% auto auto; width: 460px; height: 460px; border-radius: 50%;
+  background: radial-gradient(circle, var(--accent-soft), transparent 70%); pointer-events: none;
+}
+.zfd-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px; font-size: 12px; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--accent); font-weight: 700;
+}
+.zfd-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 4px rgba(111, 191, 115, .18); flex: none; }
+.zfd-intro-title {
+  font-family: var(--serif); font-weight: 700; font-size: clamp(28px, 5.2vw, 46px); line-height: 1.12;
+  margin: 14px 0 12px; max-width: 16ch;
+}
+.zfd-intro-title em { font-style: italic; color: var(--accent); font-weight: 600; }
+.zfd-intro-sub { color: var(--muted); font-size: 15.5px; max-width: 54ch; margin: 0 0 26px; }
+
+.zfd-facts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.zfd-fact {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px;
+}
+.zfd-fact svg { color: var(--accent); width: 20px; height: 20px; }
+.zfd-fact b { display: block; font-size: 14.5px; margin: 8px 0 2px; }
+.zfd-fact span { font-size: 12.5px; color: var(--muted); }
+
+.zfd-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 26px; }
+.zfd-step { display: flex; gap: 12px; align-items: flex-start; padding-top: 14px; border-top: 1px solid var(--border); }
+.zfd-step-n { font-family: var(--serif); font-size: 24px; color: var(--accent); line-height: 1; flex: none; }
+.zfd-step b { display: block; font-size: 14px; }
+.zfd-step span { font-size: 12.5px; color: var(--muted); }
+
+@media (max-width: 980px) { .zfd-facts { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px) { .zfd-steps { grid-template-columns: 1fr; gap: 10px; } }
+
+/* ---------------------------------------------------------------------- */
+/* Sticky qidiruv + kategoriya chiplari                                    */
+/* ---------------------------------------------------------------------- */
+
+.zfd-toolbar {
+  position: sticky; top: var(--zfd-header-h); z-index: 25;
+  background: color-mix(in srgb, var(--bg) 90%, transparent);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  padding: 12px 0; margin-top: 6px;
+}
+.zfd-toolbar-inner { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+
+.zfd-search { position: relative; flex: 1 1 100%; }
+.zfd-search svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 17px; height: 17px; color: var(--muted); pointer-events: none; }
+.zfd-search input {
+  width: 100%; height: 44px; padding: 0 14px 0 40px; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--surface); font-size: 16px;
+  transition: border-color .15s var(--ease);
+}
+.zfd-search input::placeholder { color: var(--muted); }
+.zfd-search input:focus { outline: none; border-color: var(--accent); }
+
+.zfd-chips { display: flex; gap: 8px; overflow-x: auto; flex: 1 1 100%; scrollbar-width: none; padding-bottom: 1px; }
+.zfd-chips::-webkit-scrollbar { display: none; }
+.zfd-chip {
+  flex: none; padding: 9px 16px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface);
+  font-weight: 600; font-size: 13.5px; white-space: nowrap; transition: border-color .15s var(--ease), background .15s var(--ease), color .15s var(--ease);
+}
+.zfd-chip:hover { border-color: var(--accent); }
+.zfd-chip.active { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.zfd-chip small { opacity: .7; margin-left: 4px; }
+.zfd-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+@media (min-width: 640px) {
+  .zfd-toolbar-inner { flex-wrap: nowrap; }
+  .zfd-search { flex: 0 0 260px; }
+  .zfd-chips { flex: 1 1 auto; }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Ikki ustunli joylashuv — menyu + savat                                  */
+/* ---------------------------------------------------------------------- */
+
+.zfd-layout { display: grid; grid-template-columns: 1fr; gap: 24px; padding: 24px 0 40px; align-items: start; }
+.zfd-layout > * { min-width: 0; }
+@media (min-width: 981px) { .zfd-layout { grid-template-columns: 1fr 370px; gap: 28px; } }
+
+.zfd-section { margin-bottom: 36px; }
+.zfd-section-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px; }
+.zfd-section-head h2 { font-family: var(--serif); font-size: clamp(19px, 2.6vw, 24px); font-weight: 700; margin: 0; }
+.zfd-section-count { color: var(--muted); font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+.zfd-section-head::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.zfd-empty { padding: 40px 16px; text-align: center; color: var(--muted); border: 1px dashed var(--border); border-radius: var(--radius); }
+.zfd-load-error { padding: 50px 16px; text-align: center; color: var(--muted); }
+.zfd-load-error button {
+  margin-top: 14px; border: 1px solid var(--accent); color: var(--accent); font-weight: 600;
+  font-size: 13.5px; padding: 10px 20px; border-radius: 999px;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Mahsulot kartochkasi                                                     */
+/* ---------------------------------------------------------------------- */
+
+.zfd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
+
+.zfd-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden;
+  display: flex; flex-direction: column; transition: border-color .15s var(--ease), transform .15s var(--ease);
+}
+@media (hover: hover) { .zfd-card:hover { border-color: color-mix(in srgb, var(--accent) 50%, var(--border)); transform: translateY(-2px); } }
+.zfd-card.is-unavailable { opacity: .55; }
+
+.zfd-card-img { aspect-ratio: 4 / 3; position: relative; overflow: hidden; background: var(--surface-2); }
+.zfd-card-img img { width: 100%; height: 100%; object-fit: cover; }
+.zfd-card-img.no-image {
+  display: grid; place-items: center;
+  background: radial-gradient(circle at 30% 20%, var(--accent-soft), transparent 60%), var(--surface-2);
+}
+.zfd-card-img.no-image span { font-family: var(--serif); font-size: 46px; color: var(--accent); opacity: .9; }
+.zfd-card-unavailable-tag {
+  position: absolute; top: 10px; left: 10px; font-size: 11px; font-weight: 700; padding: 4px 9px;
+  border-radius: 999px; background: var(--terra); color: #fff;
+}
+
+.zfd-card-body { padding: 12px 14px; display: flex; flex-direction: column; gap: 5px; flex: 1; }
+.zfd-card-name { font-size: 15px; font-weight: 700; line-height: 1.3; margin: 0; }
+.zfd-card-volume { color: var(--muted); font-weight: 400; font-size: .82em; }
+.zfd-card-desc {
+  font-size: 12.5px; color: var(--muted); margin: 0; display: -webkit-box; -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4;
+}
+
+.zfd-sizes { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 2px; }
+.zfd-size-btn {
+  font-size: 12px; padding: 5px 11px; border-radius: 8px; border: 1px solid var(--border); font-weight: 600;
+  transition: border-color .15s var(--ease), color .15s var(--ease), background .15s var(--ease);
+}
+.zfd-size-btn.active { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.zfd-size-btn:disabled { opacity: .45; cursor: not-allowed; text-decoration: line-through; }
+
+.zfd-card-foot { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 8px; gap: 8px; }
+.zfd-price { font-weight: 700; font-size: 15.5px; }
+.zfd-price .from { font-weight: 500; font-size: 11.5px; color: var(--muted); }
+
+.zfd-add-btn {
+  width: 40px; height: 40px; border-radius: 12px; background: var(--accent); color: var(--accent-ink);
+  display: grid; place-items: center; flex: none; transition: transform .1s var(--ease);
+}
+.zfd-add-btn:active { transform: scale(.92); }
+.zfd-add-btn:disabled { opacity: .4; cursor: not-allowed; background: var(--surface-2); color: var(--muted); }
+.zfd-add-btn.text { width: auto; padding: 0 16px; font-weight: 700; font-size: 13px; border-radius: 999px; }
+
+.zfd-stepper { display: flex; align-items: center; background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 12px; height: 40px; flex: none; }
+.zfd-stepper button { width: 34px; height: 100%; color: var(--accent); font-size: 17px; font-weight: 700; }
+.zfd-stepper span { min-width: 20px; text-align: center; font-weight: 700; font-size: 14px; }
+
+/* ---------------------------------------------------------------------- */
+/* Savat — desktop sticky panel / mobil pastdan ochiladigan panel          */
+/* ---------------------------------------------------------------------- */
+
+.zfd-cart {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 20px; box-shadow: var(--shadow);
+  display: flex; flex-direction: column;
+}
+@media (min-width: 981px) {
+  .zfd-cart { position: sticky; top: calc(var(--zfd-header-h) + var(--zfd-toolbar-h) + 24px); max-height: calc(100vh - var(--zfd-header-h) - var(--zfd-toolbar-h) - 44px); }
+}
+
+.zfd-cart-head { display: flex; align-items: center; justify-content: space-between; padding: 18px 18px 10px; }
+.zfd-cart-head h2 { font-family: var(--serif); font-size: 21px; margin: 0; }
+.zfd-cart-clear { font-size: 13px; color: var(--muted); visibility: hidden; }
+.zfd-cart-clear:hover { color: var(--terra); }
+
+.zfd-cart-lines { overflow: auto; padding: 0 18px; flex: 1; }
+.zfd-cart-line { display: flex; gap: 12px; align-items: center; padding: 12px 0; border-top: 1px solid var(--border); }
+.zfd-cart-line:first-child { border-top: none; }
+.zfd-cart-mini { width: 44px; height: 44px; border-radius: 10px; background: var(--surface-2); display: grid; place-items: center; font-family: var(--serif); color: var(--accent); font-size: 18px; flex: none; overflow: hidden; }
+.zfd-cart-mini img { width: 100%; height: 100%; object-fit: cover; }
+.zfd-cart-info { flex: 1; min-width: 0; }
+.zfd-cart-info b { display: block; font-size: 13.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.zfd-cart-info span { font-size: 12.5px; color: var(--muted); }
+.zfd-cart-flag { color: var(--terra); font-weight: 700; }
+.zfd-cart-line .zfd-stepper { height: 32px; }
+.zfd-cart-line .zfd-stepper button { width: 28px; }
+.zfd-cart-remove { font-size: 12px; font-weight: 600; color: var(--terra); border: 1px solid var(--terra); border-radius: 8px; padding: 6px 10px; }
+
+.zfd-cart-empty { padding: 30px 18px 40px; text-align: center; color: var(--muted); }
+.zfd-cart-empty svg { color: var(--border); margin-bottom: 10px; }
+
+.zfd-cart-sum { padding: 14px 18px 18px; border-top: 1px solid var(--border); }
+.zfd-cart-sum .row { display: flex; justify-content: space-between; font-size: 13.5px; margin-bottom: 6px; }
+.zfd-cart-sum .row.total { font-size: 17px; font-weight: 700; margin: 10px 0 12px; }
+.zfd-cart-note { font-size: 12px; color: var(--muted); display: flex; gap: 6px; align-items: flex-start; margin-bottom: 14px; }
+.zfd-cart-note svg { flex: none; margin-top: 2px; color: var(--accent); }
+
+/* Diqqat — pastdagi bazaviy "button" reseti (.zfd-root button, bu fayl
+   boshida) selektor sifatida tur+klass bo'lgani uchun yolg'iz ".zfd-btn"dan
+   kuchliroq edi va "background:none"ni g'olib qilib, tugmani butunlay
+   shaffof (matn ko'rinadi, oltin fon yo'q) qilib qo'yardi — haqiqiy,
+   oldindan mavjud bo'lgan bug, 2026-10-23'da shu checkout ishi davomida
+   topildi. ".zfd-root"ni qo'shib specifiklikni oshirib tuzatildi. */
+.zfd-root .zfd-btn {
+  width: 100%; height: 50px; border-radius: 14px; background: var(--accent); color: var(--accent-ink);
+  font-weight: 700; font-size: 15.5px; display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: filter .15s var(--ease);
+}
+.zfd-btn:hover { filter: brightness(1.06); }
+.zfd-btn:disabled { opacity: .4; cursor: not-allowed; }
+.zfd-btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+
+@media (max-width: 980px) {
+  .zfd-cart {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 60; border-radius: 22px 22px 0 0;
+    max-height: 86vh; transform: translateY(110%); transition: transform .3s var(--ease);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .zfd-cart.open { transform: none; }
+  .zfd-cart-close { display: grid !important; }
+}
+.zfd-cart-close { display: none; width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--border); place-items: center; }
+
+/* Mobil pastdagi "Savatni ko'rish" tugmasi */
+.zfd-bar {
+  display: none; position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 55;
+  height: 56px; border-radius: 16px; background: var(--accent); color: var(--accent-ink);
+  align-items: center; justify-content: space-between; padding: 0 18px; font-weight: 700; font-size: 14px;
+  box-shadow: var(--shadow); transform: translateY(130%); transition: transform .25s var(--ease);
+}
+.zfd-bar.show { transform: none; }
+.zfd-bar-cnt { background: var(--accent-ink); color: var(--accent); border-radius: 8px; padding: 2px 8px; margin-right: 8px; font-size: 13px; }
+@media (max-width: 980px) { .zfd-bar { display: flex; } }
+
+.zfd-overlay {
+  position: fixed; inset: 0; z-index: 54; background: rgba(0, 0, 0, .55);
+  opacity: 0; pointer-events: none; transition: opacity .2s var(--ease);
+}
+.zfd-overlay.open { opacity: 1; pointer-events: auto; }
+
+/* ---------------------------------------------------------------------- */
+/* Buyurtma (checkout) — to'liq ekranli ko'rinish (2026-10-23, maket:       */
+/* _mockups/ziyo-buyurtma-maket.html). Kompyuter/planshetda 2 ustun         */
+/* (chapda savat+forma, o'ngda yopishgan "Hisob" kartasi+tugma), telefonda  */
+/* 1 ustun + pastda qotib turadigan "Buyurtma berish" paneli.               */
+/* ---------------------------------------------------------------------- */
+
+.zfd-checkout {
+  /* site-header'ning o'zi style.css'da z-index:100 (fixed) — checkout
+     to'liq ekranni qoplashi uchun shundan yuqori turishi SHART, aks holda
+     sayt headeri checkout ustidan "bo'rtib" ko'rinib qoladi. */
+  position: fixed; inset: 0; z-index: 120; background: var(--bg); color: var(--text);
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  opacity: 0; pointer-events: none; transform: translateY(14px);
+  transition: opacity .22s var(--ease), transform .22s var(--ease);
+}
+.zfd-checkout.open { opacity: 1; pointer-events: auto; transform: none; }
+
+.zfd-checkout-head {
+  position: sticky; top: 0; z-index: 2; display: flex; align-items: center; gap: 14px;
+  padding: 18px 16px; background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+.zfd-checkout-head h2 { font-family: var(--serif); font-size: 19px; margin: 0; }
+.zfd-modal-close { width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--border); display: grid; place-items: center; flex: none; }
+
+.zfd-checkout-cols {
+  max-width: 1200px; margin: 0 auto; display: grid; gap: 16px;
+  padding: 20px 16px calc(112px + env(safe-area-inset-bottom));
+}
+@media (min-width: 981px) {
+  .zfd-checkout-cols { grid-template-columns: 1fr 380px; align-items: start; gap: 28px; padding: 28px 24px 40px; }
+  .zfd-checkout-aside { position: sticky; top: 24px; }
+}
+
+.zfd-co-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin-bottom: 16px; }
+.zfd-co-card:last-child { margin-bottom: 0; }
+.zfd-co-card h3 { font-family: var(--serif); font-size: 19px; margin: 0 0 12px; }
+.zfd-co-card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 4px; }
+.zfd-co-card-head h3 { margin: 0; }
+.zfd-link { color: var(--accent); font-weight: 600; font-size: 13.5px; flex: none; }
+
+.zfd-field-grid { display: grid; gap: 12px; }
+@media (min-width: 560px) { .zfd-field-grid { grid-template-columns: 1fr 1fr; } }
+
+.zfd-fulfill-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.zfd-fulfill-seg button {
+  border: 1.5px solid var(--border); border-radius: 14px; padding: 14px; text-align: left; background: var(--surface-2);
+  display: flex; flex-direction: column; gap: 6px; transition: border-color .15s var(--ease), background .15s var(--ease);
+}
+.zfd-fulfill-seg button b { display: flex; align-items: center; gap: 8px; font-size: 14.5px; font-weight: 700; }
+.zfd-fulfill-seg button svg { color: var(--accent); flex: none; }
+.zfd-fulfill-seg button span { font-size: 12px; color: var(--muted); }
+.zfd-fulfill-seg button.active { border-color: var(--accent); background: var(--accent-soft); }
+@media (max-width: 420px) { .zfd-fulfill-seg { grid-template-columns: 1fr; } }
+
+.zfd-pay-row { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; color: var(--muted); margin-top: 14px; }
+.zfd-pay-row svg { color: var(--accent); flex: none; margin-top: 1px; }
+.zfd-pay-row b { color: var(--text); }
+
+.zfd-checkout-submit { margin-top: 2px; }
+.zfd-submit-sum { font-weight: 700; }
+
+.zfd-checkout-mobile-bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: var(--surface); border-top: 1px solid var(--border);
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); box-shadow: 0 -8px 24px rgba(0, 0, 0, .18);
+}
+@media (min-width: 981px) { .zfd-checkout-mobile-bar { display: none; } }
+.zfd-checkout.success .zfd-checkout-mobile-bar { display: none; }
+@media (max-width: 980px) { .zfd-checkout-aside .zfd-checkout-submit { display: none; } }
+
+.zfd-field { margin-bottom: 14px; }
+.zfd-field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+.zfd-field label small { color: var(--muted); font-weight: 400; }
+.zfd-inp {
+  width: 100%; height: 48px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg);
+  padding: 0 14px; outline: 0; font-size: 16px; transition: border-color .15s var(--ease);
+}
+textarea.zfd-inp { height: auto; min-height: 72px; padding: 12px 14px; resize: vertical; font-family: inherit; }
+.zfd-inp:focus { border-color: var(--accent); }
+.zfd-inp.err { border-color: var(--terra); }
+.zfd-err-t { font-size: 12px; color: var(--terra); margin-top: 4px; min-height: 14px; }
+
+.zfd-phone-wrap { display: flex; align-items: center; border: 1px solid var(--border); border-radius: 12px; background: var(--bg); overflow: hidden; transition: border-color .15s var(--ease); }
+.zfd-phone-wrap.err { border-color: var(--terra); }
+.zfd-phone-prefix { padding: 0 2px 0 14px; color: var(--muted); font-weight: 600; font-size: 16px; flex: none; }
+.zfd-phone-wrap input { border: 0; background: transparent; height: 48px; padding: 0 14px 0 6px; width: 100%; outline: 0; font-size: 16px; }
+
+.zfd-location-btn {
+  margin-top: 8px; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600;
+  color: var(--accent); padding: 8px 12px; border-radius: 10px; border: 1px dashed var(--accent);
+}
+.zfd-location-btn[disabled] { opacity: .6; cursor: default; }
+.zfd-location-btn.done { border-style: solid; background: var(--accent-soft); }
+.zfd-location-status { margin-top: 6px; font-size: 12.5px; color: var(--muted); min-height: 15px; }
+.zfd-location-status.ok { color: var(--ok); font-weight: 600; }
+
+/* ---- Yetkazish hududi xaritasi va zona kartochkasi (2026-10-23) ---- */
+.zfd-dz-wrap { margin-top: 10px; }
+.zfd-dz-wrap.hidden { display: none; }
+.zfd-dz-map { height: 220px; border-radius: 14px; overflow: hidden; background: var(--surface-2); border: 1px solid var(--border); }
+.zfd-dz-zone { margin-top: 8px; padding: 10px 12px; border-radius: 12px; background: var(--surface-2); font-size: 13px; display: flex; align-items: center; gap: 8px; }
+.zfd-dz-zone.ok { color: var(--ok); }
+.zfd-dz-zone.warn { color: var(--terra); }
+.zfd-dz-zone a { color: inherit; font-weight: 700; text-decoration: underline; }
+.zfd-dz-zone .zfd-muted { color: var(--muted); font-weight: 400; }
+
+.zfd-pickup-box { display: flex; gap: 12px; padding: 14px; border-radius: 14px; background: var(--surface-2); margin-bottom: 14px; font-size: 13.5px; }
+.zfd-pickup-box svg { color: var(--accent); flex: none; }
+
+.zfd-honeypot { position: absolute; left: -9999px; top: -9999px; opacity: 0; height: 0; width: 0; overflow: hidden; }
+
+.zfd-recap { background: var(--surface-2); border-radius: 14px; padding: 14px; margin: 6px 0 16px; }
+.zfd-recap .row { display: flex; justify-content: space-between; font-size: 13.5px; padding: 3px 0; color: var(--muted); }
+.zfd-recap .row.total { color: var(--text); font-weight: 700; font-size: 16px; border-top: 1px dashed var(--border); margin-top: 8px; padding-top: 8px; }
+
+.zfd-form-error { color: var(--terra); font-size: 13.5px; margin-bottom: 10px; min-height: 16px; }
+.zfd-form-error:empty { display: none; }
+
+.zfd-spinner { width: 15px; height: 15px; border-radius: 50%; border: 2px solid rgba(0, 0, 0, .25); border-top-color: var(--accent-ink); animation: zfd-spin .7s linear infinite; }
+@keyframes zfd-spin { to { transform: rotate(360deg); } }
+
+/* ---------------------------------------------------------------------- */
+/* Muvaffaqiyat oynasi                                                     */
+/* ---------------------------------------------------------------------- */
+
+.zfd-success {
+  text-align: center; padding: 0 20px 50px; max-width: 480px; margin: 0 auto;
+  min-height: 100vh; display: flex; flex-direction: column; justify-content: center;
+}
+.zfd-success-icon { width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 16px; display: grid; place-items: center; background: rgba(111, 191, 115, .15); color: var(--ok); }
+.zfd-success h2 { font-family: var(--serif); font-size: 25px; margin: 0 0 8px; }
+.zfd-success p { color: var(--muted); font-size: 14.5px; margin: 0 0 6px; }
+.zfd-order-no { display: inline-block; margin: 14px 0 18px; padding: 10px 18px; border-radius: 12px; border: 1px solid var(--border); font-weight: 700; letter-spacing: .04em; }
+
+.zfd-success-items { text-align: left; background: var(--surface-2); border-radius: 14px; padding: 6px 16px; margin: 4px 0 14px; }
+.zfd-success-line { display: flex; justify-content: space-between; gap: 10px; font-size: 13.5px; padding: 8px 0; border-top: 1px solid var(--border); }
+.zfd-success-line:first-child { border-top: none; }
+.zfd-success-sum { display: flex; justify-content: space-between; font-weight: 700; font-size: 17px; padding: 0 2px 18px; }
+
+/* ---------------------------------------------------------------------- */
+/* Skeleton / toast                                                        */
+/* ---------------------------------------------------------------------- */
+
+.zfd-skeleton-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.zfd-skeleton-card .sk-img { aspect-ratio: 4 / 3; background: var(--surface-2); }
+.zfd-skeleton-card .sk-line { height: 11px; margin: 10px 14px; border-radius: 6px; background: var(--surface-2); }
+.zfd-skeleton-card .sk-line.w60 { width: 60%; }
+.zfd-skeleton-card .sk-line.w40 { width: 40%; }
+@keyframes zfd-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
+.zfd-skeleton-card .sk-img, .zfd-skeleton-card .sk-line { animation: zfd-pulse 1.4s ease-in-out infinite; }
+
+.zfd-toast-wrap { position: fixed; left: 0; right: 0; bottom: calc(84px + env(safe-area-inset-bottom)); z-index: 500; display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; }
+@media (min-width: 981px) { .zfd-toast-wrap { bottom: auto; top: calc(var(--zfd-header-h) + 16px); } }
+.zfd-toast {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 10px 18px;
+  font-size: 13.5px; font-weight: 600; box-shadow: var(--shadow); opacity: 0; transform: translateY(8px);
+  transition: opacity .2s var(--ease), transform .2s var(--ease); max-width: 90vw; text-align: center;
+}
+.zfd-toast.show { opacity: 1; transform: translateY(0); }
+.zfd-toast.error { border-color: var(--terra); color: var(--terra); }
+
+/* ---------------------------------------------------------------------- */
+/* Telefon (≤390px): gorizontal skroll yo'q, 2 ustunli grid                */
+/* ---------------------------------------------------------------------- */
+
+@media (max-width: 640px) {
+  .zfd-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .zfd-card-body { padding: 10px 11px; }
+  .zfd-card-name { font-size: 13.5px; }
+  .zfd-card-desc { display: none; }
+  .zfd-card-img.no-image span { font-size: 36px; }
+  .zfd-price { font-size: 14px; }
+  .zfd-add-btn, .zfd-stepper { height: 36px; }
+  .zfd-add-btn { width: 36px; }
+  .zfd-stepper button { width: 30px; }
+  .zfd-intro { padding-top: 28px; }
+}
